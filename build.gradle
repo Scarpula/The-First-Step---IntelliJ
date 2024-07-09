@@ -24,6 +24,7 @@ repositories {
 }
 
 dependencies {
+	implementation 'com.h2database:h2'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-web-services'
 	compileOnly 'org.projectlombok:lombok'
@@ -79,3 +80,5 @@ tasks.register('copyReactBuildFiles', Copy) {
 	from "$frontendDir/build"
 	into "$projectDir/src/main/resources/static"
 }
+
+
