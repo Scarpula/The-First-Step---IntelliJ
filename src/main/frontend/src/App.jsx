@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Navbar from './components/Navbar';
 import BackgroundImages from './components/BackgroundImages';
 import Mouse from './components/MouseIcon';
 import styled from 'styled-components';
 import { SectionsContainer, Section } from 'react-fullpage';
+import { TypeAnimation } from 'react-type-animation';
 
 
 
@@ -83,36 +84,11 @@ const TypingContent = styled(Content)`
 `;
 
 const App = () => {
-  const [text, setText] = useState('');
-  const [text2, setText2] = useState('');
+  const fullTitle = "투자의 ";
+  const fullSubtitle = "시작";
+  const fullSubtext = "InvestGenius";
   const fullText = "당신의 투자 성향에 맞춘 전략을 제공해드립니다.\n당신이 원하는 정보를 검색해보세요!";
   const fullText2 = "채팅하는 장면 동영상 섹션";
-
-  useEffect(() => {
-    let index = 0;
-    const intervalId = setInterval(() => {
-      if (index < fullText.length) {
-        setText((prev) => prev + fullText[index]);
-        index++;
-      } else {
-        clearInterval(intervalId);
-      }
-    }, 100); // Adjust typing speed here
-    return () => clearInterval(intervalId);
-  }, [fullText]);
-
-  useEffect(() => {
-    let index = 0;
-    const intervalId = setInterval(() => {
-      if (index < fullText2.length) {
-        setText2((prev) => prev + fullText2[index]);
-        index++;
-      } else {
-        clearInterval(intervalId);
-      }
-    }, 100); // Adjust typing speed here
-    return () => clearInterval(intervalId);
-  }, [fullText2]);
 
   const options = {
     sectionClassName: 'section',
@@ -133,18 +109,62 @@ const App = () => {
       <SectionsContainer {...options}>
         <SectionStyled>
           <TitleContainer>
-            <div>
-              <Title>투자의 </Title>
-              <Subtitle>시작</Subtitle>
-            </div>
-            <Subtext>InvestGenius</Subtext>
+            <TypeAnimation
+              sequence={[
+                fullTitle,
+                1000,
+                fullTitle + fullSubtitle,
+                1000,
+                fullTitle + fullSubtitle + "\n" + fullSubtext,
+              ]}
+              wrapper="div"
+              cursor={true}
+              repeat={0}
+              style={{
+                display: 'inline-block',
+                whiteSpace: 'pre-wrap',
+                fontFamily: 'Istok Web, sans-serif',
+                fontSize: '70px',
+                color: 'black',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+                textAlign: 'center',
+              }}
+            />
           </TitleContainer>
         </SectionStyled>
         <SectionStyled>
-          <TypingContent>{text}</TypingContent>
+          <TypingContent>
+            <TypeAnimation
+              sequence={[fullText]}
+              wrapper="div"
+              cursor={true}
+              repeat={0}
+              style={{
+                display: 'inline-block',
+                whiteSpace: 'pre-wrap',
+                fontFamily: 'Istok Web, sans-serif',
+                fontSize: '24px',
+                color: 'black',
+              }}
+            />
+          </TypingContent>
         </SectionStyled>
         <SectionStyled>
-          <TypingContent>{text2}</TypingContent>
+          <TypingContent>
+            <TypeAnimation
+              sequence={[fullText2]}
+              wrapper="div"
+              cursor={true}
+              repeat={0}
+              style={{
+                display: 'inline-block',
+                whiteSpace: 'pre-wrap',
+                fontFamily: 'Istok Web, sans-serif',
+                fontSize: '24px',
+                color: 'black',
+              }}
+            />
+          </TypingContent>
         </SectionStyled>
       </SectionsContainer>
       <Mouse />
