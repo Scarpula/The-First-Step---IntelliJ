@@ -1,4 +1,4 @@
-package com.example.demo.config;
+package org.example.llm.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
