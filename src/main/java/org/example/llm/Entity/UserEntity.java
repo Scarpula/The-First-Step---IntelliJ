@@ -1,5 +1,6 @@
 package org.example.llm.Entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -8,25 +9,30 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Date;
+import java.time.LocalDate;
+
 
 @Data
 @AllArgsConstructor
-//@NoArgsConstructor
+@NoArgsConstructor
 @Builder
 @Entity
 @Table(name = "User")
 public class UserEntity {
     @Id
-    private String id;
-    private String email;
-    private String pw;
-    private String name;
-    private Date birthdate;
+    @Column(name = "user_id")
+    private String userId;
+
+    @Column(name = "user_pw", nullable = false)
+    private String userPw;
+
+    @Column(name = "user_name", nullable = false)
+    private String userName;
+
+    @Column(name = "user_birthdate", nullable = false)
+    private LocalDate userBirthdate;
+
+    @Column(name = "Investment_type", nullable = false)
     private String Investment_type;
 
-
-    public UserEntity() {
-
-    }
 }

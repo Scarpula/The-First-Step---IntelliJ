@@ -5,6 +5,8 @@ import Mouse from './components/MouseIcon';
 import styled from 'styled-components';
 import { SectionsContainer, Section } from 'react-fullpage';
 
+
+
 const AppWrapper = styled.div`
   position: relative;
   width: 100%;
@@ -124,9 +126,10 @@ const App = () => {
   };
 
   return (
+
     <AppWrapper>
       <BackgroundImages />
-      <Navbar />
+      <Navbar/>
       <SectionsContainer {...options}>
         <SectionStyled>
           <TitleContainer>

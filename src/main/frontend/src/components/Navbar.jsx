@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
+
+
 const NavbarContainer = styled.div`
   width: 100%;
   height: 60px;
@@ -83,6 +85,7 @@ const Navbar = () => {
     }
   }, [isOpen]);
 
+
   return (
     <>
       <NavbarContainer>
@@ -91,8 +94,8 @@ const Navbar = () => {
       </NavbarContainer>
       <Overlay show={isOpen} onClick={toggleSidebar} />
       <Sidebar show={isOpen}>
-        <TextButton>로그인</TextButton>
-        <TextButton>회원가입</TextButton>
+        <TextButton >로그인</TextButton>
+        <TextButton >회원가입</TextButton>
       </Sidebar>
     </>
   );
