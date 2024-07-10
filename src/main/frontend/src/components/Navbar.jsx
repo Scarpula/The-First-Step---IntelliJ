@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
+import axios from "axios";
 
 const NavbarContainer = styled.div`
   width: 100%;
@@ -197,8 +198,7 @@ const Navbar = () => {
 
         // Spring 서버와 통신하여 로그인 인증
         try {
-            const response = await fetch('/api/login', {
-                method: 'POST',
+            const response = await axios.post('/api/login', {
                 headers: {
                     'Content-Type': 'application/json',
                 },
