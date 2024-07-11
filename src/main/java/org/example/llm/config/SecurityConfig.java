@@ -17,18 +17,7 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .cors().and()
-                .csrf().disable()
-                .authorizeHttpRequests((authz) -> authz
-                        .requestMatchers("/api/register", "/api/login").permitAll()
-                        .anyRequest().authenticated()
-                );
 
-        return http.build();
-    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
