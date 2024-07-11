@@ -5,23 +5,26 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor(staticName = "set")
-public class ResponseDto {
-    private boolean success;
+public class ResponseDto<L> {
+    private boolean result;
     private String message;
-    private Data data;
+    private static Data data;
 
-    public ResponseDto(boolean success) {
-        this.success = success;
-        this.message = message;
+    public  static ResponseDto setSuccess(String message) {
+        return ResponseDto.set(true, message);
     }
 
-
-    public static ResponseDto setFailed(String s) {
+    public static  ResponseDto setFailed(String message)
+    {
+        return ResponseDto.set(false, message);
     }
 
-    public static ResponseDto setSuccessData(String s, LoginResponseDto loginResponse) {
+    public static <data> ResponseDto setSuccessData(String message) {
+        return ResponseDto.set(true, message);
     }
 
-    public static ResponseDto setSuccessData(boolean b) {
+    public static <data> ResponseDto setFailedData(String message) {
+        return ResponseDto.set(false, message);
     }
+
 }

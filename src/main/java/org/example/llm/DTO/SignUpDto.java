@@ -14,6 +14,7 @@ public class SignUpDto {
     private String email;
     private String name;
     private String password;
+    private String confirmPassword;
     private LocalDate birthdate;
     private String Investment_type;
 }

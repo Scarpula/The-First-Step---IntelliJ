@@ -5,7 +5,6 @@ import org.example.llm.DTO.ResponseDto;
 import org.example.llm.DTO.SignUpDto;
 import org.example.llm.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,23 +14,15 @@ public class UserController {
     @Autowired  UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<ResponseDto> signUp(@RequestBody SignUpDto requestBody) {
-        try {
-            ResponseDto result = userService.signUp(requestBody);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ResponseDto(false));
-        }
+    public ResponseDto<SignUpDto> signUp(@RequestBody SignUpDto requestBody) {
+        System.out.println(requestBody.toString());
+        return null;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ResponseDto> login(@RequestBody LoginDto requestBody) {
-        try {
-            ResponseDto result = userService.login(requestBody);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ResponseDto(false ));
-        }
+    public ResponseDto login(@RequestBody LoginDto requestBody) {
+        ResponseDto<?> result = UserService.login(requestBody);
+        return result;
     }
 
 

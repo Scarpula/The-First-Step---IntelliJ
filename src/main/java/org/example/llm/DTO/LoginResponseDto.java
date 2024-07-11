@@ -11,15 +11,8 @@ import org.example.llm.Entity.UserEntity;
 @NoArgsConstructor
 @Builder
 public class LoginResponseDto {
-    String email;
-    String password;
+    private String token;
+    private int exprTime;
+    private UserEntity user;
 
-
-    public static LoginResponseDto fromUserEntity(UserEntity user) {
-        return LoginResponseDto.builder()
-                .email(user.getEmail())
-                .password(user.getPassword()).build();
-                // 필요에 따라 추가 필드 설정
-
-    }
 }
