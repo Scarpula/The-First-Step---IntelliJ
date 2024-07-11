@@ -140,6 +140,7 @@ const Navbar = () => {
         setShowLoginForm(!showLoginForm);
     };
 
+<<<<<<< HEAD
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
 
@@ -160,6 +161,69 @@ const Navbar = () => {
     }
   };
 
+=======
+    const handleSignupClick = () => {
+        setShowSignupForm(!showSignupForm);
+        setShowLoginForm(false);
+    };
+    const api = axios.create({
+        baseURL: 'http://localhost:8081',
+        withCredentials: true
+    });
+
+    const handleLoginSubmit = async (e) => {
+        e.preventDefault();
+        // Spring 서버와 통신하여 로그인 인증
+        try {
+            const response = await axios.post('/api/login',{
+                username : username, // Assuming you have a username state
+                password: password
+            });
+            console.log(response.request.email)
+            if (response.data.success) {
+                setError(false);
+                console.log("로그인 성공")
+                // 로그인 성공 로직 추가
+            } else {
+                setError(true);
+                console.log("로그인 실패")
+            }
+        } catch (error) {
+            setError(true);
+            console.log("오류")
+        }
+    };
+
+    const handleSignupSubmit = async (e) => {
+        e.preventDefault();
+
+        // Spring 서버와 통신하여 회원가입 처리
+        try {
+            const response = await axios.post('http://localhost:8081/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password, username, birthdate, investmentType }),
+            });
+            console.log(result.success)
+            if (!response.ok) {
+                throw new Error('Signup failed');
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                setError(false);
+                // 회원가입 성공 로직 추가
+            } else {
+                setError(true);
+            }
+        } catch (error) {
+            setError(true);
+        }
+    };
+>>>>>>> d9f3be0d42d786fc0aa6822078ab835d78a5d6b7
 
     useEffect(() => {
         if (isOpen || showLoginForm) {
@@ -196,6 +260,109 @@ const Navbar = () => {
                         />
                         <Button type="submit">Sign In</Button>
                     </Form>
+<<<<<<< HEAD
+=======
+                    <TextButton>Forgot password?</TextButton>
+                    <LoginButton>
+                        <img src="/images/google_icon.svg" alt="Google" />
+                        Google로 계속하기
+                    </LoginButton>
+                    <LoginButton>
+                        <img src="/images/microsoft_icon.svg" alt="Microsoft" />
+                        Microsoft 계정으로 계속하기
+                    </LoginButton>
+                    <LoginButton>
+                        <img src="/images/apple_icon.svg" alt="Apple" />
+                        Apple로 계속하기
+                    </LoginButton>
+                </FormContainer>
+                <TextButton onClick={handleSignupClick}>회원가입</TextButton>
+                <FormContainer show={showSignupForm}>
+                    <Form onSubmit={handleSignupSubmit}>
+                        <Input
+                            type="email"
+                            placeholder="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            error={error}
+                        />
+                        <Input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            error={error}
+                        />
+                        <Input
+                            type="text"
+                            placeholder="이름"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            error={error}
+                        />
+                        <Input
+                            type="date"
+                            placeholder="생년월일"
+                            value={birthdate}
+                            onChange={(e) => setBirthdate(e.target.value)}
+                            error={error}
+                        />
+                        <span>★투자유형 선택★</span>
+                        <RadioButtonContainer>
+                            <RadioButtonLabel>
+                                <RadioButtonInput
+                                    type="radio"
+                                    name="investmentType"
+                                    value="공격투자형"
+                                    checked={investmentType === "공격투자형"}
+                                    onChange={(e) => setInvestmentType(e.target.value)}
+                                />
+                                공격투자형
+                            </RadioButtonLabel>
+                            <RadioButtonLabel>
+                                <RadioButtonInput
+                                    type="radio"
+                                    name="investmentType"
+                                    value="적극투자형"
+                                    checked={investmentType === "적극투자형"}
+                                    onChange={(e) => setInvestmentType(e.target.value)}
+                                />
+                                적극투자형
+                            </RadioButtonLabel>
+                            <RadioButtonLabel>
+                                <RadioButtonInput
+                                    type="radio"
+                                    name="investmentType"
+                                    value="위험중립형"
+                                    checked={investmentType === "위험중립형"}
+                                    onChange={(e) => setInvestmentType(e.target.value)}
+                                />
+                                위험중립형
+                            </RadioButtonLabel>
+                            <RadioButtonLabel>
+                                <RadioButtonInput
+                                    type="radio"
+                                    name="investmentType"
+                                    value="안정추구형"
+                                    checked={investmentType === "안정추구형"}
+                                    onChange={(e) => setInvestmentType(e.target.value)}
+                                />
+                                안정추구형
+                            </RadioButtonLabel>
+                            <RadioButtonLabel>
+                                <RadioButtonInput
+                                    type="radio"
+                                    name="investmentType"
+                                    value="안정형"
+                                    checked={investmentType === "안정형"}
+                                    onChange={(e) => setInvestmentType(e.target.value)}
+                                />
+                                안정형
+                            </RadioButtonLabel>
+                        </RadioButtonContainer>
+                        <Button type="submit">회원가입</Button>
+                    </Form>
+>>>>>>> d9f3be0d42d786fc0aa6822078ab835d78a5d6b7
                 </FormContainer>
             </Sidebar>
         </>

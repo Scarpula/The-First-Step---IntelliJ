@@ -34,6 +34,8 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'mysql:mysql-connector-java:8.0.33'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
 }
 
 tasks.named('test') {
@@ -80,3 +82,9 @@ tasks.register('copyReactBuildFiles', Copy) {
 	from "$frontendDir/build"
 	into "$projectDir/src/main/resources/static"
 }
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> d9f3be0d42d786fc0aa6822078ab835d78a5d6b7
