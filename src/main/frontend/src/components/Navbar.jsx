@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
-import axios from "axios";
+import axios from 'axios';
 
 const NavbarContainer = styled.div`
   width: 100%;
@@ -55,7 +55,7 @@ const Sidebar = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 15px; /* 사이드탭 상단에 마진 15px 추가 */
+  padding-top: 15px;
 `;
 
 const TextButton = styled.div`
@@ -96,11 +96,6 @@ const FormContainer = styled.div`
   animation: ${props => (props.show ? slideDown : slideUp)} 0.5s ease forwards;
 `;
 
-const FormTitle = styled.h2`
-  text-align: center;
-  color: #007bff;
-`;
-
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -113,22 +108,6 @@ const Input = styled.input`
   font-size: 16px;
   border: 1px solid ${props => (props.error ? 'red' : '#ccc')};
   border-radius: 4px;
-`;
-
-const RadioButtonContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: 10px;
-`;
-
-const RadioButtonLabel = styled.label`
-  display: flex;
-  align-items: center;
-  margin-bottom: 5px;
-`;
-
-const RadioButtonInput = styled.input`
-  margin-right: 10px;
 `;
 
 const Button = styled.button`
@@ -146,37 +125,11 @@ const Button = styled.button`
   }
 `;
 
-const LoginButton = styled.button`
-  margin-top: 10px;
-  padding: 10px;
-  font-size: 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  background-color: #f5f5f5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #000;
-
-  &:hover {
-    background-color: #e0e0e0;
-  }
-
-  img {
-    margin-right: 10px;
-  }
-`;
-
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
-    const [showSignupForm, setShowSignupForm] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [username, setUsername] = useState('');
-    const [birthdate, setBirthdate] = useState('');
-    const [investmentType, setInvestmentType] = useState('');
     const [error, setError] = useState(false);
 
     const toggleSidebar = () => {
@@ -185,8 +138,28 @@ const Navbar = () => {
 
     const handleLoginClick = () => {
         setShowLoginForm(!showLoginForm);
-        setShowSignupForm(false);
     };
+
+
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post('http://localhost:8082/api/login', {
+        email,
+        password,
+      });
+
+      if (response.status === 200 && response.data.message === 'Login successful') {
+        setError(false);
+        alert('Login successful');
+      } else {
+        setError(true);
+      }
+    } catch (error) {
+      setError(true);
+    }
+  };
 
     const handleSignupClick = () => {
         setShowSignupForm(!showSignupForm);
@@ -197,30 +170,7 @@ const Navbar = () => {
         withCredentials: true
     });
 
-    const handleLoginSubmit = async (e) => {
-        e.preventDefault();
-        // Spring 서버와 통신하여 로그인 인증
-        try {
-            const response = await axios.post('/api/login',{
-                username : username, // Assuming you have a username state
-                password: password
-            });
-            console.log("Server response:", response);
-            if (response.data.success) {
-                setError(false);
-                console.log("로그인 성공")
-                console.log("사용자 이메일:", response.data.email);
-                // 로그인 성공 로직 추가
-            } else {
-                setError(true);
-                console.log("로그인 실패")
-            }
-        } catch (error) {
-            setError(true);
-            console.log("오류")
-            console.error("오류 발생:", error);
-        }
-    };
+
 
     const handleSignupSubmit = async (e) => {
         e.preventDefault();
@@ -252,13 +202,14 @@ const Navbar = () => {
         }
     };
 
+
     useEffect(() => {
-        if (isOpen || showLoginForm || showSignupForm) {
+        if (isOpen || showLoginForm) {
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = 'auto';
         }
-    }, [isOpen, showLoginForm, showSignupForm]);
+    }, [isOpen, showLoginForm]);
 
     return (
         <>
@@ -287,6 +238,8 @@ const Navbar = () => {
                         />
                         <Button type="submit">Sign In</Button>
                     </Form>
+
+
                     <TextButton>Forgot password?</TextButton>
                     <LoginButton>
                         <img src="/images/google_icon.svg" alt="Google" />
@@ -387,6 +340,7 @@ const Navbar = () => {
                         </RadioButtonContainer>
                         <Button type="submit">회원가입</Button>
                     </Form>
+>>>>>>> d9f3be0d42d786fc0aa6822078ab835d78a5d6b7
                 </FormContainer>
             </Sidebar>
         </>

@@ -3,26 +3,21 @@ plugins {
 	id 'org.springframework.boot' version '3.3.1'
 	id 'io.spring.dependency-management' version '1.1.5'
 }
-
 group = 'org.example'
 version = '0.0.1-SNAPSHOT'
-
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
 	}
 }
-
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
 }
-
 repositories {
 	mavenCentral()
 }
-
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-web-services'
@@ -41,18 +36,13 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
-
 def frontendDir = "$projectDir/src/main/frontend"
-
 sourceSets {
 	main {
-		resources { srcDirs = ["$projectDir/src/main/resources"]
-		}
+		resources { srcDirs = ["$projectDir/src/main/resources"] }
 	}
 }
-
 processResources { dependsOn "copyReactBuildFiles" }
-
 tasks.register('installReact', Exec) {
 	workingDir "$frontendDir"
 	inputs.dir "$frontendDir"
@@ -61,10 +51,10 @@ tasks.register('installReact', Exec) {
 		commandLine "npm.cmd", "audit", "fix"
 		commandLine 'npm.cmd', 'install'
 	} else {
-		commandLine "npm", "audit", "fix" commandLine 'npm', 'install'
+		commandLine "npm", "audit", "fix"
+		commandLine 'npm', 'install'
 	}
 }
-
 tasks.register('buildReact', Exec) {
 	dependsOn "installReact"
 	workingDir "$frontendDir"
@@ -76,12 +66,8 @@ tasks.register('buildReact', Exec) {
 		commandLine "npm", "run-script", "build"
 	}
 }
-
 tasks.register('copyReactBuildFiles', Copy) {
 	dependsOn "buildReact"
 	from "$frontendDir/build"
 	into "$projectDir/src/main/resources/static"
 }
-
-
-

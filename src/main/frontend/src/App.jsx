@@ -1,12 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from './components/Navbar';
 import BackgroundImages from './components/BackgroundImages';
 import Mouse from './components/MouseIcon';
 import styled from 'styled-components';
 import { SectionsContainer, Section } from 'react-fullpage';
 import { TypeAnimation } from 'react-type-animation';
-
-
 
 const AppWrapper = styled.div`
   position: relative;
@@ -84,6 +82,14 @@ const TypingContent = styled(Content)`
 `;
 
 const App = () => {
+  const [apiResponse, setApiResponse] = useState('');
+
+  useEffect(() => {
+    fetch('http://localhost:8081/api/hello')
+      .then(response => response.text())
+      .then(data => setApiResponse(data));
+  }, []);
+
   const fullTitle = "투자의 ";
   const fullSubtitle = "시작";
   const fullSubtext = "InvestGenius";
@@ -102,10 +108,9 @@ const App = () => {
   };
 
   return (
-
     <AppWrapper>
       <BackgroundImages />
-      <Navbar/>
+      <Navbar />
       <SectionsContainer {...options}>
         <SectionStyled>
           <TitleContainer>
@@ -165,6 +170,7 @@ const App = () => {
               }}
             />
           </TypingContent>
+          <p>{apiResponse}</p> {/* API 응답을 화면에 표시 */}
         </SectionStyled>
       </SectionsContainer>
       <Mouse />

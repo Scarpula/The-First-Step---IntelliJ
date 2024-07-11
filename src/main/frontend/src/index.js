@@ -1,7 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
+<<<<<<< HEAD
+import App from './App';
+=======
 // import App from './ChatUI';
+>>>>>>> d9f3be0d42d786fc0aa6822078ab835d78a5d6b7
 import reportWebVitals from './reportWebVitals';
 
 import App from './App';
