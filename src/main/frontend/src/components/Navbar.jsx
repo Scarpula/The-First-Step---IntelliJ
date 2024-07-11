@@ -205,10 +205,11 @@ const Navbar = () => {
                 username : username, // Assuming you have a username state
                 password: password
             });
-            console.log(response.request.email)
+            console.log("Server response:", response);
             if (response.data.success) {
                 setError(false);
                 console.log("로그인 성공")
+                console.log("사용자 이메일:", response.data.email);
                 // 로그인 성공 로직 추가
             } else {
                 setError(true);
@@ -217,6 +218,7 @@ const Navbar = () => {
         } catch (error) {
             setError(true);
             console.log("오류")
+            console.error("오류 발생:", error);
         }
     };
 

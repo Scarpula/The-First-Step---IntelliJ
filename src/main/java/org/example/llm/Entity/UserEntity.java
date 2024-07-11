@@ -4,10 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.example.llm.DTO.SignUpDto;
 
 import java.time.LocalDate;
@@ -19,6 +16,8 @@ import java.time.LocalDate;
 @Builder
 @Entity
 @Table(name = "Users")
+@Getter
+@Setter
 public class UserEntity {
     @Id
     private String email;
