@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
-import org.example.llm.DTO.SignUpDto;
 
 import java.time.LocalDate;
 
@@ -20,18 +19,17 @@ import java.time.LocalDate;
 @Setter
 public class UserEntity {
     @Id
+    @Column(name = "user_id")
     private String email;
+    @Column(name = "user_pw")
     private String password;
+    @Column(name = "user_name")
     private String name;
+    @Column(name = "user_birthdate")
     private LocalDate birthdate;
+    @Column(name = "Investment_type")
     private String InvestmentType;
 
-    public UserEntity(SignUpDto dto){
-        this.email = dto.getEmail();
-        this.password = dto.getPassword();
-        this.name = dto.getName();
-        this.birthdate = dto.getBirthdate();
-        this.InvestmentType = dto.getInvestment_type();
-    }
+
 
 }
