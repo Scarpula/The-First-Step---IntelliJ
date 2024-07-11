@@ -1,0 +1,93 @@
+.chat-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  margin-top: 35px;
+}
+
+.chat-bubble {
+  max-width: 80%;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 10px;
+  word-wrap: break-word;
+}
+
+.chat-bubble.left {
+  background-color: #CFCFCF;
+  align-self: flex-start;
+}
+
+.chat-bubble.right {
+  background-color: #EAEAEA;
+  align-self: flex-end;
+}
+
+.chat-input-container {
+  padding: 10px 20%;
+  background-color: #fff;
+  position: sticky;
+  bottom: 0;
+}
+
+.chat-input {
+  display: flex;
+  max-width: 60%;
+  margin: 0 auto;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.chat-input button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.chat-input button:hover {
+  background-color: #0056b3;
+}
+
+/* Custom Scrollbar Styles */
+.custom-scrollbar {
+  overflow-y: scroll;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #b0b0b0;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(220, 20, 60, 0.1);
+}
+
+
+/* 최대 화면일 때 채팅박스 간격을 줄이기 */
+@media (min-width: 1200px) {
+    .chat-container {
+        max-width: 45%; /* 좌우 간격을 더 좁힘 */
+    }
+}
+
+/* 최대 화면의 반크기일 때 채팅박스 간격을 원래대로 유지 */
+@media (max-width: 1199px) {
+    .chat-container {
+        max-width: 75%; /* 원래 너비 */
+    }
+}

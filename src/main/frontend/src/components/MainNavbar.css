@@ -1,0 +1,15 @@
+.main-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+
+}
+
+.header-options span {
+    margin-left: 20px;
+    cursor: pointer;
+    z-index : 1;
+}
