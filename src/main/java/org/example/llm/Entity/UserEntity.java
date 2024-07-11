@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.llm.DTO.SignUpDto;
 
 import java.time.LocalDate;
 
@@ -17,22 +18,21 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "User")
+@Table(name = "Users")
 public class UserEntity {
     @Id
-    @Column(name = "user_id")
-    private String userId;
+    private String email;
+    private String password;
+    private String name;
+    private LocalDate birthdate;
+    private String InvestmentType;
 
-    @Column(name = "user_pw", nullable = false)
-    private String userPw;
-
-    @Column(name = "user_name", nullable = false)
-    private String userName;
-
-    @Column(name = "user_birthdate", nullable = false)
-    private LocalDate userBirthdate;
-
-    @Column(name = "Investment_type", nullable = false)
-    private String Investment_type;
+    public UserEntity(SignUpDto dto){
+        this.email = dto.getEmail();
+        this.password = dto.getPassword();
+        this.name = dto.getName();
+        this.birthdate = dto.getBirthdate();
+        this.InvestmentType = dto.getInvestment_type();
+    }
 
 }

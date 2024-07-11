@@ -1,31 +1,40 @@
 package org.example.llm.controller;
 
-import org.example.llm.Entity.UserEntity;
+import org.example.llm.DTO.LoginDto;
+import org.example.llm.DTO.ResponseDto;
+import org.example.llm.DTO.SignUpDto;
 import org.example.llm.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api")
 public class UserController {
-
-    @Autowired
-    private UserService userService;
+    @Autowired  UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<UserEntity> register(@RequestBody UserEntity user) {
-        UserEntity userEntity = userService.register(user);
-        return ResponseEntity.ok(userEntity);
+    public ResponseEntity<ResponseDto> signUp(@RequestBody SignUpDto requestBody) {
+        try {
+            ResponseDto result = userService.signUp(requestBody);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ResponseDto(false));
+        }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserEntity> login(@RequestParam String userId, @RequestParam String password) {
-        UserEntity loggedInUser = userService.login(userId, password);
-        return ResponseEntity.ok(loggedInUser);
+    public ResponseEntity<ResponseDto> login(@RequestBody LoginDto requestBody) {
+        try {
+            ResponseDto result = userService.login(requestBody);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ResponseDto(false ));
+        }
     }
+
+
 
 
 }

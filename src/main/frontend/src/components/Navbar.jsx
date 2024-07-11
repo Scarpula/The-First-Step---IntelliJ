@@ -192,33 +192,31 @@ const Navbar = () => {
         setShowSignupForm(!showSignupForm);
         setShowLoginForm(false);
     };
+    const api = axios.create({
+        baseURL: 'http://localhost:8081',
+        withCredentials: true
+    });
 
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
-
         // Spring 서버와 통신하여 로그인 인증
         try {
-            const response = await axios.post('/api/login', {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
+            const response = await axios.post('/api/login',{
+                username : username, // Assuming you have a username state
+                password: password
             });
-
-            if (!response.ok) {
-                throw new Error('Login failed');
-            }
-
-            const result = await response.json();
-
-            if (result.success) {
+            console.log(response.request.email)
+            if (response.data.success) {
                 setError(false);
+                console.log("로그인 성공")
                 // 로그인 성공 로직 추가
             } else {
                 setError(true);
+                console.log("로그인 실패")
             }
         } catch (error) {
             setError(true);
+            console.log("오류")
         }
     };
 
@@ -227,14 +225,14 @@ const Navbar = () => {
 
         // Spring 서버와 통신하여 회원가입 처리
         try {
-            const response = await fetch('/api/signup', {
+            const response = await axios.post('http://localhost:8081/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ email, password, username, birthdate, investmentType }),
             });
-
+            console.log(result.success)
             if (!response.ok) {
                 throw new Error('Signup failed');
             }
@@ -326,7 +324,7 @@ const Navbar = () => {
                             error={error}
                         />
                         <Input
-                            type="text"
+                            type="date"
                             placeholder="생년월일"
                             value={birthdate}
                             onChange={(e) => setBirthdate(e.target.value)}
