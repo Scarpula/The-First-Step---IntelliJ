@@ -44,8 +44,7 @@ def frontendDir = "$projectDir/src/main/frontend"
 
 sourceSets {
 	main {
-		resources { srcDirs = ["$projectDir/src/main/resources"]
-		}
+		resources { srcDirs = ["$projectDir/src/main/resources"] }
 	}
 }
 
@@ -59,7 +58,8 @@ tasks.register('installReact', Exec) {
 		commandLine "npm.cmd", "audit", "fix"
 		commandLine 'npm.cmd', 'install'
 	} else {
-		commandLine "npm", "audit", "fix" commandLine 'npm', 'install'
+		commandLine "npm", "audit", "fix"
+		commandLine 'npm', 'install'
 	}
 }
 
@@ -80,5 +80,3 @@ tasks.register('copyReactBuildFiles', Copy) {
 	from "$frontendDir/build"
 	into "$projectDir/src/main/resources/static"
 }
-
-
