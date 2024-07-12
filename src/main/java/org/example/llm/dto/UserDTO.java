@@ -48,4 +48,3 @@ public class UserDTO {
         this.investmentType = investmentType;
     }
 }
-
