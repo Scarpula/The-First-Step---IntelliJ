@@ -1,9 +1,6 @@
 package org.example.llm.Entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -15,12 +12,12 @@ import java.time.LocalDate;
 @Builder
 @Entity
 @Table(name = "Users")
-@Getter
-@Setter
 public class UserEntity {
     @Id
+    @GeneratedValue
     @Column(name = "user_id")
     private String email;
+
     @Column(name = "user_pw")
     private String password;
     @Column(name = "user_name")
@@ -28,7 +25,7 @@ public class UserEntity {
     @Column(name = "user_birthdate")
     private LocalDate birthdate;
     @Column(name = "Investment_type")
-    private String InvestmentType;
+    private String investmentType;
 
 
 

@@ -153,11 +153,14 @@ const Navbar = () => {
             if (response.status === 200 && response.data.message === 'Login successful') {
                 setError(false);
                 alert('Login successful');
+                console.log("로그인 성공")
             } else {
                 setError(true);
+                console.log("로그인 실패")
             }
         } catch (error) {
             setError(true);
+            console.log("에러")
         }
     };
 
