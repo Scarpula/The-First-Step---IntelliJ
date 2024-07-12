@@ -8,7 +8,6 @@ import lombok.*;
 
 import java.time.LocalDate;
 
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,16 +19,20 @@ import java.time.LocalDate;
 public class UserEntity {
     @Id
     @Column(name = "user_id")
+    private String userId;
+
+    @Column(name = "user_email")
     private String email;
+
     @Column(name = "user_pw")
     private String password;
+
     @Column(name = "user_name")
     private String name;
+
     @Column(name = "user_birthdate")
     private LocalDate birthdate;
+
     @Column(name = "Investment_type")
-    private String InvestmentType;
-
-
-
+    private String investmentType;
 }
