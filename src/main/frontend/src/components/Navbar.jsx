@@ -145,7 +145,7 @@ const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
     const [showSignupForm, setShowSignupForm] = useState(false);
-    const [email, setEmail] = useState('');
+    const [userId, setUserId] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
     const [birthdate, setBirthdate] = useState('');
@@ -166,11 +166,11 @@ const Navbar = () => {
 
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
-        console.log("Email:", email);
+        console.log("userId:", userId);
         console.log("Password:", password);
         try {
             const response = await axios.post('http://localhost:8082/api/login', {
-                email,
+                userId,
                 password,
             });
 
@@ -188,28 +188,24 @@ const Navbar = () => {
     const handleSignupSubmit = async (e) => {
         e.preventDefault();
 
-        // 입력된 값들을 로그로 출력
-        console.log("UserId:", email);
-        console.log("Email:", email);
-        console.log("Password:", password);
-        console.log("Username:", username);
-        console.log("Birthdate:", birthdate);
-        console.log("InvestmentType:", investmentType);
+        const userData = {
+            userId: userId,
+            password,
+            name: username,
+            birthdate,
+            investmentType,
+        };
 
         try {
-            const response = await axios.post('http://localhost:8082/api/signup', {
-                userId: email,
-                email,
-                password,
-                name: username,
-                birthdate,
-                investmentType,
+            const response = await axios.post('http://localhost:8082/api/signup', userData, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
 
             if (response.status === 200) {
                 setError(false);
                 alert('Signup successful');
-                // 회원가입 성공 후 추가 로직
             } else {
                 setError(true);
             }
@@ -218,8 +214,6 @@ const Navbar = () => {
             setError(true);
         }
     };
-
-
 
 
     useEffect(() => {
@@ -242,10 +236,10 @@ const Navbar = () => {
                 <FormContainer show={showLoginForm}>
                     <Form onSubmit={handleLoginSubmit}>
                         <Input
-                            type="email"
-                            placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            type="text"
+                            placeholder="userId"
+                            value={userId}
+                            onChange={(e) => setUserId(e.target.value)}
                             error={error}
                         />
                         <Input
@@ -262,10 +256,10 @@ const Navbar = () => {
                 <FormContainer show={showSignupForm}>
                     <Form onSubmit={handleSignupSubmit}>
                         <Input
-                            type="email"
-                            placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            type="userId"
+                            placeholder="userId"
+                            value={userId}
+                            onChange={(e) => setUserId(e.target.value)}
                             error={error}
                         />
                         <Input

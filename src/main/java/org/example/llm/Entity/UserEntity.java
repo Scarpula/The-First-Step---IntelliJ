@@ -1,38 +1,28 @@
 package org.example.llm.Entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Entity
-@Table(name = "Users")
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
 public class UserEntity {
     @Id
-    @Column(name = "user_id")
-    private String userId;
-
-    @Column(name = "user_email")
-    private String email;
-
-    @Column(name = "user_pw")
+    private String userId; // 이메일이 userId로 사용됩니다.
     private String password;
-
-    @Column(name = "user_name")
     private String name;
-
-    @Column(name = "user_birthdate")
-    private LocalDate birthdate;
-
-    @Column(name = "Investment_type")
+    private String birthdate;
     private String investmentType;
+
+    @Builder
+    public UserEntity(String userId, String password, String name, String birthdate, String investmentType) {
+        this.userId = userId;
+        this.password = password;
+        this.name = name;
+        this.birthdate = birthdate;
+        this.investmentType = investmentType;
+    }
 }

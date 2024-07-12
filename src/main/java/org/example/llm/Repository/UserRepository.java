@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, String> {
-    UserEntity findByEmail(String email);
+    // 기존에 사용하던 findByEmail 메서드 제거
+    // 필요하다면 추가적인 쿼리 메서드를 정의
 }

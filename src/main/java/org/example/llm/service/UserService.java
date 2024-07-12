@@ -2,6 +2,7 @@ package org.example.llm.service;
 
 import org.example.llm.Entity.UserEntity;
 import org.example.llm.Repository.UserRepository;
+import org.example.llm.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,17 +14,14 @@ public class UserService {
     private UserRepository userRepository;
 
     @Transactional
-    public UserEntity registerUser(UserEntity user) {
-        return userRepository.save(user);
-    }
+    public void registerUser(UserDTO userDTO) {
+        UserEntity user = new UserEntity();
+        user.setUserId(userDTO.getUserId());
+        user.setPassword(userDTO.getPassword());
+        user.setName(userDTO.getName());
+        user.setBirthdate(userDTO.getBirthdate());
+        user.setInvestmentType(userDTO.getInvestmentType());
 
-    @Transactional(readOnly = true)
-    public UserEntity getUserById(String userId) {
-        return userRepository.findById(userId).orElse(null);
-    }
-
-    @Transactional(readOnly = true)
-    public UserEntity getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+        userRepository.save(user);
     }
 }
