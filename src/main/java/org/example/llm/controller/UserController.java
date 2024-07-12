@@ -18,7 +18,6 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody ApiResponse.RegisterRequest request) {
         System.out.println("Received signup request:");
-        System.out.println("UserId: " + request.getUserId());
         System.out.println("Email: " + request.getEmail());
         System.out.println("Password: " + request.getPassword());
         System.out.println("Name: " + request.getName());
@@ -27,7 +26,6 @@ public class UserController {
 
         try {
             UserEntity user = new UserEntity();
-            user.setEmail(request.getUserId());
             user.setEmail(request.getEmail());
             user.setPassword(request.getPassword());
             user.setName(request.getName());

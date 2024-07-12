@@ -193,7 +193,6 @@ const Navbar = () => {
 
         // 입력된 값들을 로그로 출력
         console.log("UserId:", email);
-        console.log("Email:", email);
         console.log("Password:", password);
         console.log("Username:", username);
         console.log("Birthdate:", birthdate);
@@ -202,7 +201,6 @@ const Navbar = () => {
         try {
             const response = await axios.post('http://localhost:8082/api/signup', {
                 userId: email,
-                email,
                 password,
                 name: username,
                 birthdate,
