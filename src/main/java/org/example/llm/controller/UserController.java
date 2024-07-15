@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api")
 public class UserController {
@@ -24,23 +26,23 @@ public class UserController {
     }
 
 
-    /*@PostMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody ApiResponse.LoginRequest loginRequest) {
-        System.out.println("Received login request for userId: " + loginRequest.getUserId());
+        System.out.println("Received login request for email: " + loginRequest.getEmail());
 
-        UserEntity user = userService.getUserById(loginRequest.getUserId());
+        Optional<UserEntity> user = userService.getUserByEmail(loginRequest.getEmail());
 
-        if (user != null) {
-            if (loginRequest.getPassword().equals(user.getPassword())) {
+        if (user.isPresent()) {
+            if (loginRequest.getPassword().equals(user.get().getPassword())) {
                 System.out.println("Password match");
                 return ResponseEntity.ok(new ApiResponse.LoginResponse("Login successful"));
             } else {
                 System.out.println("Password mismatch");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse.LoginResponse("Invalid userId or password"));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse.LoginResponse("Invalid email or password"));
             }
         } else {
             System.out.println("User not found");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse.LoginResponse("Invalid userId or password"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse.LoginResponse("Invalid email or password"));
         }
-    }*/
+    }
 }

@@ -40,6 +40,9 @@ tasks.withType(JavaCompile) {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+compileJava {
+	options.compilerArgs += ["-parameters"]
+}
 def frontendDir = "$projectDir/src/main/frontend"
 sourceSets {
 	main {
