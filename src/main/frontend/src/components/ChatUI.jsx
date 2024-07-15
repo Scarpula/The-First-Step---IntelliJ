@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import MainNavbar from './components/MainNavbar';
-import ChatContainer from './components/ChatContainer';
-import ChatInput from './components/ChatInput';
+import MainNavbar from './MainNavbar';
+import ChatContainer from './ChatContainer';
+import ChatInput from './ChatInput';
 import styled from 'styled-components';
 import './ChatUI.css';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import '../ChatUI.css';
+import './ChatUI.css';
 
 const ChatContainer = ({ messages }) => {
   return (

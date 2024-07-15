@@ -2,6 +2,7 @@ package org.example.llm.Entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Data
 @NoArgsConstructor
+@Table(name = "users")
 public class UserEntity {
     @Id
     private String userId; // 이메일이 userId로 사용됩니다.
