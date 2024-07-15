@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
+import ChatUI from './components/ChatUI';
 import BackgroundImages from './components/BackgroundImages';
-import Mouse from './components/MouseIcon';
 import styled from 'styled-components';
 import { SectionsContainer, Section } from 'react-fullpage';
 import { TypeAnimation } from 'react-type-animation';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import './App.css';
 
 const AppWrapper = styled.div`
   position: relative;
@@ -29,31 +31,6 @@ const TitleContainer = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-`;
-
-const Title = styled.span`
-  font-family: 'Istok Web', sans-serif;
-  font-size: 70px;
-  color: black;
-  margin: 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-`;
-
-const Subtitle = styled.span`
-  font-family: 'Istok Web', sans-serif;
-  font-size: 70px;
-  color: white;
-  -webkit-text-stroke: 3px black;
-  margin: 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-`;
-
-const Subtext = styled.p`
-  font-family: 'Gurajada', serif;
-  font-size: 70px;
-  color: black;
-  margin: 20px 0 0 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 `;
 
 const Content = styled.p`
@@ -83,12 +60,17 @@ const TypingContent = styled(Content)`
 
 const App = () => {
   const [apiResponse, setApiResponse] = useState('');
+  const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
     fetch('http://localhost:8081/api/hello')
       .then(response => response.text())
       .then(data => setApiResponse(data));
   }, []);
+
+  const handleLoginSuccess = () => {
+    setShowChat(true);
+  };
 
   const fullTitle = "투자의 ";
   const fullSubtitle = "시작";
@@ -109,71 +91,91 @@ const App = () => {
 
   return (
     <AppWrapper>
-      <BackgroundImages />
-      <Navbar />
-      <SectionsContainer {...options}>
-        <SectionStyled>
-          <TitleContainer>
-            <TypeAnimation
-              sequence={[
-                fullTitle,
-                1000,
-                fullTitle + fullSubtitle,
-                1000,
-                fullTitle + fullSubtitle + "\n" + fullSubtext,
-              ]}
-              wrapper="div"
-              cursor={true}
-              repeat={0}
-              style={{
-                display: 'inline-block',
-                whiteSpace: 'pre-wrap',
-                fontFamily: 'Istok Web, sans-serif',
-                fontSize: '70px',
-                color: 'black',
-                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
-                textAlign: 'center',
-              }}
-            />
-          </TitleContainer>
-        </SectionStyled>
-        <SectionStyled>
-          <TypingContent>
-            <TypeAnimation
-              sequence={[fullText]}
-              wrapper="div"
-              cursor={true}
-              repeat={0}
-              style={{
-                display: 'inline-block',
-                whiteSpace: 'pre-wrap',
-                fontFamily: 'Istok Web, sans-serif',
-                fontSize: '24px',
-                color: 'black',
-              }}
-            />
-          </TypingContent>
-        </SectionStyled>
-        <SectionStyled>
-          <TypingContent>
-            <TypeAnimation
-              sequence={[fullText2]}
-              wrapper="div"
-              cursor={true}
-              repeat={0}
-              style={{
-                display: 'inline-block',
-                whiteSpace: 'pre-wrap',
-                fontFamily: 'Istok Web, sans-serif',
-                fontSize: '24px',
-                color: 'black',
-              }}
-            />
-          </TypingContent>
-          <p>{apiResponse}</p> {/* API 응답을 화면에 표시 */}
-        </SectionStyled>
-      </SectionsContainer>
-      <Mouse />
+      <TransitionGroup>
+        {!showChat && (
+          <CSSTransition
+            key="home"
+            timeout={500}
+            classNames="fade"
+          >
+            <div>
+              <BackgroundImages />
+              <Navbar onLoginSuccess={handleLoginSuccess} />
+              <SectionsContainer {...options}>
+                <SectionStyled>
+                  <TitleContainer>
+                    <TypeAnimation
+                      sequence={[
+                        fullTitle,
+                        1000,
+                        fullTitle + fullSubtitle,
+                        1000,
+                        fullTitle + fullSubtitle + "\n" + fullSubtext,
+                      ]}
+                      wrapper="div"
+                      cursor={true}
+                      repeat={0}
+                      style={{
+                        display: 'inline-block',
+                        whiteSpace: 'pre-wrap',
+                        fontFamily: 'Istok Web, sans-serif',
+                        fontSize: '70px',
+                        color: 'black',
+                        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+                        textAlign: 'center',
+                      }}
+                    />
+                  </TitleContainer>
+                </SectionStyled>
+                <SectionStyled>
+                  <TypingContent>
+                    <TypeAnimation
+                      sequence={[fullText]}
+                      wrapper="div"
+                      cursor={true}
+                      repeat={0}
+                      style={{
+                        display: 'inline-block',
+                        whiteSpace: 'pre-wrap',
+                        fontFamily: 'Istok Web, sans-serif',
+                        fontSize: '24px',
+                        color: 'black',
+                      }}
+                    />
+                  </TypingContent>
+                </SectionStyled>
+                <SectionStyled>
+                  <TypingContent>
+                    <TypeAnimation
+                      sequence={[fullText2]}
+                      wrapper="div"
+                      cursor={true}
+                      repeat={0}
+                      style={{
+                        display: 'inline-block',
+                        whiteSpace: 'pre-wrap',
+                        fontFamily: 'Istok Web, sans-serif',
+                        fontSize: '24px',
+                        color: 'black',
+                      }}
+                    />
+                  </TypingContent>
+                  <p>{apiResponse}</p> {/* API 응답을 화면에 표시 */}
+                </SectionStyled>
+              </SectionsContainer>
+            </div>
+          </CSSTransition>
+        )}
+        {showChat && (
+          <CSSTransition
+            key="chat"
+            timeout={500}
+            classNames="fade"
+          >
+            <ChatUI />
+          </CSSTransition>
+        )}
+      </TransitionGroup>
     </AppWrapper>
   );
 };

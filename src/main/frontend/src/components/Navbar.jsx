@@ -141,7 +141,7 @@ const Button = styled.button`
     }
 `;
 
-const Navbar = () => {
+const Navbar = ({ onLoginSuccess }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
     const [showSignupForm, setShowSignupForm] = useState(false);
@@ -176,8 +176,7 @@ const Navbar = () => {
 
             if (response.status === 200 && response.data.message === 'Login successful') {
                 setError(false);
-                alert('Login successful');
-                console.log("로그인 성공")
+                onLoginSuccess();  // 로그인 성공 시 콜백 호출
             } else {
                 setError(true);
                 console.log("로그인 실패")
@@ -219,9 +218,6 @@ const Navbar = () => {
             setError(true);
         }
     };
-
-
-
 
     useEffect(() => {
         if (isOpen || showLoginForm || showSignupForm) {
