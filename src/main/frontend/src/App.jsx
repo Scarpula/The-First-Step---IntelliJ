@@ -7,6 +7,7 @@ import { SectionsContainer, Section } from 'react-fullpage';
 import { TypeAnimation } from 'react-type-animation';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import './App.css';
+import axios from "axios";
 
 const AppWrapper = styled.div`
   position: relative;
@@ -61,18 +62,39 @@ const TypingContent = styled(Content)`
 const App = () => {
   const [apiResponse, setApiResponse] = useState('');
   const [showChat, setShowChat] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:8081/api/hello')
-      .then(response => response.text())
-      .then(data => setApiResponse(data));
+    const checkLoginStatus = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const response = await axios.get('http://localhost:8081/api/validate-token');
+          if (response.data.isValid) {
+            setIsLoggedIn(true);
+            setShowChat(true);
+          } else {
+            localStorage.removeItem('token');
+          }
+        } catch (error) {
+          console.error('Token validation error:', error.response ? error.response.data : error.message);
+          localStorage.removeItem('token');
+        }
+      }
+    };
+
+    checkLoginStatus();
   }, []);
 
   const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
     setShowChat(true);
   };
 
-  const fullTitle = "투자의 ";
+
+
+
+const fullTitle = "투자의 ";
   const fullSubtitle = "시작";
   const fullSubtext = "InvestGenius";
   const fullText = "당신의 투자 성향에 맞춘 전략을 제공해드립니다.\n당신이 원하는 정보를 검색해보세요!";
@@ -90,93 +112,93 @@ const App = () => {
   };
 
   return (
-    <AppWrapper>
-      <TransitionGroup>
-        {!showChat && (
-          <CSSTransition
-            key="home"
-            timeout={500}
-            classNames="fade"
-          >
-            <div>
-              <BackgroundImages />
-              <Navbar onLoginSuccess={handleLoginSuccess} />
-              <SectionsContainer {...options}>
-                <SectionStyled>
-                  <TitleContainer>
-                    <TypeAnimation
-                      sequence={[
-                        fullTitle,
-                        1000,
-                        fullTitle + fullSubtitle,
-                        1000,
-                        fullTitle + fullSubtitle + "\n" + fullSubtext,
-                      ]}
-                      wrapper="div"
-                      cursor={true}
-                      repeat={0}
-                      style={{
-                        display: 'inline-block',
-                        whiteSpace: 'pre-wrap',
-                        fontFamily: 'Istok Web, sans-serif',
-                        fontSize: '70px',
-                        color: 'black',
-                        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
-                        textAlign: 'center',
-                      }}
-                    />
-                  </TitleContainer>
-                </SectionStyled>
-                <SectionStyled>
-                  <TypingContent>
-                    <TypeAnimation
-                      sequence={[fullText]}
-                      wrapper="div"
-                      cursor={true}
-                      repeat={0}
-                      style={{
-                        display: 'inline-block',
-                        whiteSpace: 'pre-wrap',
-                        fontFamily: 'Istok Web, sans-serif',
-                        fontSize: '24px',
-                        color: 'black',
-                      }}
-                    />
-                  </TypingContent>
-                </SectionStyled>
-                <SectionStyled>
-                  <TypingContent>
-                    <TypeAnimation
-                      sequence={[fullText2]}
-                      wrapper="div"
-                      cursor={true}
-                      repeat={0}
-                      style={{
-                        display: 'inline-block',
-                        whiteSpace: 'pre-wrap',
-                        fontFamily: 'Istok Web, sans-serif',
-                        fontSize: '24px',
-                        color: 'black',
-                      }}
-                    />
-                  </TypingContent>
-                  <p>{apiResponse}</p> {/* API 응답을 화면에 표시 */}
-                </SectionStyled>
-              </SectionsContainer>
-            </div>
-          </CSSTransition>
-        )}
-        {showChat && (
-          <CSSTransition
-            key="chat"
-            timeout={500}
-            classNames="fade"
-          >
-            <ChatUI />
-          </CSSTransition>
-        )}
-      </TransitionGroup>
-    </AppWrapper>
+      <AppWrapper>
+        <TransitionGroup>
+          {!showChat && (
+              <CSSTransition
+                  key="home"
+                  timeout={500}
+                  classNames="fade"
+              >
+                <div>
+                  <BackgroundImages />
+                  <Navbar isLoggedIn={isLoggedIn} onLoginSuccess={handleLoginSuccess} />
+                  <SectionsContainer {...options}>
+                    <SectionStyled>
+                      <TitleContainer>
+                        <TypeAnimation
+                            sequence={[
+                              fullTitle,
+                              1000,
+                              fullTitle + fullSubtitle,
+                              1000,
+                              fullTitle + fullSubtitle + "\n" + fullSubtext,
+                            ]}
+                            wrapper="div"
+                            cursor={true}
+                            repeat={0}
+                            style={{
+                              display: 'inline-block',
+                              whiteSpace: 'pre-wrap',
+                              fontFamily: 'Istok Web, sans-serif',
+                              fontSize: '70px',
+                              color: 'black',
+                              textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+                              textAlign: 'center',
+                            }}
+                        />
+                      </TitleContainer>
+                    </SectionStyled>
+                    <SectionStyled>
+                      <TypingContent>
+                        <TypeAnimation
+                            sequence={[fullText]}
+                            wrapper="div"
+                            cursor={true}
+                            repeat={0}
+                            style={{
+                              display: 'inline-block',
+                              whiteSpace: 'pre-wrap',
+                              fontFamily: 'Istok Web, sans-serif',
+                              fontSize: '24px',
+                              color: 'black',
+                            }}
+                        />
+                      </TypingContent>
+                    </SectionStyled>
+                    <SectionStyled>
+                      <TypingContent>
+                        <TypeAnimation
+                            sequence={[fullText2]}
+                            wrapper="div"
+                            cursor={true}
+                            repeat={0}
+                            style={{
+                              display: 'inline-block',
+                              whiteSpace: 'pre-wrap',
+                              fontFamily: 'Istok Web, sans-serif',
+                              fontSize: '24px',
+                              color: 'black',
+                            }}
+                        />
+                      </TypingContent>
+                      <p>{apiResponse}</p> {/* API 응답을 화면에 표시 */}
+                    </SectionStyled>
+                  </SectionsContainer>
+                </div>
+              </CSSTransition>
+          )}
+          {showChat && (
+              <CSSTransition
+                  key="chat"
+                  timeout={500}
+                  classNames="fade"
+              >
+                <ChatUI />
+              </CSSTransition>
+          )}
+        </TransitionGroup>
+      </AppWrapper>
   );
 };
 

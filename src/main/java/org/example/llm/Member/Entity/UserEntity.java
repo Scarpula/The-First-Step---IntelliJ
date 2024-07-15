@@ -3,6 +3,7 @@ package org.example.llm.Member.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 @Entity
 @Getter
 @Table(name = "users")
-public class UserEntity {
+public class UserEntity implements Serializable {
     @Id
     @Column(name = "user_id")
     private String email;

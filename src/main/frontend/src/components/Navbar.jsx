@@ -145,12 +145,14 @@ const Navbar = ({ onLoginSuccess }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
     const [showSignupForm, setShowSignupForm] = useState(false);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
     const [birthdate, setBirthdate] = useState('');
     const [investmentType, setInvestmentType] = useState('');
     const [error, setError] = useState(false);
+    const [loginEmail, setLoginEmail] = useState('');
+    const [loginPassword, setLoginPassword] = useState('');
+    const [signupEmail, setSignupEmail] = useState('');
+    const [signupPassword, setSignupPassword] = useState('');
 
     const toggleSidebar = () => {
         setIsOpen(!isOpen);
@@ -166,16 +168,17 @@ const Navbar = ({ onLoginSuccess }) => {
 
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
-        console.log("Email:", email);
-        console.log("Password:", password);
+        console.log("Email:", loginEmail);
+        console.log("Password:", loginPassword);
         try {
             const response = await axios.post('http://localhost:8082/api/login', {
-                email,
-                password,
+                email:loginEmail,
+                password:loginPassword,
             });
 
             if (response.status === 200 && response.data.message === 'Login successful') {
                 setError(false);
+                localStorage.setItem('token', response.data.token);
                 onLoginSuccess();  // 로그인 성공 시 콜백 호출
             } else {
                 setError(true);
@@ -191,16 +194,16 @@ const Navbar = ({ onLoginSuccess }) => {
         e.preventDefault();
 
         // 입력된 값들을 로그로 출력
-        console.log("UserId:", email);
-        console.log("Password:", password);
+        console.log("UserId:", signupEmail);
+        console.log("Password:", signupPassword);
         console.log("Username:", username);
         console.log("Birthdate:", birthdate);
         console.log("InvestmentType:", investmentType);
 
         try {
             const response = await axios.post('http://localhost:8082/api/signup', {
-                userId: email,
-                password,
+                userId: signupEmail,
+                password:signupPassword,
                 name: username,
                 birthdate,
                 investmentType,
@@ -241,15 +244,15 @@ const Navbar = ({ onLoginSuccess }) => {
                         <Input
                             type="email"
                             placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={loginEmail}
+                            onChange={(e) => setLoginEmail(e.target.value)}
                             error={error}
                         />
                         <Input
                             type="password"
                             placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            value={loginPassword}
+                            onChange={(e) => setLoginPassword(e.target.value)}
                             error={error}
                         />
                         <Button type="submit">Sign In</Button>
@@ -261,15 +264,15 @@ const Navbar = ({ onLoginSuccess }) => {
                         <Input
                             type="email"
                             placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={signupEmail}
+                            onChange={(e) => setSignupEmail(e.target.value)}
                             error={error}
                         />
                         <Input
                             type="password"
                             placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            value={signupPassword}
+                            onChange={(e) => setSignupPassword(e.target.value)}
                             error={error}
                         />
                         <Input

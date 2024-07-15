@@ -1,13 +1,17 @@
 package org.example.llm.Member.service;
 
+import jakarta.servlet.http.HttpSession;
 import org.example.llm.Member.Entity.UserEntity;
 import org.example.llm.Member.Repository.UserRepository;
 import org.example.llm.Member.dto.Joindto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 @Service
 public class UserService {
@@ -48,4 +52,6 @@ public class UserService {
         }
         return null;
     }
+
+
 }
