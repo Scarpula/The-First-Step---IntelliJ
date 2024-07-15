@@ -30,14 +30,32 @@ const ChatUI = () => {
     }
   }, [messages]);
 
-  const handleSend = (messageText) => {
+  const handleSend = async (messageText) => {
     const userMessage = { text: messageText, sender: 'user' };
     setMessages(prevMessages => [...prevMessages, userMessage]);
 
-    setTimeout(() => {
-      const botMessage = { text: `챗봇의 응답: ${messageText}`, sender: 'bot' };
+    try {
+      const response = await fetch('http://112.217.124.195:30001/ask', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ question: messageText })
+      });
+
+      if (!response.ok) {
+        throw new Error('서버 응답이 실패했습니다.');
+      }
+
+      const data = await response.json();
+      const botMessage = { text: data.response, sender: 'bot' };
+
       setMessages(prevMessages => [...prevMessages, botMessage]);
-    }, 1000);
+    } catch (error) {
+      console.error('Error:', error);
+      const errorMessage = { text: '챗봇이 응답할 수 없습니다.', sender: 'bot' };
+      setMessages(prevMessages => [...prevMessages, errorMessage]);
+    }
   };
 
   return (

@@ -1,5 +1,6 @@
 import React from 'react';
 import './ChatUI.css';
+import { TypeAnimation } from 'react-type-animation';
 
 const ChatContainer = ({ messages }) => {
   return (
@@ -9,7 +10,17 @@ const ChatContainer = ({ messages }) => {
           key={index}
           className={`chat-bubble ${message.sender === 'user' ? 'right' : 'left'}`}
         >
-          <p>{message.text}</p>
+          {message.sender === 'bot' ? (
+            <TypeAnimation
+              sequence={[message.text]}
+              speed={50}
+              wrapper="p"
+              cursor={false}
+              repeat={0}
+            />
+          ) : (
+            <p>{message.text}</p>
+          )}
         </div>
       ))}
     </div>
