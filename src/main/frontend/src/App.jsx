@@ -5,7 +5,7 @@ import BackgroundImages from './components/BackgroundImages';
 import styled from 'styled-components';
 import { SectionsContainer, Section } from 'react-fullpage';
 import { TypeAnimation } from 'react-type-animation';
-import { CSSTransition } from 'react-transition-group';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import './App.css';
 
 const AppWrapper = styled.div`
@@ -91,87 +91,91 @@ const App = () => {
 
   return (
     <AppWrapper>
-      <CSSTransition
-        in={!showChat}
-        timeout={500}
-        classNames="fade"
-        unmountOnExit
-      >
-        <div>
-          <BackgroundImages />
-          <Navbar onLoginSuccess={handleLoginSuccess} />
-          <SectionsContainer {...options}>
-            <SectionStyled>
-              <TitleContainer>
-                <TypeAnimation
-                  sequence={[
-                    fullTitle,
-                    1000,
-                    fullTitle + fullSubtitle,
-                    1000,
-                    fullTitle + fullSubtitle + "\n" + fullSubtext,
-                  ]}
-                  wrapper="div"
-                  cursor={true}
-                  repeat={0}
-                  style={{
-                    display: 'inline-block',
-                    whiteSpace: 'pre-wrap',
-                    fontFamily: 'Istok Web, sans-serif',
-                    fontSize: '70px',
-                    color: 'black',
-                    textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
-                    textAlign: 'center',
-                  }}
-                />
-              </TitleContainer>
-            </SectionStyled>
-            <SectionStyled>
-              <TypingContent>
-                <TypeAnimation
-                  sequence={[fullText]}
-                  wrapper="div"
-                  cursor={true}
-                  repeat={0}
-                  style={{
-                    display: 'inline-block',
-                    whiteSpace: 'pre-wrap',
-                    fontFamily: 'Istok Web, sans-serif',
-                    fontSize: '24px',
-                    color: 'black',
-                  }}
-                />
-              </TypingContent>
-            </SectionStyled>
-            <SectionStyled>
-              <TypingContent>
-                <TypeAnimation
-                  sequence={[fullText2]}
-                  wrapper="div"
-                  cursor={true}
-                  repeat={0}
-                  style={{
-                    display: 'inline-block',
-                    whiteSpace: 'pre-wrap',
-                    fontFamily: 'Istok Web, sans-serif',
-                    fontSize: '24px',
-                    color: 'black',
-                  }}
-                />
-              </TypingContent>
-              <p>{apiResponse}</p> {/* API 응답을 화면에 표시 */}
-            </SectionStyled>
-          </SectionsContainer>
-        </div>
-      </CSSTransition>
-      <CSSTransition
-        in={showChat}
-        timeout={500}
-        classNames="fade"
-        unmountOnExit
-      >
-        <ChatUI />
-      </CSSTransition>
+      <TransitionGroup>
+        {!showChat && (
+          <CSSTransition
+            key="home"
+            timeout={500}
+            classNames="fade"
+          >
+            <div>
+              <BackgroundImages />
+              <Navbar onLoginSuccess={handleLoginSuccess} />
+              <SectionsContainer {...options}>
+                <SectionStyled>
+                  <TitleContainer>
+                    <TypeAnimation
+                      sequence={[
+                        fullTitle,
+                        1000,
+                        fullTitle + fullSubtitle,
+                        1000,
+                        fullTitle + fullSubtitle + "\n" + fullSubtext,
+                      ]}
+                      wrapper="div"
+                      cursor={true}
+                      repeat={0}
+                      style={{
+                        display: 'inline-block',
+                        whiteSpace: 'pre-wrap',
+                        fontFamily: 'Istok Web, sans-serif',
+                        fontSize: '70px',
+                        color: 'black',
+                        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+                        textAlign: 'center',
+                      }}
+                    />
+                  </TitleContainer>
+                </SectionStyled>
+                <SectionStyled>
+                  <TypingContent>
+                    <TypeAnimation
+                      sequence={[fullText]}
+                      wrapper="div"
+                      cursor={true}
+                      repeat={0}
+                      style={{
+                        display: 'inline-block',
+                        whiteSpace: 'pre-wrap',
+                        fontFamily: 'Istok Web, sans-serif',
+                        fontSize: '24px',
+                        color: 'black',
+                      }}
+                    />
+                  </TypingContent>
+                </SectionStyled>
+                <SectionStyled>
+                  <TypingContent>
+                    <TypeAnimation
+                      sequence={[fullText2]}
+                      wrapper="div"
+                      cursor={true}
+                      repeat={0}
+                      style={{
+                        display: 'inline-block',
+                        whiteSpace: 'pre-wrap',
+                        fontFamily: 'Istok Web, sans-serif',
+                        fontSize: '24px',
+                        color: 'black',
+                      }}
+                    />
+                  </TypingContent>
+                  <p>{apiResponse}</p> {/* API 응답을 화면에 표시 */}
+                </SectionStyled>
+              </SectionsContainer>
+            </div>
+          </CSSTransition>
+        )}
+        {showChat && (
+          <CSSTransition
+            key="chat"
+            timeout={500}
+            classNames="fade"
+          >
+            <ChatUI />
+          </CSSTransition>
+        )}
+      </TransitionGroup>
     </AppWrapper>
   );
 };
