@@ -8,14 +8,14 @@ const NavbarContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0);
     padding: 0 20px;
     position: fixed;
     top: 0;
     left: 0;
     z-index: 1000;
 `;
+
 
 const Logo = styled.div`
     font-size: 24px;
@@ -145,8 +145,11 @@ const Navbar = ({ onLoginSuccess }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
     const [showSignupForm, setShowSignupForm] = useState(false);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+
+    const [loginEmail, setLoginEmail] = useState('');
+    const [loginPassword, setLoginPassword] = useState('');
+    const [signupEmail, setSignupEmail] = useState('');
+    const [signupPassword, setSignupPassword] = useState('');
     const [username, setUsername] = useState('');
     const [birthdate, setBirthdate] = useState('');
     const [investmentType, setInvestmentType] = useState('');
@@ -158,25 +161,27 @@ const Navbar = ({ onLoginSuccess }) => {
 
     const handleLoginClick = () => {
         setShowLoginForm(!showLoginForm);
+        setShowSignupForm(false);
     };
     const handleSignupClick = () => {
-            setShowSignupForm(!showSignupForm);
-            setShowLoginForm(false);
-        };
+        setShowSignupForm(!showSignupForm);
+        setShowLoginForm(false);
+    };
 
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
-        console.log("Email:", email);
-        console.log("Password:", password);
+        console.log("Email:", loginEmail);
+        console.log("Password:", loginPassword);
         try {
             const response = await axios.post('http://localhost:8082/api/login', {
-                email,
-                password,
+                email: loginEmail,
+                password: loginPassword,
             });
 
             if (response.status === 200 && response.data.message === 'Login successful') {
                 setError(false);
                 onLoginSuccess();  // 로그인 성공 시 콜백 호출
+                setIsOpen(false);  // 사이드바 닫기
             } else {
                 setError(true);
                 console.log("로그인 실패")
@@ -187,20 +192,21 @@ const Navbar = ({ onLoginSuccess }) => {
         }
     };
 
+
     const handleSignupSubmit = async (e) => {
         e.preventDefault();
 
         // 입력된 값들을 로그로 출력
-        console.log("UserId:", email);
-        console.log("Password:", password);
+        console.log("UserId:", signupEmail);
+        console.log("Password:", signupPassword);
         console.log("Username:", username);
         console.log("Birthdate:", birthdate);
         console.log("InvestmentType:", investmentType);
 
         try {
             const response = await axios.post('http://localhost:8082/api/signup', {
-                userId: email,
-                password,
+                userId: signupEmail,
+                password: signupPassword,
                 name: username,
                 birthdate,
                 investmentType,
@@ -229,11 +235,11 @@ const Navbar = ({ onLoginSuccess }) => {
 
     return (
         <>
-            <NavbarContainer>
-                <Logo>InvestGenius</Logo>
-                <MenuButton src="/images/density_medium_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg" alt="Menu" onClick={toggleSidebar} />
-            </NavbarContainer>
             <Overlay show={isOpen ? 'true' : undefined} onClick={toggleSidebar} />
+            <NavbarContainer>
+                <Logo></Logo>
+            <MenuButton src="/images/density_medium_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg" alt="Menu" onClick={toggleSidebar} />
+            </NavbarContainer>
             <Sidebar show={isOpen}>
                 <TextButton onClick={handleLoginClick}>로그인</TextButton>
                 <FormContainer show={showLoginForm}>
@@ -241,15 +247,15 @@ const Navbar = ({ onLoginSuccess }) => {
                         <Input
                             type="email"
                             placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={loginEmail}
+                            onChange={(e) => setLoginEmail(e.target.value)}
                             error={error}
                         />
                         <Input
                             type="password"
                             placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            value={loginPassword}
+                            onChange={(e) => setLoginPassword(e.target.value)}
                             error={error}
                         />
                         <Button type="submit">Sign In</Button>
@@ -261,15 +267,15 @@ const Navbar = ({ onLoginSuccess }) => {
                         <Input
                             type="email"
                             placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={signupEmail}
+                            onChange={(e) => setSignupEmail(e.target.value)}
                             error={error}
                         />
                         <Input
                             type="password"
                             placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            value={signupPassword}
+                            onChange={(e) => setSignupPassword(e.target.value)}
                             error={error}
                         />
                         <Input

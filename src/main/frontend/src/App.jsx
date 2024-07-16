@@ -5,7 +5,7 @@ import BackgroundImages from './components/BackgroundImages';
 import styled from 'styled-components';
 import { SectionsContainer, Section } from 'react-fullpage';
 import { TypeAnimation } from 'react-type-animation';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import { AnimatePresence, motion } from 'framer-motion'; // 이 줄을 추가
 import './App.css';
 
 const AppWrapper = styled.div`
@@ -40,6 +40,8 @@ const Content = styled.p`
   margin: 20px 0;
   white-space: pre-wrap;
   overflow: hidden;
+  text-align:center;
+  margin-top : 140px;
 `;
 
 const TypingContent = styled(Content)`
@@ -57,16 +59,16 @@ const TypingContent = styled(Content)`
     }
   }
 `;
+const ChatUIWrapper = styled(motion.div)`
+  display: flex;
+    flex-direction: column;
+    height: 100vh;
+    border : 1px;
+  `;
 
-const App = () => {
-  const [apiResponse, setApiResponse] = useState('');
+const App = ({ in: inProp }) => {
+
   const [showChat, setShowChat] = useState(false);
-
-  useEffect(() => {
-    fetch('http://localhost:8081/api/hello')
-      .then(response => response.text())
-      .then(data => setApiResponse(data));
-  }, []);
 
   const handleLoginSuccess = () => {
     setShowChat(true);
@@ -90,16 +92,17 @@ const App = () => {
   };
 
   return (
-    <AppWrapper>
-      <TransitionGroup>
-        {!showChat && (
-          <CSSTransition
-            key="home"
-            timeout={500}
-            classNames="fade"
-          >
-            <div>
+      <AppWrapper>
+        <AnimatePresence>
+          {!showChat && (
+            <motion.div
+              key="home"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
               <BackgroundImages />
+              <img className="MainLogo" alt="" src="images/MainLogo.png" style={{width : "115px", height : "55px", margin : "25px"}} />
               <Navbar onLoginSuccess={handleLoginSuccess} />
               <SectionsContainer {...options}>
                 <SectionStyled>
@@ -123,60 +126,64 @@ const App = () => {
                         color: 'black',
                         textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
                         textAlign: 'center',
+                        marginBottom : '300px',
                       }}
                     />
                   </TitleContainer>
                 </SectionStyled>
                 <SectionStyled>
-                  <TypingContent>
                     <TypeAnimation
                       sequence={[fullText]}
                       wrapper="div"
                       cursor={true}
                       repeat={0}
                       style={{
-                        display: 'inline-block',
+                        display: 'flex',
                         whiteSpace: 'pre-wrap',
                         fontFamily: 'Istok Web, sans-serif',
                         fontSize: '24px',
                         color: 'black',
+                        textAlign : 'center',
+                        justifyContent : 'center',
+                        marginTop : '140px',
                       }}
                     />
-                  </TypingContent>
                 </SectionStyled>
                 <SectionStyled>
-                  <TypingContent>
                     <TypeAnimation
                       sequence={[fullText2]}
                       wrapper="div"
                       cursor={true}
                       repeat={0}
                       style={{
-                        display: 'inline-block',
+                        display: 'flex',
                         whiteSpace: 'pre-wrap',
                         fontFamily: 'Istok Web, sans-serif',
                         fontSize: '24px',
                         color: 'black',
+                        textAlign : 'center',
+                        justifyContent : 'center',
+                        marginTop : '130px',
                       }}
                     />
-                  </TypingContent>
                 </SectionStyled>
               </SectionsContainer>
-            </div>
-          </CSSTransition>
-        )}
-        {showChat && (
-          <CSSTransition
-            key="chat"
-            timeout={500}
-            classNames="fade"
-          >
-            <ChatUI />
-          </CSSTransition>
-        )}
-      </TransitionGroup>
-    </AppWrapper>
-  );
-};
+            </motion.div>
+          )}
+          {showChat && (
+            <ChatUIWrapper
+              key="chat"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.2 }}
+            >
+              <ChatUI />
+            </ChatUIWrapper>
+          )}
+        </AnimatePresence>
+      </AppWrapper>
+    );
+  };
 
-export default App;
+  export default App;
