@@ -11,5 +11,5 @@
 .header-options span {
     margin-left: 20px;
     cursor: pointer;
-    z-index : 1;
+    z-index : 9999;
 }

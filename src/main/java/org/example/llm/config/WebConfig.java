@@ -1,4 +1,4 @@
-package org.example.llm;
+package org.example.llm.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,8 +13,8 @@ public class WebConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/ask")
-                        .allowedOrigins("http://localhost:8081")
+                registry.addMapping("/**")
+                        .allowedOriginPatterns("http://localhost:8081")
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowedHeaders("*")
                         .allowCredentials(true);

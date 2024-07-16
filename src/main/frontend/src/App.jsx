@@ -160,7 +160,6 @@ const App = () => {
                       }}
                     />
                   </TypingContent>
-                  <p>{apiResponse}</p> {/* API 응답을 화면에 표시 */}
                 </SectionStyled>
               </SectionsContainer>
             </div>
