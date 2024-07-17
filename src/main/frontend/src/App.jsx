@@ -65,118 +65,148 @@ const ChatUIWrapper = styled(motion.div)`
 
 const App = ({ in: inProp }) => {
   const [showChat, setShowChat] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const handleLoginSuccess = () => {
+  useEffect(() => {
+    checkLoginStatus();
+    const chatState = localStorage.getItem('showChat');
+    if (chatState === 'true') {
+      setShowChat(true);
+    }
+  }, []);
+
+  const checkLoginStatus = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const response = await axios.get('http://localhost:8082/api/check-auth', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setIsLoggedIn(response.data.isLoggedIn);
+        setShowChat(response.data.isLoggedIn);
+      } catch (error) {
+        console.error('인증 확인 실패:', error);
+        setIsLoggedIn(false);
+        setShowChat(false);
+        localStorage.removeItem('token');
+      }
+    }
+  };
+
+  const handleLoginSuccess = (token) => {
+    localStorage.setItem('token', token);
+    setIsLoggedIn(true);
     setShowChat(true);
+    localStorage.setItem('showChat', 'true');
   };
-  const fullTitle = "투자의 ";
-  const fullSubtitle = "시작";
-  const fullSubtext = "InvestGenius";
-  const fullText = "당신의 투자 성향에 맞춘 전략을 제공해드립니다.\n당신이 원하는 정보를 검색해보세요!";
-  const fullText2 = "채팅하는 장면 동영상 섹션";
-  const options = {
-    sectionClassName: 'section',
-    anchors: ['sectionOne', 'sectionTwo', 'sectionThree'],
-    scrollBar: false,
-    navigation: true,
-    verticalAlign: false,
-    sectionPaddingTop: '50px',
-    sectionPaddingBottom: '50px',
-    arrowNavigation: true
-  };
+    const fullTitle = "투자의 ";
+    const fullSubtitle = "시작";
+    const fullSubtext = "InvestGenius";
+    const fullText = "당신의 투자 성향에 맞춘 전략을 제공해드립니다.\n당신이 원하는 정보를 검색해보세요!";
+    const fullText2 = "채팅하는 장면 동영상 섹션";
+    const options = {
+      sectionClassName: 'section',
+      anchors: ['sectionOne', 'sectionTwo', 'sectionThree'],
+      scrollBar: false,
+      navigation: true,
+      verticalAlign: false,
+      sectionPaddingTop: '50px',
+      sectionPaddingBottom: '50px',
+      arrowNavigation: true
+    };
 
   return (
-      <AppWrapper>
-        <AnimatePresence>
-          {!showChat && (
-              <motion.div
-                  key="home"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-              >
-                <BackgroundImages />
-                <img className="MainLogo" alt="" src="images/MainLogo.png" style={{ width: "115px", height: "55px", margin: "25px" }} />
-                <Navbar onLoginSuccess={handleLoginSuccess} />
-                <SectionsContainer {...options}>
-                  <SectionStyled>
-                    <TitleContainer>
-                      <TypeAnimation
-                          sequence={[
-                            fullTitle,
-                            1000,
-                            fullTitle + fullSubtitle,
-                            1000,
-                            fullTitle + fullSubtitle + "\n" + fullSubtext,
-                          ]}
-                          wrapper="div"
-                          cursor={true}
-                          repeat={0}
-                          style={{
-                            display: 'inline-block',
-                            whiteSpace: 'pre-wrap',
-                            fontFamily: 'Istok Web, sans-serif',
-                            fontSize: '70px',
-                            color: 'black',
-                            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
-                            textAlign: 'center',
-                            marginBottom: '300px',
-                          }}
-                      />
-                    </TitleContainer>
-                  </SectionStyled>
-                  <SectionStyled>
-                    <TypeAnimation
-                        sequence={[fullText]}
-                        wrapper="div"
-                        cursor={true}
-                        repeat={0}
-                        style={{
-                          display: 'flex',
-                          whiteSpace: 'pre-wrap',
-                          fontFamily: 'Istok Web, sans-serif',
-                          fontSize: '24px',
-                          color: 'black',
-                          textAlign: 'center',
-                          justifyContent: 'center',
-                          marginTop: '140px',
-                        }}
-                    />
-                  </SectionStyled>
-                  <SectionStyled>
-                    <TypeAnimation
-                        sequence={[fullText2]}
-                        wrapper="div"
-                        cursor={true}
-                        repeat={0}
-                        style={{
-                          display: 'flex',
-                          whiteSpace: 'pre-wrap',
-                          fontFamily: 'Istok Web, sans-serif',
-                          fontSize: '24px',
-                          color: 'black',
-                          textAlign: 'center',
-                          justifyContent: 'center',
-                          marginTop: '130px',
-                        }}
-                    />
-                  </SectionStyled>
-                </SectionsContainer>
-              </motion.div>
-          )}
-          {showChat && (
-              <ChatUIWrapper
-                  key="chat"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 1.2 }}
-              >
-                <ChatUI />
-              </ChatUIWrapper>
-          )}
-        </AnimatePresence>
-      </AppWrapper>
+    <AppWrapper>
+      <AnimatePresence>
+        {!showChat && (
+          <motion.div
+            key="home"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <BackgroundImages />
+            <img className="MainLogo" alt="" src="images/MainLogo.png" style={{ width: "115px", height: "55px", margin: "25px" }} />
+            <Navbar onLoginSuccess={handleLoginSuccess} />
+            <SectionsContainer {...options}>
+              <SectionStyled>
+                <TitleContainer>
+                  <TypeAnimation
+                    sequence={[
+                      fullTitle,
+                      1000,
+                      fullTitle + fullSubtitle,
+                      1000,
+                      fullTitle + fullSubtitle + "\n" + fullSubtext,
+                    ]}
+                    wrapper="div"
+                    cursor={true}
+                    repeat={0}
+                    style={{
+                      display: 'inline-block',
+                      whiteSpace: 'pre-wrap',
+                      fontFamily: 'Istok Web, sans-serif',
+                      fontSize: '70px',
+                      color: 'black',
+                      textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+                      textAlign: 'center',
+                      marginBottom: '300px',
+                    }}
+                  />
+                </TitleContainer>
+              </SectionStyled>
+              <SectionStyled>
+                <TypeAnimation
+                  sequence={[fullText]}
+                  wrapper="div"
+                  cursor={true}
+                  repeat={0}
+                  style={{
+                    display: 'flex',
+                    whiteSpace: 'pre-wrap',
+                    fontFamily: 'Istok Web, sans-serif',
+                    fontSize: '24px',
+                    color: 'black',
+                    textAlign: 'center',
+                    justifyContent: 'center',
+                    marginTop: '140px',
+                  }}
+                />
+              </SectionStyled>
+              <SectionStyled>
+                <TypeAnimation
+                  sequence={[fullText2]}
+                  wrapper="div"
+                  cursor={true}
+                  repeat={0}
+                  style={{
+                    display: 'flex',
+                    whiteSpace: 'pre-wrap',
+                    fontFamily: 'Istok Web, sans-serif',
+                    fontSize: '24px',
+                    color: 'black',
+                    textAlign: 'center',
+                    justifyContent: 'center',
+                    marginTop: '130px',
+                  }}
+                />
+              </SectionStyled>
+            </SectionsContainer>
+          </motion.div>
+        )}
+        {showChat && (
+          <ChatUIWrapper
+            key="chat"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.2 }}
+          >
+            <ChatUI />
+          </ChatUIWrapper>
+        )}
+      </AnimatePresence>
+    </AppWrapper>
   );
 };
 

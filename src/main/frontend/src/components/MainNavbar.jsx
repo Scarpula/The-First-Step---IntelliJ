@@ -4,6 +4,7 @@ import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { ReactComponent as TableRowsIcon } from './table_rows_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg';
 import './MainNavbar.css';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // useNavigate 훅을 임포트합니다.
 
 const itemVariants: Variants = {
   open: {
@@ -40,6 +41,7 @@ const MainNavbar = () => {
   const [selectedTab, setSelectedTab] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const navigate = useNavigate(); // useNavigate 훅을 사용합니다.
 
   useEffect(() => {
     // 컴포넌트 마운트 시 세션을 확인하여 사용자 정보를 설정합니다.
@@ -71,6 +73,21 @@ const MainNavbar = () => {
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleLogout = async () => {
+    try {
+      const response = await axios.get('http://localhost:8082/api/logout', { withCredentials: true });
+      if (response.status === 200) {
+        setUser(null);
+        alert('Logout successful');
+        navigate('/'); // 로그아웃 후 홈으로 리디렉션합니다.
+      } else {
+        alert('Logout failed');
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
   };
 
   const spanVariants = {
@@ -132,8 +149,11 @@ const MainNavbar = () => {
           </AnimatePresence>
         </div>
         {user && (
-          <div style={{ marginLeft: 'auto', marginRight: '25px' }}>
-            {user.name}님
+          <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto', marginRight: '25px' }}>
+            <span>{user.name}님</span>
+            <button onClick={handleLogout} style={{ marginLeft: '10px', padding: '5px 10px', cursor: 'pointer' }}>
+              로그아웃
+            </button>
           </div>
         )}
       </div>

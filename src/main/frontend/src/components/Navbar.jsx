@@ -159,15 +159,13 @@ const Navbar = ({ onLoginSuccess }) => {
             const response = await axios.post('http://localhost:8082/api/login', {
                 email: loginEmail,
                 password: loginPassword,
-            }, { withCredentials: true
-            });
+            }, { withCredentials: true });
 
             if (response.status === 200 && response.data.message === 'Login successful') {
                 setError(false);
                 onLoginSuccess();  // 로그인 성공 시 콜백 호출
                 setIsOpen(false);  // 사이드바 닫기
-                onLoginSuccess();
-                checkSession();// 로그인 성공 시 콜백 호출
+                checkSession();
             } else {
                 setError(true);
                 console.log("로그인 실패");
@@ -177,8 +175,6 @@ const Navbar = ({ onLoginSuccess }) => {
             console.log("에러");
         }
     };
-
-
 
     const handleSignupSubmit = async (e) => {
         e.preventDefault();
@@ -239,7 +235,6 @@ const Navbar = ({ onLoginSuccess }) => {
         checkSession();
     }, []);
 
-
     useEffect(() => {
         if (isOpen || showLoginForm || showSignupForm) {
             document.body.style.overflow = 'hidden';
@@ -247,7 +242,6 @@ const Navbar = ({ onLoginSuccess }) => {
             document.body.style.overflow = 'auto';
         }
     }, [isOpen, showLoginForm, showSignupForm]);
-
 
     return (
         <>
