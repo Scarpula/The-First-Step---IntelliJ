@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { ReactComponent as TableRowsIcon } from './table_rows_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg';
 import './MainNavbar.css';
+import axios from 'axios';
 
 const itemVariants: Variants = {
   open: {
@@ -38,6 +39,23 @@ const MainNavbar = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [selectedTab, setSelectedTab] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // 컴포넌트 마운트 시 세션을 확인하여 사용자 정보를 설정합니다.
+    const checkSession = async () => {
+      try {
+        const response = await axios.get('http://localhost:8082/api/session', { withCredentials: true });
+        if (response.status === 200 && response.data.user) {
+          setUser(response.data.user);
+        }
+      } catch (error) {
+        console.error('Error during session check:', error);
+      }
+    };
+
+    checkSession();
+  }, []);
 
   const handleMouseEnter = () => {
     setIsVisible(true);
@@ -113,6 +131,11 @@ const MainNavbar = () => {
             )}
           </AnimatePresence>
         </div>
+        {user && (
+          <div style={{ marginLeft: 'auto', marginRight: '25px' }}>
+            {user.name}님
+          </div>
+        )}
       </div>
       <motion.div
         className="menu"
