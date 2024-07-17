@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 
 @Service
@@ -44,16 +45,16 @@ public class UserService {
         userRepository.save(user);
     }
 
-
-
-    public boolean authenticateUser(String email, String password) {
-        UserEntity user = userRepository.findByEmail(email).orElse(null);
-        if (user != null) {
-            // 비밀번호 비교 (실제 환경에서는 암호화된 비밀번호를 사용해야 합니다)
-            return user.getPassword().equals(password);
+    public UserEntity login(String email, String password) {
+        UserEntity user = userRepository.findByEmail(email);
+        if (user != null && user.getPassword().equals(password)) {
+            return user;
         }
-        return false;
+        return null;
     }
 
 
+    public UserEntity findUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 }

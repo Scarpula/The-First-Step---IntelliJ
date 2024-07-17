@@ -39,12 +39,26 @@ public class UserController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody LoginRequest loginRequest, HttpSession session) {
-        if (userService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword())) {
-            session.setAttribute("user", loginRequest.getEmail());
-            return ResponseEntity.ok("Login successful");
+    public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest, HttpSession session) {
+        String email = loginRequest.get("email");
+        String password = loginRequest.get("password");
+
+        UserEntity user = userService.login(email, password);
+        if (user != null) {
+            session.setAttribute("user", loginRequest.get(email));
+            return ResponseEntity.ok().body(Map.of("status", "success", "message", "Login successful"));
         } else {
-            return ResponseEntity.badRequest().body("Invalid credentials");
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Invalid email or password"));
+        }
+    }
+    @GetMapping("/profile")
+    public ResponseEntity<UserEntity> getUserProfile(HttpSession session) {
+        String email = (String) session.getAttribute("user");
+        if (email != null) {
+            UserEntity user = userService.findUserByEmail(email);
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.badRequest().body(null);
         }
     }
 }
