@@ -1,27 +1,26 @@
 package org.example.llm.Member.service;
 
-import jakarta.servlet.http.HttpSession;
 import org.example.llm.Member.Entity.UserEntity;
 import org.example.llm.Member.Repository.UserRepository;
 import org.example.llm.Member.dto.Joindto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDate;
-import java.util.Map;
+
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
 
+
     @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
+
 
     @Transactional
     public void join(Joindto joinrequest) {
@@ -46,6 +45,15 @@ public class UserService {
     }
 
 
+
+    public boolean authenticateUser(String email, String password) {
+        UserEntity user = userRepository.findByEmail(email).orElse(null);
+        if (user != null) {
+            // 비밀번호 비교 (실제 환경에서는 암호화된 비밀번호를 사용해야 합니다)
+            return user.getPassword().equals(password);
+        }
+        return false;
+    }
 
 
 }

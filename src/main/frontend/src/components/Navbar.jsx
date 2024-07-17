@@ -165,9 +165,6 @@ const Navbar = ({ onLoginSuccess }) => {
                 setError(false);
                 onLoginSuccess();  // 로그인 성공 시 콜백 호출
                 setIsOpen(false);  // 사이드바 닫기
-                const token = response.data.token;
-                localStorage.setItem('token', response.data.token);
-                onLoginSuccess(token);  // 로그인 성공 시 콜백 호출
             } else {
                 setError(true);
                 console.log("로그인 실패");

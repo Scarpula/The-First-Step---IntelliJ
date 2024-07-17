@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Navbar from './components/Navbar';
 import ChatUI from './components/ChatUI';
 import BackgroundImages from './components/BackgroundImages';
@@ -7,7 +7,7 @@ import { SectionsContainer, Section } from 'react-fullpage';
 import { TypeAnimation } from 'react-type-animation';
 import { AnimatePresence, motion } from 'framer-motion'; // 이 줄을 추가
 import './App.css';
-import axios from "axios";
+
 
 const AppWrapper = styled.div`
   position: relative;
@@ -66,33 +66,10 @@ const ChatUIWrapper = styled(motion.div)`
 const App = ({ in: inProp }) => {
 
   const [showChat, setShowChat] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    useEffect(() => {
-      checkLoginStatus();
-    }, []);
 
-  const checkLoginStatus = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const response = await axios.get('http://localhost:8082/api/check-auth', {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          setIsLoggedIn(response.data.isLoggedIn);
-          setShowChat(response.data.isLoggedIn);
-        } catch (error) {
-          console.error('인증 확인 실패:', error);
-          setIsLoggedIn(false);
-          setShowChat(false);
-          localStorage.removeItem('token');
-        }
-      }
-    };
+    const handleLoginSuccess = () => {
 
-    const handleLoginSuccess = (token) => {
-      localStorage.setItem('token', token);
-      setIsLoggedIn(true);
       setShowChat(true);
     };
   const fullTitle = "투자의 ";
