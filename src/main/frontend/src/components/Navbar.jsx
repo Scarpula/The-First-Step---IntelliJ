@@ -8,8 +8,7 @@ const NavbarContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0);
     padding: 0 20px;
     position: fixed;
     top: 0;
@@ -110,22 +109,6 @@ const Input = styled.input`
     border-radius: 4px;
 `;
 
-const RadioButtonContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: 10px;
-`;
-
-const RadioButtonLabel = styled.label`
-  display: flex;
-  align-items: center;
-  margin-bottom: 5px;
-`;
-
-const RadioButtonInput = styled.input`
-  margin-right: 10px;
-`;
-
 const Button = styled.button`
     padding: 10px;
     font-size: 16px;
@@ -145,14 +128,14 @@ const Navbar = ({ onLoginSuccess }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
     const [showSignupForm, setShowSignupForm] = useState(false);
-    const [username, setUsername] = useState('');
-    const [birthdate, setBirthdate] = useState('');
-    const [investmentType, setInvestmentType] = useState('');
-    const [error, setError] = useState(false);
     const [loginEmail, setLoginEmail] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
     const [signupEmail, setSignupEmail] = useState('');
     const [signupPassword, setSignupPassword] = useState('');
+    const [username, setUsername] = useState('');
+    const [birthdate, setBirthdate] = useState('');
+
+    const [error, setError] = useState(false);
 
     const toggleSidebar = () => {
         setIsOpen(!isOpen);
@@ -160,11 +143,13 @@ const Navbar = ({ onLoginSuccess }) => {
 
     const handleLoginClick = () => {
         setShowLoginForm(!showLoginForm);
+        setShowSignupForm(false);
     };
+
     const handleSignupClick = () => {
-            setShowSignupForm(!showSignupForm);
-            setShowLoginForm(false);
-        };
+        setShowSignupForm(!showSignupForm);
+        setShowLoginForm(false);
+    };
 
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
@@ -172,22 +157,24 @@ const Navbar = ({ onLoginSuccess }) => {
         console.log("Password:", loginPassword);
         try {
             const response = await axios.post('http://localhost:8082/api/login', {
-                email:loginEmail,
-                password:loginPassword,
+                email: loginEmail,
+                password: loginPassword,
             });
 
             if (response.status === 200 && response.data.message === 'Login successful') {
                 setError(false);
+                onLoginSuccess();  // 로그인 성공 시 콜백 호출
+                setIsOpen(false);  // 사이드바 닫기
                 const token = response.data.token;
                 localStorage.setItem('token', response.data.token);
                 onLoginSuccess(token);  // 로그인 성공 시 콜백 호출
             } else {
                 setError(true);
-                console.log("로그인 실패")
+                console.log("로그인 실패");
             }
         } catch (error) {
             setError(true);
-            console.log("에러")
+            console.log("에러");
         }
     };
 
@@ -199,15 +186,13 @@ const Navbar = ({ onLoginSuccess }) => {
         console.log("Password:", signupPassword);
         console.log("Username:", username);
         console.log("Birthdate:", birthdate);
-        console.log("InvestmentType:", investmentType);
 
         try {
             const response = await axios.post('http://localhost:8082/api/signup', {
                 userId: signupEmail,
-                password:signupPassword,
+                password: signupPassword,
                 name: username,
                 birthdate,
-                investmentType,
             });
 
             if (response.status === 200) {
@@ -233,11 +218,11 @@ const Navbar = ({ onLoginSuccess }) => {
 
     return (
         <>
+            <Overlay show={isOpen ? 'true' : undefined} onClick={toggleSidebar} />
             <NavbarContainer>
-                <Logo>InvestGenius</Logo>
+                <Logo></Logo>
                 <MenuButton src="/images/density_medium_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg" alt="Menu" onClick={toggleSidebar} />
             </NavbarContainer>
-            <Overlay show={isOpen ? 'true' : undefined} onClick={toggleSidebar} />
             <Sidebar show={isOpen}>
                 <TextButton onClick={handleLoginClick}>로그인</TextButton>
                 <FormContainer show={showLoginForm}>
@@ -290,59 +275,6 @@ const Navbar = ({ onLoginSuccess }) => {
                             onChange={(e) => setBirthdate(e.target.value)}
                             error={error}
                         />
-                        <span>★투자유형 선택★</span>
-                        <RadioButtonContainer>
-                            <RadioButtonLabel>
-                                <RadioButtonInput
-                                    type="radio"
-                                    name="investmentType"
-                                    value="공격투자형"
-                                    checked={investmentType === "공격투자형"}
-                                    onChange={(e) => setInvestmentType(e.target.value)}
-                                />
-                                공격투자형
-                            </RadioButtonLabel>
-                            <RadioButtonLabel>
-                                <RadioButtonInput
-                                    type="radio"
-                                    name="investmentType"
-                                    value="적극투자형"
-                                    checked={investmentType === "적극투자형"}
-                                    onChange={(e) => setInvestmentType(e.target.value)}
-                                />
-                                적극투자형
-                            </RadioButtonLabel>
-                            <RadioButtonLabel>
-                                <RadioButtonInput
-                                    type="radio"
-                                    name="investmentType"
-                                    value="위험중립형"
-                                    checked={investmentType === "위험중립형"}
-                                    onChange={(e) => setInvestmentType(e.target.value)}
-                                />
-                                위험중립형
-                            </RadioButtonLabel>
-                            <RadioButtonLabel>
-                                <RadioButtonInput
-                                    type="radio"
-                                    name="investmentType"
-                                    value="안정추구형"
-                                    checked={investmentType === "안정추구형"}
-                                    onChange={(e) => setInvestmentType(e.target.value)}
-                                />
-                                안정추구형
-                            </RadioButtonLabel>
-                            <RadioButtonLabel>
-                                <RadioButtonInput
-                                    type="radio"
-                                    name="investmentType"
-                                    value="안정형"
-                                    checked={investmentType === "안정형"}
-                                    onChange={(e) => setInvestmentType(e.target.value)}
-                                />
-                                안정형
-                            </RadioButtonLabel>
-                        </RadioButtonContainer>
                         <Button type="submit">회원가입</Button>
                     </Form>
                 </FormContainer>

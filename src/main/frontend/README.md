@@ -6,8 +6,10 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
-### 인스톨 해야하는 것들!
-### npm i 
+### 포트번호 강제 종료
+# netstat -ano | findstr :8081
+# taskkill /PID (포트아이디) /F
+
 
 
 ### `npm start`
