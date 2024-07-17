@@ -20,12 +20,11 @@ import java.util.Map;
 public class UserController {
 
     @Autowired
-    private final JwtUtil jwtUtil;
-
+    private final HttpSession httpSession;
     private final UserService userService;
 
-    public UserController(JwtUtil jwtUtil, UserService userService) {
-        this.jwtUtil = jwtUtil;
+    public UserController(HttpSession httpSession, UserService userService) {
+        this.httpSession = httpSession;
         this.userService = userService;
     }
 
@@ -45,29 +44,26 @@ public class UserController {
 
         UserEntity user = userService.login(email, password);
         if (user != null) {
-            String token = jwtUtil.createToken(email);
-            return ResponseEntity.ok().body(Map.of("status", "success", "message", "Login successful","token", token));
+            httpSession.setAttribute("user", user);  // 세션에 유저 정보 저장
+            return ResponseEntity.ok().body(Map.of("status", "success", "message", "Login successful"));
         } else {
             return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Invalid email or password"));
         }
     }
 
-    @GetMapping("/check-auth")
-    public ResponseEntity<?> checkAuth(@RequestHeader(value = "Authorization", required = false) String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("isLoggedIn", false, "message", "No token provided"));
-        }
+    @GetMapping("/logout")
+    public ResponseEntity<?> logout() {
+        httpSession.invalidate();  // 세션 무효화
+        return ResponseEntity.ok().body(Map.of("status", "success", "message", "Logout successful"));
+    }
 
-        String token = authHeader.substring(7);
-        try {
-            if (jwtUtil.validateToken(token)) {
-                String username = jwtUtil.getUsernameFromToken(token);
-                return ResponseEntity.ok().body(Map.of("isLoggedIn", true, "username", username));
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("isLoggedIn", false, "message", "Invalid token"));
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("isLoggedIn", false, "message", "Error processing token"));
+    @GetMapping("/session")
+    public  ResponseEntity<?> getSession(){
+        UserEntity user = (UserEntity) httpSession.getAttribute("user");
+        if(user != null){
+            return ResponseEntity.ok().body(Map.of("status","success","user",user));
+        }else {
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "No active session"));
         }
     }
 
