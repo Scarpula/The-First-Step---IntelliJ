@@ -5,8 +5,9 @@ import BackgroundImages from './components/BackgroundImages';
 import styled from 'styled-components';
 import { SectionsContainer, Section } from 'react-fullpage';
 import { TypeAnimation } from 'react-type-animation';
-import { AnimatePresence, motion } from 'framer-motion'; // 이 줄을 추가
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import './App.css';
+import axios from "axios";
 
 const AppWrapper = styled.div`
   position: relative;
@@ -40,8 +41,6 @@ const Content = styled.p`
   margin: 20px 0;
   white-space: pre-wrap;
   overflow: hidden;
-  text-align:center;
-  margin-top : 140px;
 `;
 
 const TypingContent = styled(Content)`
@@ -59,20 +58,42 @@ const TypingContent = styled(Content)`
     }
   }
 `;
-const ChatUIWrapper = styled(motion.div)`
-  display: flex;
-    flex-direction: column;
-    height: 100vh;
-    border : 1px;
-  `;
 
-const App = ({ in: inProp }) => {
-
+const App = () => {
   const [showChat, setShowChat] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const handleLoginSuccess = () => {
+  useEffect(() => {
+    checkLoginStatus();
+  }, []);
+
+  const checkLoginStatus = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const response = await axios.get('http://localhost:8082/api/check-auth', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setIsLoggedIn(response.data.isLoggedIn);
+        setShowChat(response.data.isLoggedIn);
+      } catch (error) {
+        console.error('인증 확인 실패:', error);
+        setIsLoggedIn(false);
+        setShowChat(false);
+        localStorage.removeItem('token');
+      }
+    }
+  };
+
+  const handleLoginSuccess = (token) => {
+    localStorage.setItem('token', token);
+    setIsLoggedIn(true);
     setShowChat(true);
   };
+
+
+
+
 
   const fullTitle = "투자의 ";
   const fullSubtitle = "시작";
@@ -93,97 +114,92 @@ const App = ({ in: inProp }) => {
 
   return (
       <AppWrapper>
-        <AnimatePresence>
+        <TransitionGroup>
           {!showChat && (
-            <motion.div
-              key="home"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <BackgroundImages />
-              <img className="MainLogo" alt="" src="images/MainLogo.png" style={{width : "115px", height : "55px", margin : "25px"}} />
-              <Navbar onLoginSuccess={handleLoginSuccess} />
-              <SectionsContainer {...options}>
-                <SectionStyled>
-                  <TitleContainer>
-                    <TypeAnimation
-                      sequence={[
-                        fullTitle,
-                        1000,
-                        fullTitle + fullSubtitle,
-                        1000,
-                        fullTitle + fullSubtitle + "\n" + fullSubtext,
-                      ]}
-                      wrapper="div"
-                      cursor={true}
-                      repeat={0}
-                      style={{
-                        display: 'inline-block',
-                        whiteSpace: 'pre-wrap',
-                        fontFamily: 'Istok Web, sans-serif',
-                        fontSize: '70px',
-                        color: 'black',
-                        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
-                        textAlign: 'center',
-                        marginBottom : '300px',
-                      }}
-                    />
-                  </TitleContainer>
-                </SectionStyled>
-                <SectionStyled>
-                    <TypeAnimation
-                      sequence={[fullText]}
-                      wrapper="div"
-                      cursor={true}
-                      repeat={0}
-                      style={{
-                        display: 'flex',
-                        whiteSpace: 'pre-wrap',
-                        fontFamily: 'Istok Web, sans-serif',
-                        fontSize: '24px',
-                        color: 'black',
-                        textAlign : 'center',
-                        justifyContent : 'center',
-                        marginTop : '140px',
-                      }}
-                    />
-                </SectionStyled>
-                <SectionStyled>
-                    <TypeAnimation
-                      sequence={[fullText2]}
-                      wrapper="div"
-                      cursor={true}
-                      repeat={0}
-                      style={{
-                        display: 'flex',
-                        whiteSpace: 'pre-wrap',
-                        fontFamily: 'Istok Web, sans-serif',
-                        fontSize: '24px',
-                        color: 'black',
-                        textAlign : 'center',
-                        justifyContent : 'center',
-                        marginTop : '130px',
-                      }}
-                    />
-                </SectionStyled>
-              </SectionsContainer>
-            </motion.div>
+              <CSSTransition
+                  key="home"
+                  timeout={500}
+                  classNames="fade"
+              >
+                <div>
+                  <BackgroundImages />
+                  <Navbar isLoggedIn={isLoggedIn} onLoginSuccess={handleLoginSuccess} />
+                  <SectionsContainer {...options}>
+                    <SectionStyled>
+                      <TitleContainer>
+                        <TypeAnimation
+                            sequence={[
+                              fullTitle,
+                              1000,
+                              fullTitle + fullSubtitle,
+                              1000,
+                              fullTitle + fullSubtitle + "\n" + fullSubtext,
+                            ]}
+                            wrapper="div"
+                            cursor={true}
+                            repeat={0}
+                            style={{
+                              display: 'inline-block',
+                              whiteSpace: 'pre-wrap',
+                              fontFamily: 'Istok Web, sans-serif',
+                              fontSize: '70px',
+                              color: 'black',
+                              textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+                              textAlign: 'center',
+                            }}
+                        />
+                      </TitleContainer>
+                    </SectionStyled>
+                    <SectionStyled>
+                      <TypingContent>
+                        <TypeAnimation
+                            sequence={[fullText]}
+                            wrapper="div"
+                            cursor={true}
+                            repeat={0}
+                            style={{
+                              display: 'inline-block',
+                              whiteSpace: 'pre-wrap',
+                              fontFamily: 'Istok Web, sans-serif',
+                              fontSize: '24px',
+                              color: 'black',
+                            }}
+                        />
+                      </TypingContent>
+                    </SectionStyled>
+                    <SectionStyled>
+                      <TypingContent>
+                        <TypeAnimation
+                            sequence={[fullText2]}
+                            wrapper="div"
+                            cursor={true}
+                            repeat={0}
+                            style={{
+                              display: 'inline-block',
+                              whiteSpace: 'pre-wrap',
+                              fontFamily: 'Istok Web, sans-serif',
+                              fontSize: '24px',
+                              color: 'black',
+                            }}
+                        />
+                      </TypingContent>
+                    </SectionStyled>
+                  </SectionsContainer>
+                </div>
+              </CSSTransition>
           )}
           {showChat && (
-            <ChatUIWrapper
-              key="chat"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.2 }}
-            >
-              <ChatUI />
-            </ChatUIWrapper>
+              <CSSTransition
+                  key="chat"
+                  timeout={500}
+                  classNames="fade"
+              >
+                <ChatUI />
+              </CSSTransition>
           )}
-        </AnimatePresence>
+        </TransitionGroup>
       </AppWrapper>
-    );
-  };
+  );
+};
 
-  export default App;
+export default App;

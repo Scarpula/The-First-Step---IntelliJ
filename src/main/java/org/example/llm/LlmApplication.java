@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
-@EnableJpaRepositories(basePackages = "org.example.llm.Repository")
+@EnableJpaRepositories(basePackages = "org.example.llm.Member.Repository")
 public class LlmApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(LlmApplication.class, args);

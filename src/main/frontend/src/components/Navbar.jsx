@@ -8,14 +8,14 @@ const NavbarContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: rgba(255, 255, 255, 0);
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 0 20px;
     position: fixed;
     top: 0;
     left: 0;
     z-index: 1000;
 `;
-
 
 const Logo = styled.div`
     font-size: 24px;
@@ -145,15 +145,14 @@ const Navbar = ({ onLoginSuccess }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
     const [showSignupForm, setShowSignupForm] = useState(false);
-
-    const [loginEmail, setLoginEmail] = useState('');
-    const [loginPassword, setLoginPassword] = useState('');
-    const [signupEmail, setSignupEmail] = useState('');
-    const [signupPassword, setSignupPassword] = useState('');
     const [username, setUsername] = useState('');
     const [birthdate, setBirthdate] = useState('');
     const [investmentType, setInvestmentType] = useState('');
     const [error, setError] = useState(false);
+    const [loginEmail, setLoginEmail] = useState('');
+    const [loginPassword, setLoginPassword] = useState('');
+    const [signupEmail, setSignupEmail] = useState('');
+    const [signupPassword, setSignupPassword] = useState('');
 
     const toggleSidebar = () => {
         setIsOpen(!isOpen);
@@ -161,12 +160,11 @@ const Navbar = ({ onLoginSuccess }) => {
 
     const handleLoginClick = () => {
         setShowLoginForm(!showLoginForm);
-        setShowSignupForm(false);
     };
     const handleSignupClick = () => {
-        setShowSignupForm(!showSignupForm);
-        setShowLoginForm(false);
-    };
+            setShowSignupForm(!showSignupForm);
+            setShowLoginForm(false);
+        };
 
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
@@ -174,14 +172,15 @@ const Navbar = ({ onLoginSuccess }) => {
         console.log("Password:", loginPassword);
         try {
             const response = await axios.post('http://localhost:8082/api/login', {
-                email: loginEmail,
-                password: loginPassword,
+                email:loginEmail,
+                password:loginPassword,
             });
 
             if (response.status === 200 && response.data.message === 'Login successful') {
                 setError(false);
-                onLoginSuccess();  // 로그인 성공 시 콜백 호출
-                setIsOpen(false);  // 사이드바 닫기
+                const token = response.data.token;
+                localStorage.setItem('token', response.data.token);
+                onLoginSuccess(token);  // 로그인 성공 시 콜백 호출
             } else {
                 setError(true);
                 console.log("로그인 실패")
@@ -191,7 +190,6 @@ const Navbar = ({ onLoginSuccess }) => {
             console.log("에러")
         }
     };
-
 
     const handleSignupSubmit = async (e) => {
         e.preventDefault();
@@ -206,7 +204,7 @@ const Navbar = ({ onLoginSuccess }) => {
         try {
             const response = await axios.post('http://localhost:8082/api/signup', {
                 userId: signupEmail,
-                password: signupPassword,
+                password:signupPassword,
                 name: username,
                 birthdate,
                 investmentType,
@@ -235,11 +233,11 @@ const Navbar = ({ onLoginSuccess }) => {
 
     return (
         <>
-            <Overlay show={isOpen ? 'true' : undefined} onClick={toggleSidebar} />
             <NavbarContainer>
-                <Logo></Logo>
-            <MenuButton src="/images/density_medium_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg" alt="Menu" onClick={toggleSidebar} />
+                <Logo>InvestGenius</Logo>
+                <MenuButton src="/images/density_medium_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg" alt="Menu" onClick={toggleSidebar} />
             </NavbarContainer>
+            <Overlay show={isOpen ? 'true' : undefined} onClick={toggleSidebar} />
             <Sidebar show={isOpen}>
                 <TextButton onClick={handleLoginClick}>로그인</TextButton>
                 <FormContainer show={showLoginForm}>
