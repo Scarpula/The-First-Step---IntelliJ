@@ -45,13 +45,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public UserEntity login(String email, String password) {
-        UserEntity user = userRepository.findByEmail(email);
-        if (user != null && user.getPassword().equals(password)) {
-            return user;
-        }
-        return null;
-    }
+
 
 
 }
