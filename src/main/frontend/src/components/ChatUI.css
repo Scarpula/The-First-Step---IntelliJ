@@ -24,11 +24,13 @@
 .chat-bubble.right {
   background-color: #EAEAEA;
   align-self: flex-end;
+  padding-top : 1px;
+  padding-bottom : 1px;
 }
 
 .chat-input-container {
   padding: 10px 20%;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0);
   position: sticky;
   bottom: 0;
 }
@@ -37,6 +39,7 @@
   display: flex;
   max-width: 60%;
   margin: 0 auto;
+  background-color: rgba(255, 255, 255, 0);
 }
 
 .chat-input input {
@@ -123,6 +126,15 @@
 .loading-icon {
   animation: rotate 2s linear infinite;
   margin-top : 5px;
+}
+
+.disclaimer {
+  color: #747474;
+  font-size: 7px;
+  margin-top: 5px;
+  display : flex;
+  text-align:center;
+  justify-content:center;
 }
 
 

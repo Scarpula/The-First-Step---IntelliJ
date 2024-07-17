@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './ChatUI.css'
 
 const ChatInput = ({ onSend }) => {
   const [input, setInput] = useState('');
@@ -22,6 +23,7 @@ const ChatInput = ({ onSend }) => {
         />
         <button type="submit">전송</button>
       </div>
+      <div className="disclaimer">추천 투자를 맹신해서는 안됩니다.</div>
     </form>
   );
 };
