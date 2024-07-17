@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import ChatUI from './components/ChatUI';
 import BackgroundImages from './components/BackgroundImages';
@@ -7,7 +8,7 @@ import { SectionsContainer, Section } from 'react-fullpage';
 import { TypeAnimation } from 'react-type-animation';
 import { AnimatePresence, motion } from 'framer-motion';
 import './App.css';
-import axios from "axios";
+import axios from 'axios';
 
 const AppWrapper = styled.div`
   position: relative;
@@ -38,8 +39,8 @@ const Content = styled.p`
   margin: 20px 0;
   white-space: pre-wrap;
   overflow: hidden;
-  text-align:center;
-  margin-top : 140px;
+  text-align: center;
+  margin-top: 140px;
 `;
 
 const TypingContent = styled(Content)`
@@ -63,150 +64,167 @@ const ChatUIWrapper = styled(motion.div)`
   border: 1px;
 `;
 
-const App = ({ in: inProp }) => {
-  const [showChat, setShowChat] = useState(false);
+const Home = ({ handleLoginSuccess }) => {
+  const fullTitle = '투자의 ';
+  const fullSubtitle = '시작';
+  const fullSubtext = 'InvestGenius';
+  const fullText = '당신의 투자 성향에 맞춘 전략을 제공해드립니다.\n당신이 원하는 정보를 검색해보세요!';
+  const fullText2 = '채팅하는 장면 동영상 섹션';
+  const options = {
+    sectionClassName: 'section',
+    anchors: ['sectionOne', 'sectionTwo', 'sectionThree'],
+    scrollBar: false,
+    navigation: true,
+    verticalAlign: false,
+    sectionPaddingTop: '50px',
+    sectionPaddingBottom: '50px',
+    arrowNavigation: true,
+  };
+
+  return (
+    <>
+      <BackgroundImages />
+      <h3 style={{ margin: '15px' }}>InGen</h3>
+      <Navbar onLoginSuccess={handleLoginSuccess} />
+      <SectionsContainer {...options}>
+        <SectionStyled>
+          <TitleContainer>
+            <TypeAnimation
+              sequence={[
+                fullTitle,
+                1000,
+                fullTitle + fullSubtitle,
+                1000,
+                fullTitle + fullSubtitle + '\n' + fullSubtext,
+              ]}
+              wrapper="div"
+              cursor={true}
+              repeat={0}
+              style={{
+                display: 'inline-block',
+                whiteSpace: 'pre-wrap',
+                fontFamily: 'Istok Web, sans-serif',
+                fontSize: '70px',
+                color: 'black',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+                textAlign: 'center',
+                marginBottom: '300px',
+              }}
+            />
+          </TitleContainer>
+        </SectionStyled>
+        <SectionStyled>
+          <TypeAnimation
+            sequence={[fullText]}
+            wrapper="div"
+            cursor={true}
+            repeat={0}
+            style={{
+              display: 'flex',
+              whiteSpace: 'pre-wrap',
+              fontFamily: 'Istok Web, sans-serif',
+              fontSize: '24px',
+              color: 'black',
+              textAlign: 'center',
+              justifyContent: 'center',
+              marginTop: '140px',
+            }}
+          />
+        </SectionStyled>
+        <SectionStyled>
+          <TypeAnimation
+            sequence={[fullText2]}
+            wrapper="div"
+            cursor={true}
+            repeat={0}
+            style={{
+              display: 'flex',
+              whiteSpace: 'pre-wrap',
+              fontFamily: 'Istok Web, sans-serif',
+              fontSize: '24px',
+              color: 'black',
+              textAlign: 'center',
+              justifyContent: 'center',
+              marginTop: '130px',
+            }}
+          />
+        </SectionStyled>
+      </SectionsContainer>
+    </>
+  );
+};
+
+const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     checkLoginStatus();
-    const chatState = localStorage.getItem('showChat');
-    if (chatState === 'true') {
-      setShowChat(true);
-    }
   }, []);
 
   const checkLoginStatus = async () => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const response = await axios.get('http://localhost:8082/api/check-auth', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setIsLoggedIn(response.data.isLoggedIn);
-        setShowChat(response.data.isLoggedIn);
-      } catch (error) {
-        console.error('인증 확인 실패:', error);
+    try {
+      const response = await axios.get('http://localhost:8082/api/session', { withCredentials: true });
+      if (response.status === 200 && response.data.user) {
+        setIsLoggedIn(true);
+      } else {
         setIsLoggedIn(false);
-        setShowChat(false);
-        localStorage.removeItem('token');
       }
+    } catch (error) {
+      console.error('인증 확인 실패:', error);
+      setIsLoggedIn(false);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleLoginSuccess = (token) => {
-    localStorage.setItem('token', token);
+  const handleLoginSuccess = () => {
     setIsLoggedIn(true);
-    setShowChat(true);
-    localStorage.setItem('showChat', 'true');
   };
-    const fullTitle = "투자의 ";
-    const fullSubtitle = "시작";
-    const fullSubtext = "InvestGenius";
-    const fullText = "당신의 투자 성향에 맞춘 전략을 제공해드립니다.\n당신이 원하는 정보를 검색해보세요!";
-    const fullText2 = "채팅하는 장면 동영상 섹션";
-    const options = {
-      sectionClassName: 'section',
-      anchors: ['sectionOne', 'sectionTwo', 'sectionThree'],
-      scrollBar: false,
-      navigation: true,
-      verticalAlign: false,
-      sectionPaddingTop: '50px',
-      sectionPaddingBottom: '50px',
-      arrowNavigation: true
-    };
+
+  if (loading) {
+    return <div>Loading...</div>; // 로딩 상태를 표시합니다.
+  }
 
   return (
-    <AppWrapper>
-      <AnimatePresence>
-        {!showChat && (
-          <motion.div
-            key="home"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <BackgroundImages />
-            <img className="MainLogo" alt="" src="images/MainLogo.png" style={{ width: "115px", height: "55px", margin: "25px" }} />
-            <Navbar onLoginSuccess={handleLoginSuccess} />
-            <SectionsContainer {...options}>
-              <SectionStyled>
-                <TitleContainer>
-                  <TypeAnimation
-                    sequence={[
-                      fullTitle,
-                      1000,
-                      fullTitle + fullSubtitle,
-                      1000,
-                      fullTitle + fullSubtitle + "\n" + fullSubtext,
-                    ]}
-                    wrapper="div"
-                    cursor={true}
-                    repeat={0}
-                    style={{
-                      display: 'inline-block',
-                      whiteSpace: 'pre-wrap',
-                      fontFamily: 'Istok Web, sans-serif',
-                      fontSize: '70px',
-                      color: 'black',
-                      textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
-                      textAlign: 'center',
-                      marginBottom: '300px',
-                    }}
-                  />
-                </TitleContainer>
-              </SectionStyled>
-              <SectionStyled>
-                <TypeAnimation
-                  sequence={[fullText]}
-                  wrapper="div"
-                  cursor={true}
-                  repeat={0}
-                  style={{
-                    display: 'flex',
-                    whiteSpace: 'pre-wrap',
-                    fontFamily: 'Istok Web, sans-serif',
-                    fontSize: '24px',
-                    color: 'black',
-                    textAlign: 'center',
-                    justifyContent: 'center',
-                    marginTop: '140px',
-                  }}
-                />
-              </SectionStyled>
-              <SectionStyled>
-                <TypeAnimation
-                  sequence={[fullText2]}
-                  wrapper="div"
-                  cursor={true}
-                  repeat={0}
-                  style={{
-                    display: 'flex',
-                    whiteSpace: 'pre-wrap',
-                    fontFamily: 'Istok Web, sans-serif',
-                    fontSize: '24px',
-                    color: 'black',
-                    textAlign: 'center',
-                    justifyContent: 'center',
-                    marginTop: '130px',
-                  }}
-                />
-              </SectionStyled>
-            </SectionsContainer>
-          </motion.div>
-        )}
-        {showChat && (
-          <ChatUIWrapper
-            key="chat"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1.2 }}
-          >
-            <ChatUI />
-          </ChatUIWrapper>
-        )}
-      </AnimatePresence>
-    </AppWrapper>
+    <Router>
+      <AppWrapper>
+        <Routes>
+          <Route
+            path="/chat"
+            element={
+              isLoggedIn ? (
+                <ChatUIWrapper
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1.2 }}
+                >
+                  <ChatUI />
+                </ChatUIWrapper>
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/"
+            element={
+              <AnimatePresence>
+                <motion.div
+                  key="home"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <Home handleLoginSuccess={handleLoginSuccess} />
+                </motion.div>
+              </AnimatePresence>
+            }
+          />
+        </Routes>
+      </AppWrapper>
+    </Router>
   );
 };
 

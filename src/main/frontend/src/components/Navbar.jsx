@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const NavbarContainer = styled.div`
     width: 100%;
@@ -124,6 +126,32 @@ const Button = styled.button`
     }
 `;
 
+const SuccessOverlay = styled(motion.div)`
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+const SuccessCheckmark = styled(motion.path)`
+  fill: none;
+  stroke: #4caf50;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+`;
+
+const SuccessCircle = styled(motion.circle)`
+  fill: none;
+  stroke: #4caf50;
+  stroke-width: 2;
+`;
+
 const Navbar = ({ onLoginSuccess }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
@@ -136,6 +164,14 @@ const Navbar = ({ onLoginSuccess }) => {
     const [birthdate, setBirthdate] = useState('');
     const [error, setError] = useState(false);
     const [user, setUser] = useState(null);
+    const [signupStatus, setSignupStatus] = useState(null);
+    const navigate = useNavigate();  // useNavigate 훅 사용
+    const resetSignupForm = () => {
+            setSignupEmail('');
+            setSignupPassword('');
+            setUsername('');
+            setBirthdate('');
+        };
 
     const toggleSidebar = () => {
         setIsOpen(!isOpen);
@@ -149,6 +185,8 @@ const Navbar = ({ onLoginSuccess }) => {
     const handleSignupClick = () => {
         setShowSignupForm(!showSignupForm);
         setShowLoginForm(false);
+        resetSignupForm();
+
     };
 
     const handleLoginSubmit = async (e) => {
@@ -166,6 +204,7 @@ const Navbar = ({ onLoginSuccess }) => {
                 onLoginSuccess();  // 로그인 성공 시 콜백 호출
                 setIsOpen(false);  // 사이드바 닫기
                 checkSession();
+                navigate('/chat');  // 로그인 성공 시 /chat 경로로 이동
             } else {
                 setError(true);
                 console.log("로그인 실패");
@@ -176,35 +215,35 @@ const Navbar = ({ onLoginSuccess }) => {
         }
     };
 
+    const [signupSuccess, setSignupSuccess] = useState(false);
+
     const handleSignupSubmit = async (e) => {
-        e.preventDefault();
+            e.preventDefault();
 
-        // 입력된 값들을 로그로 출력
-        console.log("UserId:", signupEmail);
-        console.log("Password:", signupPassword);
-        console.log("Username:", username);
-        console.log("Birthdate:", birthdate);
+            try {
+                const response = await axios.post('http://localhost:8082/api/signup', {
+                    userId: signupEmail,
+                    password: signupPassword,
+                    name: username,
+                    birthdate,
+                });
 
-        try {
-            const response = await axios.post('http://localhost:8082/api/signup', {
-                userId: signupEmail,
-                password: signupPassword,
-                name: username,
-                birthdate,
-            });
-
-            if (response.status === 200) {
-                setError(false);
-                alert('Signup successful');
-                // 회원가입 성공 후 추가 로직
-            } else {
+                if (response.status === 200) {
+                    setError(false);
+                    setSignupSuccess(true);
+                    setTimeout(() => {
+                        setSignupSuccess(false);
+                        setShowSignupForm(false);
+                        resetSignupForm();
+                    }, 2000);
+                } else {
+                    setError(true);
+                }
+            } catch (error) {
+                console.error("Error during signup:", error);
                 setError(true);
             }
-        } catch (error) {
-            console.error("Error during signup:", error);
-            setError(true);
-        }
-    };
+        };
 
     const handleLogout = async () => {
         try {
@@ -242,6 +281,12 @@ const Navbar = ({ onLoginSuccess }) => {
             document.body.style.overflow = 'auto';
         }
     }, [isOpen, showLoginForm, showSignupForm]);
+
+    useEffect(() => {
+            if (!isOpen) {
+                resetSignupForm();
+            }
+        }, [isOpen]);
 
     return (
         <>
@@ -307,6 +352,41 @@ const Navbar = ({ onLoginSuccess }) => {
                                 />
                                 <Button type="submit">회원가입</Button>
                             </Form>
+                            <AnimatePresence>
+                                {signupSuccess && (
+                                    <SuccessOverlay
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        transition={{ duration: 0.3 }}
+                                    >
+                                        <motion.svg
+                                            width="100"
+                                            height="100"
+                                            viewBox="0 0 50 50"
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
+                                            exit={{ scale: 0 }}
+                                            transition={{ duration: 0.5 }}
+                                        >
+                                            <SuccessCircle
+                                                cx="25"
+                                                cy="25"
+                                                r="20"
+                                                initial={{ pathLength: 0 }}
+                                                animate={{ pathLength: 1 }}
+                                                transition={{ duration: 0.5, delay: 0.2 }}
+                                            />
+                                            <SuccessCheckmark
+                                                d="M14 26 L 22 33 L 36 18"
+                                                initial={{ pathLength: 0 }}
+                                                animate={{ pathLength: 1 }}
+                                                transition={{ duration: 0.5, delay: 0.8 }}
+                                            />
+                                        </motion.svg>
+                                    </SuccessOverlay>
+                                )}
+                            </AnimatePresence>
                         </FormContainer>
                     </>
                 )}
