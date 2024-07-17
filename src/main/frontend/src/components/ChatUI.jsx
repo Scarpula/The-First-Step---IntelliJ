@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import MainNavbar from './MainNavbar';
 import ChatContainer from './ChatContainer';
 import ChatInput from './ChatInput';
+import BackgroundImages from './BackgroundImages';  // Import the BackgroundImages component
 import styled from 'styled-components';
 import './ChatUI.css';
 import { ReactComponent as ArrowDownwardIcon } from './arrow_downward_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg';
@@ -23,7 +24,7 @@ const ChatUIContent = styled.div`
 
 const ScrollButton = styled.button`
   position: fixed;
-  bottom: 75px;
+  bottom: 85px;
   left: 470px;
   background: white;
   border: none;
@@ -63,8 +64,8 @@ const ChatUI = () => {
   useEffect(() => {
     const handleScroll = () => {
       if (chatContentRef.current) {
-        const { scrollTop } = chatContentRef.current;
-        setShowScrollButton(scrollTop > 50); // 50px 이상 스크롤되면 버튼 표시
+        const { scrollTop, scrollHeight, clientHeight } = chatContentRef.current;
+        setShowScrollButton(scrollTop + clientHeight < scrollHeight - 10); // 맨 하단에 있지 않은 경우에만 버튼 표시
       }
     };
 
@@ -127,6 +128,7 @@ const ChatUI = () => {
 
   return (
     <ChatUIWrapper>
+      <BackgroundImages /> {/* Add the BackgroundImages component here */}
       <MainNavbar />
       <ChatUIContent ref={chatContentRef} className="custom-scrollbar">
         <ChatContainer messages={messages} loadingMessageId={loadingMessageId} />
