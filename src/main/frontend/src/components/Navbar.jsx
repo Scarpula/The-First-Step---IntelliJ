@@ -134,8 +134,8 @@ const Navbar = ({ onLoginSuccess }) => {
     const [signupPassword, setSignupPassword] = useState('');
     const [username, setUsername] = useState('');
     const [birthdate, setBirthdate] = useState('');
-
     const [error, setError] = useState(false);
+    const [user, setUser] = useState(null);
 
     const toggleSidebar = () => {
         setIsOpen(!isOpen);
@@ -159,15 +159,15 @@ const Navbar = ({ onLoginSuccess }) => {
             const response = await axios.post('http://localhost:8082/api/login', {
                 email: loginEmail,
                 password: loginPassword,
+            }, { withCredentials: true
             });
 
             if (response.status === 200 && response.data.message === 'Login successful') {
                 setError(false);
                 onLoginSuccess();  // 로그인 성공 시 콜백 호출
                 setIsOpen(false);  // 사이드바 닫기
-                const token = response.data.token;
-                localStorage.setItem('token', response.data.token);
-                onLoginSuccess(token);  // 로그인 성공 시 콜백 호출
+                onLoginSuccess();
+                checkSession();// 로그인 성공 시 콜백 호출
             } else {
                 setError(true);
                 console.log("로그인 실패");
@@ -177,6 +177,8 @@ const Navbar = ({ onLoginSuccess }) => {
             console.log("에러");
         }
     };
+
+
 
     const handleSignupSubmit = async (e) => {
         e.preventDefault();
@@ -208,6 +210,36 @@ const Navbar = ({ onLoginSuccess }) => {
         }
     };
 
+    const handleLogout = async () => {
+        try {
+            const response = await axios.get('http://localhost:8082/api/logout', { withCredentials: true });
+            if (response.status === 200) {
+                setUser(null);
+                alert('Logout successful');
+            } else {
+                alert('Logout failed');
+            }
+        } catch (error) {
+            console.error("Error during logout:", error);
+        }
+    };
+
+    const checkSession = async () => {
+        try {
+            const response = await axios.get('http://localhost:8082/api/session', { withCredentials: true });
+            if (response.status === 200) {
+                setUser(response.data.user);
+            }
+        } catch (error) {
+            console.error("Error during session check:", error);
+        }
+    };
+
+    useEffect(() => {
+        checkSession();
+    }, []);
+
+
     useEffect(() => {
         if (isOpen || showLoginForm || showSignupForm) {
             document.body.style.overflow = 'hidden';
@@ -216,68 +248,79 @@ const Navbar = ({ onLoginSuccess }) => {
         }
     }, [isOpen, showLoginForm, showSignupForm]);
 
+
     return (
         <>
             <Overlay show={isOpen ? 'true' : undefined} onClick={toggleSidebar} />
             <NavbarContainer>
-                <Logo></Logo>
+                <Logo />
                 <MenuButton src="/images/density_medium_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg" alt="Menu" onClick={toggleSidebar} />
+                {user && <Button onClick={handleLogout}>로그아웃</Button>}
             </NavbarContainer>
             <Sidebar show={isOpen}>
-                <TextButton onClick={handleLoginClick}>로그인</TextButton>
-                <FormContainer show={showLoginForm}>
-                    <Form onSubmit={handleLoginSubmit}>
-                        <Input
-                            type="email"
-                            placeholder="Email"
-                            value={loginEmail}
-                            onChange={(e) => setLoginEmail(e.target.value)}
-                            error={error}
-                        />
-                        <Input
-                            type="password"
-                            placeholder="Password"
-                            value={loginPassword}
-                            onChange={(e) => setLoginPassword(e.target.value)}
-                            error={error}
-                        />
-                        <Button type="submit">Sign In</Button>
-                    </Form>
-                </FormContainer>
-                <TextButton onClick={handleSignupClick}>회원가입</TextButton>
-                <FormContainer show={showSignupForm}>
-                    <Form onSubmit={handleSignupSubmit}>
-                        <Input
-                            type="email"
-                            placeholder="Email"
-                            value={signupEmail}
-                            onChange={(e) => setSignupEmail(e.target.value)}
-                            error={error}
-                        />
-                        <Input
-                            type="password"
-                            placeholder="Password"
-                            value={signupPassword}
-                            onChange={(e) => setSignupPassword(e.target.value)}
-                            error={error}
-                        />
-                        <Input
-                            type="text"
-                            placeholder="이름"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            error={error}
-                        />
-                        <Input
-                            type="date"
-                            placeholder="생년월일"
-                            value={birthdate}
-                            onChange={(e) => setBirthdate(e.target.value)}
-                            error={error}
-                        />
-                        <Button type="submit">회원가입</Button>
-                    </Form>
-                </FormContainer>
+                {!user && (
+                    <>
+                        <TextButton onClick={handleLoginClick}>로그인</TextButton>
+                        <FormContainer show={showLoginForm}>
+                            <Form onSubmit={handleLoginSubmit}>
+                                <Input
+                                    type="email"
+                                    placeholder="Email"
+                                    value={loginEmail}
+                                    onChange={(e) => setLoginEmail(e.target.value)}
+                                    error={error}
+                                />
+                                <Input
+                                    type="password"
+                                    placeholder="Password"
+                                    value={loginPassword}
+                                    onChange={(e) => setLoginPassword(e.target.value)}
+                                    error={error}
+                                />
+                                <Button type="submit">Sign In</Button>
+                            </Form>
+                        </FormContainer>
+                        <TextButton onClick={handleSignupClick}>회원가입</TextButton>
+                        <FormContainer show={showSignupForm}>
+                            <Form onSubmit={handleSignupSubmit}>
+                                <Input
+                                    type="email"
+                                    placeholder="Email"
+                                    value={signupEmail}
+                                    onChange={(e) => setSignupEmail(e.target.value)}
+                                    error={error}
+                                />
+                                <Input
+                                    type="password"
+                                    placeholder="Password"
+                                    value={signupPassword}
+                                    onChange={(e) => setSignupPassword(e.target.value)}
+                                    error={error}
+                                />
+                                <Input
+                                    type="text"
+                                    placeholder="이름"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    error={error}
+                                />
+                                <Input
+                                    type="date"
+                                    placeholder="생년월일"
+                                    value={birthdate}
+                                    onChange={(e) => setBirthdate(e.target.value)}
+                                    error={error}
+                                />
+                                <Button type="submit">회원가입</Button>
+                            </Form>
+                        </FormContainer>
+                    </>
+                )}
+                {user && (
+                    <div>
+                        <h2>Welcome, {user.name}</h2>
+                    </div>
+                )}
             </Sidebar>
         </>
     );

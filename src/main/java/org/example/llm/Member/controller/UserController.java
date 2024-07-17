@@ -4,10 +4,7 @@ package org.example.llm.Member.controller;
 import jakarta.servlet.http.HttpSession;
 import org.example.llm.Member.Entity.UserEntity;
 import org.example.llm.Member.dto.Joindto;
-import org.example.llm.Member.dto.JwtUtil;
 import org.example.llm.Member.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,16 +13,14 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin("*")
 public class UserController {
 
-    @Autowired
-    private final JwtUtil jwtUtil;
+
 
     private final UserService userService;
 
-    public UserController(JwtUtil jwtUtil, UserService userService) {
-        this.jwtUtil = jwtUtil;
+    public UserController( UserService userService) {
+
         this.userService = userService;
     }
 
@@ -44,6 +39,7 @@ public class UserController {
         String password = loginRequest.get("password");
 
         UserEntity user = userService.login(email, password);
+
         if (user != null) {
             session.setAttribute("user", user);  // 세션에 유저 정보 저장
             return ResponseEntity.ok().body(Map.of("status", "success", "message", "Login successful"));

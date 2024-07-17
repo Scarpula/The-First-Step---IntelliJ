@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import ChatUI from './components/ChatUI';
 import BackgroundImages from './components/BackgroundImages';
 import styled from 'styled-components';
 import { SectionsContainer, Section } from 'react-fullpage';
 import { TypeAnimation } from 'react-type-animation';
-import { AnimatePresence, motion } from 'framer-motion'; // 이 줄을 추가
+import { AnimatePresence, motion } from 'framer-motion';
 import './App.css';
-
+import axios from "axios";
 
 const AppWrapper = styled.div`
   position: relative;
@@ -58,20 +58,17 @@ const TypingContent = styled(Content)`
 `;
 const ChatUIWrapper = styled(motion.div)`
   display: flex;
-    flex-direction: column;
-    height: 100vh;
-    border : 1px;
-  `;
+  flex-direction: column;
+  height: 100vh;
+  border: 1px;
+`;
 
 const App = ({ in: inProp }) => {
-
   const [showChat, setShowChat] = useState(false);
 
-
-    const handleLoginSuccess = () => {
-
-      setShowChat(true);
-    };
+  const handleLoginSuccess = () => {
+    setShowChat(true);
+  };
   const fullTitle = "투자의 ";
   const fullSubtitle = "시작";
   const fullSubtext = "InvestGenius";
@@ -92,95 +89,95 @@ const App = ({ in: inProp }) => {
       <AppWrapper>
         <AnimatePresence>
           {!showChat && (
-            <motion.div
-              key="home"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <BackgroundImages />
-              <img className="MainLogo" alt="" src="images/MainLogo.png" style={{width : "115px", height : "55px", margin : "25px"}} />
-              <Navbar onLoginSuccess={handleLoginSuccess} />
-              <SectionsContainer {...options}>
-                <SectionStyled>
-                  <TitleContainer>
+              <motion.div
+                  key="home"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+              >
+                <BackgroundImages />
+                <img className="MainLogo" alt="" src="images/MainLogo.png" style={{ width: "115px", height: "55px", margin: "25px" }} />
+                <Navbar onLoginSuccess={handleLoginSuccess} />
+                <SectionsContainer {...options}>
+                  <SectionStyled>
+                    <TitleContainer>
+                      <TypeAnimation
+                          sequence={[
+                            fullTitle,
+                            1000,
+                            fullTitle + fullSubtitle,
+                            1000,
+                            fullTitle + fullSubtitle + "\n" + fullSubtext,
+                          ]}
+                          wrapper="div"
+                          cursor={true}
+                          repeat={0}
+                          style={{
+                            display: 'inline-block',
+                            whiteSpace: 'pre-wrap',
+                            fontFamily: 'Istok Web, sans-serif',
+                            fontSize: '70px',
+                            color: 'black',
+                            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+                            textAlign: 'center',
+                            marginBottom: '300px',
+                          }}
+                      />
+                    </TitleContainer>
+                  </SectionStyled>
+                  <SectionStyled>
                     <TypeAnimation
-                      sequence={[
-                        fullTitle,
-                        1000,
-                        fullTitle + fullSubtitle,
-                        1000,
-                        fullTitle + fullSubtitle + "\n" + fullSubtext,
-                      ]}
-                      wrapper="div"
-                      cursor={true}
-                      repeat={0}
-                      style={{
-                        display: 'inline-block',
-                        whiteSpace: 'pre-wrap',
-                        fontFamily: 'Istok Web, sans-serif',
-                        fontSize: '70px',
-                        color: 'black',
-                        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
-                        textAlign: 'center',
-                        marginBottom : '300px',
-                      }}
+                        sequence={[fullText]}
+                        wrapper="div"
+                        cursor={true}
+                        repeat={0}
+                        style={{
+                          display: 'flex',
+                          whiteSpace: 'pre-wrap',
+                          fontFamily: 'Istok Web, sans-serif',
+                          fontSize: '24px',
+                          color: 'black',
+                          textAlign: 'center',
+                          justifyContent: 'center',
+                          marginTop: '140px',
+                        }}
                     />
-                  </TitleContainer>
-                </SectionStyled>
-                <SectionStyled>
+                  </SectionStyled>
+                  <SectionStyled>
                     <TypeAnimation
-                      sequence={[fullText]}
-                      wrapper="div"
-                      cursor={true}
-                      repeat={0}
-                      style={{
-                        display: 'flex',
-                        whiteSpace: 'pre-wrap',
-                        fontFamily: 'Istok Web, sans-serif',
-                        fontSize: '24px',
-                        color: 'black',
-                        textAlign : 'center',
-                        justifyContent : 'center',
-                        marginTop : '140px',
-                      }}
+                        sequence={[fullText2]}
+                        wrapper="div"
+                        cursor={true}
+                        repeat={0}
+                        style={{
+                          display: 'flex',
+                          whiteSpace: 'pre-wrap',
+                          fontFamily: 'Istok Web, sans-serif',
+                          fontSize: '24px',
+                          color: 'black',
+                          textAlign: 'center',
+                          justifyContent: 'center',
+                          marginTop: '130px',
+                        }}
                     />
-                </SectionStyled>
-                <SectionStyled>
-                    <TypeAnimation
-                      sequence={[fullText2]}
-                      wrapper="div"
-                      cursor={true}
-                      repeat={0}
-                      style={{
-                        display: 'flex',
-                        whiteSpace: 'pre-wrap',
-                        fontFamily: 'Istok Web, sans-serif',
-                        fontSize: '24px',
-                        color: 'black',
-                        textAlign : 'center',
-                        justifyContent : 'center',
-                        marginTop : '130px',
-                      }}
-                    />
-                </SectionStyled>
-              </SectionsContainer>
-            </motion.div>
+                  </SectionStyled>
+                </SectionsContainer>
+              </motion.div>
           )}
           {showChat && (
-            <ChatUIWrapper
-              key="chat"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.2 }}
-            >
-              <ChatUI />
-            </ChatUIWrapper>
+              <ChatUIWrapper
+                  key="chat"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1.2 }}
+              >
+                <ChatUI />
+              </ChatUIWrapper>
           )}
         </AnimatePresence>
       </AppWrapper>
-    );
-  };
+  );
+};
 
-  export default App;
+export default App;

@@ -54,7 +54,5 @@ public class UserService {
     }
 
 
-    public UserEntity findUserByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
+
 }

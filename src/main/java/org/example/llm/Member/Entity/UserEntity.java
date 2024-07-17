@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 @Entity
+@Getter
 @Table(name = "users")
 public class UserEntity implements Serializable {
     @Id

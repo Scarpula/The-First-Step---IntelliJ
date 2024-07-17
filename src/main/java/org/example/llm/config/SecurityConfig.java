@@ -23,14 +23,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(Customizer.withDefaults()) // CORS 설정
-                .csrf(csrf -> csrf.disable())   // CSRF 비활성화
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/login").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .formLogin(form -> form.disable())
-                .httpBasic(basic -> basic.disable());
-
+                .csrf(csrf -> csrf.disable());  // CSRF 비활성화
         return http.build();
     }
 
