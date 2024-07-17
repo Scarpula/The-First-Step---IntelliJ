@@ -24,6 +24,7 @@ const HeaderOptionsContainer = styled.div`
     padding: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: top 0.3s;
+    z-index : 999;
 `;
 
 const MainNavbar = () => {

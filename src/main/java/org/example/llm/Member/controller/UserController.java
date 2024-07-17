@@ -20,11 +20,12 @@ import java.util.Map;
 public class UserController {
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
+    public UserController(JwtUtil jwtUtil, UserService userService) {
+        this.jwtUtil = jwtUtil;
         this.userService = userService;
     }
 
@@ -44,25 +45,29 @@ public class UserController {
 
         UserEntity user = userService.login(email, password);
         if (user != null) {
-            String token = jwtUtil.generateToken(email);
-            return ResponseEntity.ok().body(Map.of("status", "success", "message", "Login successful"));
+            String token = jwtUtil.createToken(email);
+            return ResponseEntity.ok().body(Map.of("status", "success", "message", "Login successful","token", token));
         } else {
             return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Invalid email or password"));
         }
     }
 
-    @GetMapping("/validate-token")
-    public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String authHeader) {
+    @GetMapping("/check-auth")
+    public ResponseEntity<?> checkAuth(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("isLoggedIn", false, "message", "No token provided"));
+        }
+
+        String token = authHeader.substring(7);
         try {
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                String token = authHeader.substring(7);
-                boolean isValid = jwtUtil.validateToken(token);
-                return ResponseEntity.ok().body(Map.of("isValid", isValid));
+            if (jwtUtil.validateToken(token)) {
+                String username = jwtUtil.getUsernameFromToken(token);
+                return ResponseEntity.ok().body(Map.of("isLoggedIn", true, "username", username));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("isLoggedIn", false, "message", "Invalid token"));
             }
-            return ResponseEntity.badRequest().body(Map.of("isValid", false, "message", "Invalid Authorization header"));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("isValid", false, "message", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("isLoggedIn", false, "message", "Error processing token"));
         }
     }
 

@@ -60,33 +60,33 @@ const TypingContent = styled(Content)`
 `;
 
 const App = () => {
-  const [apiResponse, setApiResponse] = useState('');
   const [showChat, setShowChat] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const checkLoginStatus = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const response = await axios.get('http://localhost:8081/api/validate-token');
-          if (response.data.isValid) {
-            setIsLoggedIn(true);
-            setShowChat(true);
-          } else {
-            localStorage.removeItem('token');
-          }
-        } catch (error) {
-          console.error('Token validation error:', error.response ? error.response.data : error.message);
-          localStorage.removeItem('token');
-        }
-      }
-    };
-
     checkLoginStatus();
   }, []);
 
-  const handleLoginSuccess = () => {
+  const checkLoginStatus = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const response = await axios.get('http://localhost:8082/api/check-auth', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setIsLoggedIn(response.data.isLoggedIn);
+        setShowChat(response.data.isLoggedIn);
+      } catch (error) {
+        console.error('인증 확인 실패:', error);
+        setIsLoggedIn(false);
+        setShowChat(false);
+        localStorage.removeItem('token');
+      }
+    }
+  };
+
+  const handleLoginSuccess = (token) => {
+    localStorage.setItem('token', token);
     setIsLoggedIn(true);
     setShowChat(true);
   };
@@ -94,7 +94,8 @@ const App = () => {
 
 
 
-const fullTitle = "투자의 ";
+
+  const fullTitle = "투자의 ";
   const fullSubtitle = "시작";
   const fullSubtext = "InvestGenius";
   const fullText = "당신의 투자 성향에 맞춘 전략을 제공해드립니다.\n당신이 원하는 정보를 검색해보세요!";
@@ -182,7 +183,6 @@ const fullTitle = "투자의 ";
                             }}
                         />
                       </TypingContent>
-                      <p>{apiResponse}</p> {/* API 응답을 화면에 표시 */}
                     </SectionStyled>
                   </SectionsContainer>
                 </div>

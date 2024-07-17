@@ -19,9 +19,10 @@ public class UserEntity implements Serializable {
     @Column(name = "user_id")
     private String email;
 
-    @Column(name = "user_name")
-    private String password;
     @Column(name = "user_pw")
+    private String password;
+
+    @Column(name = "user_name")
     private String name;
 
     @Column(name = "user_birthdate")

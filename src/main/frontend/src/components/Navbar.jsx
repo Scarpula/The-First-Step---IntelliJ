@@ -178,8 +178,9 @@ const Navbar = ({ onLoginSuccess }) => {
 
             if (response.status === 200 && response.data.message === 'Login successful') {
                 setError(false);
+                const token = response.data.token;
                 localStorage.setItem('token', response.data.token);
-                onLoginSuccess();  // 로그인 성공 시 콜백 호출
+                onLoginSuccess(token);  // 로그인 성공 시 콜백 호출
             } else {
                 setError(true);
                 console.log("로그인 실패")

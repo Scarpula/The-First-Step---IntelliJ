@@ -2,23 +2,24 @@ package org.example.llm.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
-
-// spring boot와 react cors(충돌문제 해결) 설정
+import java.util.Arrays;
+import java.util.Collections;
 
 @Configuration
-public class CprsCpmfog {
+public class CorsConfig {
+
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(Collections.singletonList("http://localhost:8081"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+        config.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("*"); // React 앱의 URL
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
