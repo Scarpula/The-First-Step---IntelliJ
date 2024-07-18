@@ -7,7 +7,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 
 @Data
 @Entity
@@ -15,11 +16,11 @@ import java.sql.Timestamp;
 public class ChatRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long chatroomId;
+    private Long roomId;
 
     private String userId;
 
-    private Timestamp openedAt;
+    private LocalDateTime openedAt;
 
     private String roomStatus;
 }

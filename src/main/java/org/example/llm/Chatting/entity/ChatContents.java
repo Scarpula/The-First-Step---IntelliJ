@@ -1,13 +1,9 @@
 package org.example.llm.Chatting.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -17,11 +13,15 @@ public class ChatContents {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long contentId;
 
-    private Long roomId;
+    @ManyToOne
+    @JoinColumn(name = "room_id")
+    private ChatRoom roomId;
 
-    private String userId;
+    private String chatter;
 
-    private String message;
+    private String chatting;
 
-    private Timestamp timestamp;
+    private LocalDateTime chattedAt;
+
+
 }

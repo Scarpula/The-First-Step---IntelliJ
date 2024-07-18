@@ -1,42 +1,56 @@
 package org.example.llm.Chatting.controller;
 
+import org.example.llm.Chatting.dto.chatMessageDto;
 import org.example.llm.Chatting.entity.ChatContents;
 import org.example.llm.Chatting.entity.ChatRoom;
-import org.example.llm.Chatting.repository.ChatContentsRepository;
-import org.example.llm.Chatting.repository.ChatRoomRepository;
+import org.example.llm.Chatting.service.ChatService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
 public class ChatController {
 
-    private final ChatRoomRepository chatRoomRepository;
-    private final ChatContentsRepository chatContentsRepository;
+    private final ChatService chatService;
 
-    public ChatController(ChatRoomRepository chatRoomRepository, ChatContentsRepository chatContentsRepository) {
-        this.chatRoomRepository = chatRoomRepository;
-        this.chatContentsRepository = chatContentsRepository;
+
+    public ChatController(ChatService chatService) {
+        this.chatService = chatService;
     }
 
     @PostMapping("/room")
-    public ChatRoom createRoom(@RequestBody ChatRoom room) {
-        return chatRoomRepository.save(room);
+    public ResponseEntity<Map<String, Long>> createRoom() {
+        String userId = chatService.getCurrentUserId();
+        Long roomId = chatService.createRoom(userId);
+        return ResponseEntity.ok(Map.of("roomId", roomId));
     }
 
-    @GetMapping("/rooms")
-    public List<ChatRoom> getRooms() {
-        return chatRoomRepository.findAll();
+    @PostMapping("/save")
+    public ResponseEntity<Void> saveMessages(@RequestBody chatMessageDto chatMessageDto) {
+        String userId = chatService.getCurrentUserId();
+        try {
+            chatService.saveMessages(chatMessageDto.getRoomId(), userId,
+                    chatMessageDto.getUserMessage(), chatMessageDto.getBotResponse());
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 
-    @PostMapping("/content")
-    public ChatContents createContent(@RequestBody ChatContents contents) {
-        return chatContentsRepository.save(contents);
-    }
 
-    @GetMapping("/contents/{roomId}")
-    public List<ChatContents> getContents(@PathVariable Long roomId) {
-        return chatContentsRepository.findByRoomIdOrderByTimestampAsc(roomId);
+
+    @GetMapping("/history/{roomId}")
+    public ResponseEntity<List<ChatContents>> getChatHistory(@PathVariable ChatRoom roomId) {
+        String userId = chatService.getCurrentUserId();
+        try {
+            List<ChatContents> history = chatService.getChatHistory(roomId, userId);
+            return ResponseEntity.ok(history);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 }
