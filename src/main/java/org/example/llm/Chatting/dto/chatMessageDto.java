@@ -5,7 +5,7 @@ import org.example.llm.Chatting.entity.ChatRoom;
 
 @Data
 public class chatMessageDto {
-    private ChatRoom roomId;
+    private Long roomId;
     private String userMessage;
     private String botResponse;
 }

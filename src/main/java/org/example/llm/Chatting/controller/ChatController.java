@@ -44,7 +44,7 @@ public class ChatController {
 
 
     @GetMapping("/history/{roomId}")
-    public ResponseEntity<List<ChatContents>> getChatHistory(@PathVariable ChatRoom roomId) {
+    public ResponseEntity<List<ChatContents>> getChatHistory(@PathVariable Long roomId) {
         String userId = chatService.getCurrentUserId();
         try {
             List<ChatContents> history = chatService.getChatHistory(roomId, userId);
