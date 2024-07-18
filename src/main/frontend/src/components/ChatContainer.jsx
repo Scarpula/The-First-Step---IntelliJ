@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -11,9 +11,56 @@ const ChatContainerWrapper = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
 `;
 
-const ChatContainer = ({ messages, loadingMessageId }) => {
+const DefaultButtonsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 20px 0;
+  position: relative;
+  top: 300px;
+`;
+
+const DefaultButton = styled.button`
+  padding: 10px 20px;
+  background-color: #4850588f;
+  border: none;
+  border-radius: 5px;
+  color: #000;
+  cursor: pointer;
+  margin: 10px;
+  max-width: 140px;
+  height: 130px;
+
+  &:hover {
+    background-color: #6a7989;
+  }
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ButtonLogo = styled.h3`
+  font-family: 'Black Ops One', sans-serif;
+  margin: 15px;
+  position : relative;
+  top : 300px;
+  font-size : 36px;
+`;
+
+const ChatContainer = ({ messages, loadingMessageId, onSend }) => {
+  const [showLogoAndButtons, setShowLogoAndButtons] = useState(true);
+
+  const handleButtonClick = (message) => {
+    onSend(message);
+    setShowLogoAndButtons(false);
+  };
+
   const customRenderers = {
     p: ({ children }) => <p style={{ marginBottom: '1em' }}>{children}</p>,
     h1: ({ children }) => <h1 style={{ marginTop: '1em', marginBottom: '0.5em' }}>{children}</h1>,
@@ -37,6 +84,27 @@ const ChatContainer = ({ messages, loadingMessageId }) => {
 
   return (
     <ChatContainerWrapper className="chat-container">
+      {showLogoAndButtons && (
+        <>
+          <ButtonLogo>InGen</ButtonLogo>
+          {messages.length === 0 && (
+            <DefaultButtonsContainer>
+              <DefaultButton onClick={() => handleButtonClick('사이트 소개를 해줘!')}>
+                사이트 소개 알려주기
+              </DefaultButton>
+              <DefaultButton onClick={() => handleButtonClick('투자성향 분석을 도와줘!')}>
+                투자성향 분석하기
+              </DefaultButton>
+              <DefaultButton onClick={() => handleButtonClick('오늘의 전략을 추천해줘!')}>
+                전략 추천 받기
+              </DefaultButton>
+              <DefaultButton onClick={() => handleButtonClick('어제 시장에 대해서 알려줘!')}>
+                어제 시장 알아보기
+              </DefaultButton>
+            </DefaultButtonsContainer>
+          )}
+        </>
+      )}
       {messages.map((message) => {
         const processedText = preprocessMarkdown(message.text);
 

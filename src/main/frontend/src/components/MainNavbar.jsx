@@ -4,7 +4,7 @@ import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { ReactComponent as TableRowsIcon } from './table_rows_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg';
 import './MainNavbar.css';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // useNavigate 훅을 임포트합니다.
+import { useNavigate } from 'react-router-dom';
 
 const itemVariants: Variants = {
   open: {
@@ -41,10 +41,10 @@ const MainNavbar = () => {
   const [selectedTab, setSelectedTab] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const navigate = useNavigate(); // useNavigate 훅을 사용합니다.
+  const [chatRooms, setChatRooms] = useState(['Chat Room 1', 'Chat Room 2', 'Chat Room 3', 'Chat Room 4', 'Chat Room 5']);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // 컴포넌트 마운트 시 세션을 확인하여 사용자 정보를 설정합니다.
     const checkSession = async () => {
       try {
         const response = await axios.get('http://localhost:8082/api/session', { withCredentials: true });
@@ -80,7 +80,6 @@ const MainNavbar = () => {
       const response = await axios.get('http://localhost:8082/api/logout', { withCredentials: true });
       if (response.status === 200) {
         setUser(null);
-        alert('Logout successful');
         navigate('/'); // 로그아웃 후 홈으로 리디렉션합니다.
       } else {
         alert('Logout failed');
@@ -88,6 +87,19 @@ const MainNavbar = () => {
     } catch (error) {
       console.error("Error during logout:", error);
     }
+  };
+
+  const handleCreateChatRoom = () => {
+    if (chatRooms.length < 3) {
+      const newRoom = `Chat Room ${chatRooms.length + 1}`;
+      setChatRooms([...chatRooms, newRoom]);
+    } else {
+      alert('채팅방은 최대 3개까지 생성할 수 있습니다.');
+    }
+  };
+
+  const handleDeleteChatRoom = (room) => {
+    setChatRooms(chatRooms.filter(r => r !== room));
   };
 
   const spanVariants = {
@@ -171,15 +183,27 @@ const MainNavbar = () => {
           variants={menuVariants}
           style={{ listStyle: 'none', padding: 0 }}
         >
-          {['Chat Room 1', 'Chat Room 2', 'Chat Room 3', 'Chat Room 4', 'Chat Room 5'].map((room, index) => (
+          <motion.li
+            variants={itemVariants}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            style={{ marginBottom: '10px', cursor: 'pointer' }}
+            onClick={handleCreateChatRoom}
+          >
+            새 채팅방 만들기
+          </motion.li>
+          {chatRooms.map((room, index) => (
             <motion.li
               key={index}
               variants={itemVariants}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              style={{ marginBottom: '10px', cursor: 'pointer' }}
+              style={{ marginBottom: '10px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between' }}
             >
-              {room}
+              <span>{room}</span>
+              <button onClick={() => handleDeleteChatRoom(room)} style={{ cursor: 'pointer', background: 'transparent', border: 'none', color: 'red' }}>
+                삭제
+              </button>
             </motion.li>
           ))}
         </motion.ul>

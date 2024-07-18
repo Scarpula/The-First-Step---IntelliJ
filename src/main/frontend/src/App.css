@@ -11,6 +11,11 @@ body {
   align-items: center;
   height: 100vh;
 }
+.black-ops-one-regular {
+  font-family: "Black Ops One", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
 @keyframes bounceInDown {
   0% {
     opacity: 0;

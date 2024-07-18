@@ -137,7 +137,6 @@
   justify-content:center;
 }
 
-
 /* 최대 화면일 때 채팅박스 간격을 줄이기 */
 @media (min-width: 1200px) {
     .chat-container {

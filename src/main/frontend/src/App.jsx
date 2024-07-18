@@ -10,6 +10,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import './App.css';
 import axios from 'axios';
 
+
 const AppWrapper = styled.div`
   position: relative;
   width: 100%;
@@ -84,7 +85,7 @@ const Home = ({ handleLoginSuccess }) => {
   return (
     <>
       <BackgroundImages />
-      <h3 style={{ margin: '15px' }}>InGen</h3>
+      <h3 className="black-ops-one-regular" style={{ margin: '15px' }}>InGen</h3>
       <Navbar onLoginSuccess={handleLoginSuccess} />
       <SectionsContainer {...options}>
         <SectionStyled>
