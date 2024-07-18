@@ -67,4 +67,20 @@ public class UserController {
         }
     }
 
+    @PostMapping("/update-password")
+    public ResponseEntity<?> updatePassword(@RequestBody Map<String, String> passwordRequest) {
+        UserEntity user = (UserEntity) httpSession.getAttribute("user");
+        if (user == null) {
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "No active session"));
+        }
+
+        String newPassword = passwordRequest.get("newPassword");
+        try {
+            userService.updatePassword(user.getEmail(), newPassword);
+            return ResponseEntity.ok().body(Map.of("status", "success", "message", "Password updated successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Password update failed: " + e.getMessage()));
+        }
+    }
+
 }

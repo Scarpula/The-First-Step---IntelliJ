@@ -61,6 +61,11 @@ const ChatContainer = ({ messages, loadingMessageId, onSend }) => {
     setShowLogoAndButtons(false);
   };
 
+  const handleSendMessage = (message) => {
+    onSend(message);
+    setShowLogoAndButtons(false);
+  };
+
   const customRenderers = {
     p: ({ children }) => <p style={{ marginBottom: '1em' }}>{children}</p>,
     h1: ({ children }) => <h1 style={{ marginTop: '1em', marginBottom: '0.5em' }}>{children}</h1>,

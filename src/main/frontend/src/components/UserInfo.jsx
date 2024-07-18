@@ -8,8 +8,8 @@ const UserInfoContainer = styled.div`
   align-items: center;
   justify-content: center;
   padding: 20px;
-  position : relative;
-  top : 150px;
+  position: relative;
+  top: 150px;
 `;
 
 const UserInfoForm = styled.form`
@@ -24,6 +24,7 @@ const UserInfoInput = styled.input`
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  background-color: ${(props) => (props.readOnly ? '#f0f0f0' : '#fff')};
 `;
 
 const EditButton = styled.button`
@@ -46,9 +47,11 @@ const UserInfo = () => {
     name: '',
     password: '',
     birthdate: '',
-    investmentStyle: '',
+    investmentType: '',
   });
   const [isEditing, setIsEditing] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -58,9 +61,9 @@ const UserInfo = () => {
           setUser({
             email: response.data.user.email,
             name: response.data.user.name,
-            password: '********', // 비밀번호는 보통 ***로 표시
+            password: '********',
             birthdate: response.data.user.birthdate,
-            investmentStyle: response.data.user.investmentStyle,
+            investmentType: response.data.user.investmentType,
           });
         }
       } catch (error) {
@@ -73,19 +76,29 @@ const UserInfo = () => {
 
   const handleEdit = () => {
     setIsEditing(true);
+    setNewPassword('');
+    setMessage('');
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
-    // 여기서 수정된 데이터를 서버로 보낼 수 있습니다.
-    setIsEditing(false);
+    try {
+      const response = await axios.post('http://localhost:8082/api/update-password', { newPassword }, { withCredentials: true });
+      if (response.status === 200) {
+        setUser({ ...user, password: '********' });
+        setIsEditing(false);
+        setMessage('Password updated successfully');
+      }
+    } catch (error) {
+      const errorMsg = error.response && error.response.data && error.response.data.message
+        ? error.response.data.message
+        : 'An error occurred while updating the password';
+      setMessage('Password update failed: ' + errorMsg);
+    }
   };
 
   const handleChange = (e) => {
-    setUser({
-      ...user,
-      [e.target.name]: e.target.value,
-    });
+    setNewPassword(e.target.value);
   };
 
   return (
@@ -96,20 +109,18 @@ const UserInfo = () => {
           type="email"
           name="email"
           value={user.email}
-          readOnly={!isEditing}
-          onChange={handleChange}
+          readOnly={true}
         />
         <UserInfoInput
           type="text"
           name="name"
           value={user.name}
-          readOnly={!isEditing}
-          onChange={handleChange}
+          readOnly={true}
         />
         <UserInfoInput
           type="password"
           name="password"
-          value={user.password}
+          value={isEditing ? newPassword : user.password}
           readOnly={!isEditing}
           onChange={handleChange}
         />
@@ -117,19 +128,18 @@ const UserInfo = () => {
           type="text"
           name="birthdate"
           value={user.birthdate}
-          readOnly={!isEditing}
-          onChange={handleChange}
+          readOnly={true}
         />
         <UserInfoInput
           type="text"
-          name="investmentStyle"
-          value={user.investmentStyle}
-          readOnly={!isEditing}
-          onChange={handleChange}
+          name="investmentType"
+          value={user.investmentType}
+          readOnly={true}
         />
         {!isEditing && <EditButton type="button" onClick={handleEdit}>수정</EditButton>}
         {isEditing && <EditButton type="submit">저장</EditButton>}
       </UserInfoForm>
+      {message && <p>{message}</p>}
     </UserInfoContainer>
   );
 };

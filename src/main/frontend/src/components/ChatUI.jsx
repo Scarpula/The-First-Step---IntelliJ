@@ -136,13 +136,11 @@ const ChatUI = () => {
         {selectedTab === '내정보' ? (
           <UserInfo />
         ) : (
-          <>
-            <ChatContainer messages={messages} loadingMessageId={loadingMessageId} onSend={handleSend} />
-            <ScrollButton visible={showScrollButton} onClick={scrollToBottom}>
-              <ArrowDownwardIcon />
-            </ScrollButton>
-          </>
+          <ChatContainer messages={messages} loadingMessageId={loadingMessageId} onSend={handleSend} />
         )}
+        <ScrollButton visible={showScrollButton} onClick={scrollToBottom}>
+          <ArrowDownwardIcon />
+        </ScrollButton>
       </ChatUIContent>
       {selectedTab !== '내정보' && <ChatInput onSend={handleSend} />}
     </ChatUIWrapper>
