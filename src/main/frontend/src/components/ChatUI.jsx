@@ -6,6 +6,9 @@ import BackgroundImages from './BackgroundImages';
 import styled from 'styled-components';
 import './ChatUI.css';
 import { ReactComponent as ArrowDownwardIcon } from './arrow_downward_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg';
+import RealtimeChartPage from "./RealtimeChartPage";
+import FinancialStatementsPage from "./FinancialStatementsPage";
+import MockInvestmentPage from "./MockInvestmentPage";
 import UserInfo from './UserInfo';
 
 const ChatUIWrapper = styled.div`
@@ -55,6 +58,7 @@ const ChatUI = () => {
   const [selectedTab, setSelectedTab] = useState(null);
   const chatContentRef = useRef(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [currentPage, setCurrentPage] = useState('chat');
 
   useEffect(() => {
     if (chatContentRef.current) {
@@ -128,23 +132,51 @@ const ChatUI = () => {
     }
   };
 
-  return (
-    <ChatUIWrapper>
-      <BackgroundImages />
-      <MainNavbar onTabSelect={setSelectedTab} />
-      <ChatUIContent ref={chatContentRef} className="custom-scrollbar">
-        {selectedTab === '내정보' ? (
-          <UserInfo />
-        ) : (
-          <ChatContainer messages={messages} loadingMessageId={loadingMessageId} onSend={handleSend} />
-        )}
-        <ScrollButton visible={showScrollButton} onClick={scrollToBottom}>
-          <ArrowDownwardIcon />
-        </ScrollButton>
-      </ChatUIContent>
-      {selectedTab !== '내정보' && <ChatInput onSend={handleSend} />}
-    </ChatUIWrapper>
-  );
-};
+  const handleTabClick = (tab) => {
+    switch (tab) {
+      case '실시간 차트':
+        setCurrentPage('realtime-chart');
+        break;
+      case '재무제표 확인':
+        setCurrentPage('financial-statements');
+        break;
+      case '모의투자':
+        setCurrentPage('mock-investment');
+        break;
+      case '내정보':
+        setCurrentPage('user-info');
+        break;
+      default:
+        setCurrentPage('chat');
+        break;
+    }
+  };
 
-export default ChatUI;
+  return (
+        <ChatUIWrapper>
+          <BackgroundImages /> {/* Add the BackgroundImages component here */}
+          <MainNavbar onTabClick={handleTabClick}/>
+          {currentPage === 'chat' ? (
+              <>
+                <ChatUIContent ref={chatContentRef} className="custom-scrollbar">
+                  <ChatContainer messages={messages} loadingMessageId={loadingMessageId} onSend={handleSend} />
+                  <ScrollButton visible={showScrollButton} onClick={scrollToBottom}>
+                    <ArrowDownwardIcon />
+                  </ScrollButton>
+                </ChatUIContent>
+                <ChatInput onSend={handleSend} />
+              </>
+          ) : currentPage === 'realtime-chart' ? (
+              <RealtimeChartPage />
+          ) : currentPage === 'financial-statements' ? (
+              <FinancialStatementsPage />
+          ) : currentPage === 'mock-investment' ? (
+              <MockInvestmentPage />
+          ) : (
+              <UserInfo />
+          )}
+        </ChatUIWrapper>
+    );
+  };
+
+  export default ChatUI;

@@ -36,7 +36,7 @@ const menuVariants = {
   },
 };
 
-const MainNavbar = ({ onTabSelect }) => {
+const MainNavbar = ({ onTabClick }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [selectedTab, setSelectedTab] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -69,7 +69,7 @@ const MainNavbar = ({ onTabSelect }) => {
 
   const handleTabClick = (tab) => {
     setSelectedTab(tab);
-    onTabSelect(tab);
+    onTabClick(tab);
   };
 
   const toggleSidebar = () => {
@@ -132,7 +132,7 @@ const MainNavbar = ({ onTabSelect }) => {
           <AnimatePresence>
             {isVisible && (
               <>
-                {['실시간 차트', '재무재표 확인', '모의 투자', '내정보'].map((tab) => (
+                {['실시간 차트', '재무제표 확인', '모의투자', '내정보'].map((tab) => (
                   <motion.span
                     key={tab}
                     initial="hidden"
@@ -163,7 +163,7 @@ const MainNavbar = ({ onTabSelect }) => {
         </div>
         {user && (
           <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto', marginRight: '25px' }}>
-            <span>{user.name}님</span>
+            <span>반가워요! <b>{user.name}</b>님</span>
             <button onClick={handleLogout} style={{ marginLeft: '10px', padding: '5px 10px', cursor: 'pointer' }}>
               로그아웃
             </button>
