@@ -82,75 +82,75 @@ const Home = ({ handleLoginSuccess }) => {
   };
 
   return (
-      <>
-        <BackgroundImages />
-        <h3 style={{ margin: '15px' }}>InGen</h3>
-        <Navbar onLoginSuccess={handleLoginSuccess} />
-        <SectionsContainer {...options}>
-          <SectionStyled>
-            <TitleContainer>
-              <TypeAnimation
-                  sequence={[
-                    fullTitle,
-                    1000,
-                    fullTitle + fullSubtitle,
-                    1000,
-                    fullTitle + fullSubtitle + '\n' + fullSubtext,
-                  ]}
-                  wrapper="div"
-                  cursor={true}
-                  repeat={0}
-                  style={{
-                    display: 'inline-block',
-                    whiteSpace: 'pre-wrap',
-                    fontFamily: 'Istok Web, sans-serif',
-                    fontSize: '70px',
-                    color: 'black',
-                    textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
-                    textAlign: 'center',
-                    marginBottom: '300px',
-                  }}
-              />
-            </TitleContainer>
-          </SectionStyled>
-          <SectionStyled>
+    <>
+      <BackgroundImages />
+      <h3 style={{ margin: '15px' }}>InGen</h3>
+      <Navbar onLoginSuccess={handleLoginSuccess} />
+      <SectionsContainer {...options}>
+        <SectionStyled>
+          <TitleContainer>
             <TypeAnimation
-                sequence={[fullText]}
-                wrapper="div"
-                cursor={true}
-                repeat={0}
-                style={{
-                  display: 'flex',
-                  whiteSpace: 'pre-wrap',
-                  fontFamily: 'Istok Web, sans-serif',
-                  fontSize: '24px',
-                  color: 'black',
-                  textAlign: 'center',
-                  justifyContent: 'center',
-                  marginTop: '140px',
-                }}
+              sequence={[
+                fullTitle,
+                1000,
+                fullTitle + fullSubtitle,
+                1000,
+                fullTitle + fullSubtitle + '\n' + fullSubtext,
+              ]}
+              wrapper="div"
+              cursor={true}
+              repeat={0}
+              style={{
+                display: 'inline-block',
+                whiteSpace: 'pre-wrap',
+                fontFamily: 'Istok Web, sans-serif',
+                fontSize: '70px',
+                color: 'black',
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+                textAlign: 'center',
+                marginBottom: '300px',
+              }}
             />
-          </SectionStyled>
-          <SectionStyled>
-            <TypeAnimation
-                sequence={[fullText2]}
-                wrapper="div"
-                cursor={true}
-                repeat={0}
-                style={{
-                  display: 'flex',
-                  whiteSpace: 'pre-wrap',
-                  fontFamily: 'Istok Web, sans-serif',
-                  fontSize: '24px',
-                  color: 'black',
-                  textAlign: 'center',
-                  justifyContent: 'center',
-                  marginTop: '130px',
-                }}
-            />
-          </SectionStyled>
-        </SectionsContainer>
-      </>
+          </TitleContainer>
+        </SectionStyled>
+        <SectionStyled>
+          <TypeAnimation
+            sequence={[fullText]}
+            wrapper="div"
+            cursor={true}
+            repeat={0}
+            style={{
+              display: 'flex',
+              whiteSpace: 'pre-wrap',
+              fontFamily: 'Istok Web, sans-serif',
+              fontSize: '24px',
+              color: 'black',
+              textAlign: 'center',
+              justifyContent: 'center',
+              marginTop: '140px',
+            }}
+          />
+        </SectionStyled>
+        <SectionStyled>
+          <TypeAnimation
+            sequence={[fullText2]}
+            wrapper="div"
+            cursor={true}
+            repeat={0}
+            style={{
+              display: 'flex',
+              whiteSpace: 'pre-wrap',
+              fontFamily: 'Istok Web, sans-serif',
+              fontSize: '24px',
+              color: 'black',
+              textAlign: 'center',
+              justifyContent: 'center',
+              marginTop: '130px',
+            }}
+          />
+        </SectionStyled>
+      </SectionsContainer>
+    </>
   );
 };
 
@@ -187,44 +187,44 @@ const App = () => {
   }
 
   return (
-      <Router>
-        <AppWrapper>
-          <Routes>
-            <Route
-                path="/chat"
-                element={
-                  isLoggedIn ? (
-                      <ChatUIWrapper
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 1.2 }}
-                      >
-                        <ChatUI />
-                      </ChatUIWrapper>
-                  ) : (
-                      <Navigate to="/" />
-                  )
-                }
-            />
-            <Route
-                path="/"
-                element={
-                  <AnimatePresence>
-                    <motion.div
-                        key="home"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                    >
-                      <Home handleLoginSuccess={handleLoginSuccess} />
-                    </motion.div>
-                  </AnimatePresence>
-                }
-            />
-          </Routes>
-        </AppWrapper>
-      </Router>
+    <Router>
+      <AppWrapper>
+        <Routes>
+          <Route
+            path="/chat"
+            element={
+              isLoggedIn ? (
+                <ChatUIWrapper
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1.2 }}
+                >
+                  <ChatUI />
+                </ChatUIWrapper>
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/"
+            element={
+              <AnimatePresence>
+                <motion.div
+                  key="home"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <Home handleLoginSuccess={handleLoginSuccess} />
+                </motion.div>
+              </AnimatePresence>
+            }
+          />
+        </Routes>
+      </AppWrapper>
+    </Router>
   );
 };
 

@@ -106,85 +106,85 @@ const MainNavbar = () => {
   };
 
   return (
-      <div>
-        <div
-            className="main-navbar"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={toggleSidebar}>
-            <TableRowsIcon style={{ marginLeft: '25px' }} />
-          </div>
-          <div className={`header-options ${isVisible ? 'visible' : ''}`}>
-            <AnimatePresence>
-              {isVisible && (
-                  <>
-                    {['실시간 차트', '재무재표 확인', '모의 투자', '내정보'].map((tab) => (
-                        <motion.span
-                            key={tab}
-                            initial="hidden"
-                            animate="visible"
-                            exit="hidden"
-                            variants={spanVariants}
-                            transition={{ duration: 0.3 }}
-                            onClick={() => handleTabClick(tab)}
-                            style={{ position: 'relative', cursor: 'pointer' }}
-                        >
-                          {tab}
-                          {selectedTab === tab && (
-                              <motion.div
-                                  className="underline"
-                                  layoutId="underline"
-                                  initial="hidden"
-                                  animate="visible"
-                                  exit="hidden"
-                                  variants={underlineVariants}
-                                  transition={{ duration: 0.3 }}
-                              />
-                          )}
-                        </motion.span>
-                    ))}
-                  </>
-              )}
-            </AnimatePresence>
-          </div>
-          {user && (
-              <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto', marginRight: '25px' }}>
-                <span>{user.name}님</span>
-                <button onClick={handleLogout} style={{ marginLeft: '10px', padding: '5px 10px', cursor: 'pointer' }}>
-                  로그아웃
-                </button>
-              </div>
-          )}
+    <div>
+      <div
+        className="main-navbar"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={toggleSidebar}>
+          <TableRowsIcon style={{ marginLeft: '25px' }} />
         </div>
-        <motion.div
-            className="menu"
-            initial="closed"
-            animate={isSidebarOpen ? 'open' : 'closed'}
-            variants={sidebarVariants}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            onMouseEnter={() => setIsVisible(false)}
-        >
-          <motion.ul
-              initial="closed"
-              animate={isSidebarOpen ? 'open' : 'closed'}
-              variants={menuVariants}
-              style={{ listStyle: 'none', padding: 0 }}
-          >
-            {['Chat Room 1', 'Chat Room 2', 'Chat Room 3', 'Chat Room 4', 'Chat Room 5'].map((room, index) => (
-                <motion.li
-                    key={index}
-                    variants={itemVariants}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    style={{ marginBottom: '10px', cursor: 'pointer' }}
-                >
-                  {room}
-                </motion.li>
-            ))}
-          </motion.ul>
-        </motion.div>
+        <div className={`header-options ${isVisible ? 'visible' : ''}`}>
+          <AnimatePresence>
+            {isVisible && (
+              <>
+                {['실시간 차트', '재무재표 확인', '모의 투자', '내정보'].map((tab) => (
+                  <motion.span
+                    key={tab}
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                    variants={spanVariants}
+                    transition={{ duration: 0.3 }}
+                    onClick={() => handleTabClick(tab)}
+                    style={{ position: 'relative', cursor: 'pointer' }}
+                  >
+                    {tab}
+                    {selectedTab === tab && (
+                      <motion.div
+                        className="underline"
+                        layoutId="underline"
+                        initial="hidden"
+                        animate="visible"
+                        exit="hidden"
+                        variants={underlineVariants}
+                        transition={{ duration: 0.3 }}
+                      />
+                    )}
+                  </motion.span>
+                ))}
+              </>
+            )}
+          </AnimatePresence>
+        </div>
+        {user && (
+          <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto', marginRight: '25px' }}>
+            <span>{user.name}님</span>
+            <button onClick={handleLogout} style={{ marginLeft: '10px', padding: '5px 10px', cursor: 'pointer' }}>
+              로그아웃
+            </button>
+          </div>
+        )}
       </div>
+      <motion.div
+        className="menu"
+        initial="closed"
+        animate={isSidebarOpen ? 'open' : 'closed'}
+        variants={sidebarVariants}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        onMouseEnter={() => setIsVisible(false)}
+      >
+        <motion.ul
+          initial="closed"
+          animate={isSidebarOpen ? 'open' : 'closed'}
+          variants={menuVariants}
+          style={{ listStyle: 'none', padding: 0 }}
+        >
+          {['Chat Room 1', 'Chat Room 2', 'Chat Room 3', 'Chat Room 4', 'Chat Room 5'].map((room, index) => (
+            <motion.li
+              key={index}
+              variants={itemVariants}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              style={{ marginBottom: '10px', cursor: 'pointer' }}
+            >
+              {room}
+            </motion.li>
+          ))}
+        </motion.ul>
+      </motion.div>
+    </div>
   );
 };
 

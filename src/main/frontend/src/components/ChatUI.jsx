@@ -131,7 +131,7 @@ const ChatUI = () => {
       <BackgroundImages /> {/* Add the BackgroundImages component here */}
       <MainNavbar />
       <ChatUIContent ref={chatContentRef} className="custom-scrollbar">
-        <ChatContainer messages={messages} loadingMessageId={loadingMessageId} />
+        <ChatContainer messages={messages} loadingMessageId={loadingMessageId} onSend={handleSend} />
         <ScrollButton visible={showScrollButton} onClick={scrollToBottom}>
           <ArrowDownwardIcon />
         </ScrollButton>
