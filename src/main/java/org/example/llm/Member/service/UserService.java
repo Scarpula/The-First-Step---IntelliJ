@@ -52,6 +52,11 @@ public class UserService {
         }
         return null;
     }
+    public void updatePassword(String email, String newPassword) {
+        UserEntity user = userRepository.findById(email).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.setPassword(newPassword);
+        userRepository.save(user);
+    }
 
 
 

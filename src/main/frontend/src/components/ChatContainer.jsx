@@ -32,7 +32,7 @@ const DefaultButton = styled.button`
   color: #000;
   cursor: pointer;
   margin: 10px;
-  max-width: 140px;
+  width: 140px;
   height: 130px;
 
   &:hover {
@@ -57,6 +57,11 @@ const ChatContainer = ({ messages, loadingMessageId, onSend }) => {
   const [showLogoAndButtons, setShowLogoAndButtons] = useState(true);
 
   const handleButtonClick = (message) => {
+    onSend(message);
+    setShowLogoAndButtons(false);
+  };
+
+  const handleSendMessage = (message) => {
     onSend(message);
     setShowLogoAndButtons(false);
   };
@@ -93,13 +98,13 @@ const ChatContainer = ({ messages, loadingMessageId, onSend }) => {
                 사이트 소개 알려주기
               </DefaultButton>
               <DefaultButton onClick={() => handleButtonClick('투자성향 분석을 도와줘!')}>
-                투자성향 분석하기
+                투자성향 <br/>분석하기
               </DefaultButton>
               <DefaultButton onClick={() => handleButtonClick('오늘의 전략을 추천해줘!')}>
                 전략 추천 받기
               </DefaultButton>
               <DefaultButton onClick={() => handleButtonClick('어제 시장에 대해서 알려줘!')}>
-                어제 시장 알아보기
+                어제 시장 <br/>알아보기
               </DefaultButton>
             </DefaultButtonsContainer>
           )}

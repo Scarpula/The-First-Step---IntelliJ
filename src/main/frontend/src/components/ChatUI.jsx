@@ -2,10 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import MainNavbar from './MainNavbar';
 import ChatContainer from './ChatContainer';
 import ChatInput from './ChatInput';
-import BackgroundImages from './BackgroundImages';  // Import the BackgroundImages component
+import BackgroundImages from './BackgroundImages';
 import styled from 'styled-components';
 import './ChatUI.css';
 import { ReactComponent as ArrowDownwardIcon } from './arrow_downward_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg';
+import RealtimeChartPage from "./RealtimeChartPage";
+import FinancialStatementsPage from "./FinancialStatementsPage";
+import MockInvestmentPage from "./MockInvestmentPage";
+import UserInfo from './UserInfo';
 
 const ChatUIWrapper = styled.div`
   display: flex;
@@ -51,8 +55,10 @@ const ScrollButton = styled.button`
 const ChatUI = () => {
   const [messages, setMessages] = useState([]);
   const [loadingMessageId, setLoadingMessageId] = useState(null);
+  const [selectedTab, setSelectedTab] = useState(null);
   const chatContentRef = useRef(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [currentPage, setCurrentPage] = useState('chat');
 
   useEffect(() => {
     if (chatContentRef.current) {
@@ -65,7 +71,7 @@ const ChatUI = () => {
     const handleScroll = () => {
       if (chatContentRef.current) {
         const { scrollTop, scrollHeight, clientHeight } = chatContentRef.current;
-        setShowScrollButton(scrollTop + clientHeight < scrollHeight - 10); // 맨 하단에 있지 않은 경우에만 버튼 표시
+        setShowScrollButton(scrollTop + clientHeight < scrollHeight - 10);
       }
     };
 
@@ -126,19 +132,51 @@ const ChatUI = () => {
     }
   };
 
-  return (
-    <ChatUIWrapper>
-      <BackgroundImages /> {/* Add the BackgroundImages component here */}
-      <MainNavbar />
-      <ChatUIContent ref={chatContentRef} className="custom-scrollbar">
-        <ChatContainer messages={messages} loadingMessageId={loadingMessageId} onSend={handleSend} />
-        <ScrollButton visible={showScrollButton} onClick={scrollToBottom}>
-          <ArrowDownwardIcon />
-        </ScrollButton>
-      </ChatUIContent>
-      <ChatInput onSend={handleSend} />
-    </ChatUIWrapper>
-  );
-};
+  const handleTabClick = (tab) => {
+    switch (tab) {
+      case '실시간 차트':
+        setCurrentPage('realtime-chart');
+        break;
+      case '재무제표 확인':
+        setCurrentPage('financial-statements');
+        break;
+      case '모의투자':
+        setCurrentPage('mock-investment');
+        break;
+      case '내정보':
+        setCurrentPage('user-info');
+        break;
+      default:
+        setCurrentPage('chat');
+        break;
+    }
+  };
 
-export default ChatUI;
+  return (
+        <ChatUIWrapper>
+          <BackgroundImages /> {/* Add the BackgroundImages component here */}
+          <MainNavbar onTabClick={handleTabClick}/>
+          {currentPage === 'chat' ? (
+              <>
+                <ChatUIContent ref={chatContentRef} className="custom-scrollbar">
+                  <ChatContainer messages={messages} loadingMessageId={loadingMessageId} onSend={handleSend} />
+                  <ScrollButton visible={showScrollButton} onClick={scrollToBottom}>
+                    <ArrowDownwardIcon />
+                  </ScrollButton>
+                </ChatUIContent>
+                <ChatInput onSend={handleSend} />
+              </>
+          ) : currentPage === 'realtime-chart' ? (
+              <RealtimeChartPage />
+          ) : currentPage === 'financial-statements' ? (
+              <FinancialStatementsPage />
+          ) : currentPage === 'mock-investment' ? (
+              <MockInvestmentPage />
+          ) : (
+              <UserInfo />
+          )}
+        </ChatUIWrapper>
+    );
+  };
+
+  export default ChatUI;
