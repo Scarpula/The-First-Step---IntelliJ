@@ -36,12 +36,12 @@ const menuVariants = {
   },
 };
 
-const MainNavbar = () => {
+const MainNavbar = ({ onTabSelect }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [selectedTab, setSelectedTab] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const [chatRooms, setChatRooms] = useState(['Chat Room 1', 'Chat Room 2', 'Chat Room 3', 'Chat Room 4', 'Chat Room 5']);
+  const [chatRooms, setChatRooms] = useState(['Chat Room 1', 'Chat Room 2']);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -69,6 +69,7 @@ const MainNavbar = () => {
 
   const handleTabClick = (tab) => {
     setSelectedTab(tab);
+    onTabSelect(tab);
   };
 
   const toggleSidebar = () => {

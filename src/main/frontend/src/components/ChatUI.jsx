@@ -2,10 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import MainNavbar from './MainNavbar';
 import ChatContainer from './ChatContainer';
 import ChatInput from './ChatInput';
-import BackgroundImages from './BackgroundImages';  // Import the BackgroundImages component
+import BackgroundImages from './BackgroundImages';
 import styled from 'styled-components';
 import './ChatUI.css';
 import { ReactComponent as ArrowDownwardIcon } from './arrow_downward_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg';
+import UserInfo from './UserInfo';
 
 const ChatUIWrapper = styled.div`
   display: flex;
@@ -51,6 +52,7 @@ const ScrollButton = styled.button`
 const ChatUI = () => {
   const [messages, setMessages] = useState([]);
   const [loadingMessageId, setLoadingMessageId] = useState(null);
+  const [selectedTab, setSelectedTab] = useState(null);
   const chatContentRef = useRef(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
 
@@ -65,7 +67,7 @@ const ChatUI = () => {
     const handleScroll = () => {
       if (chatContentRef.current) {
         const { scrollTop, scrollHeight, clientHeight } = chatContentRef.current;
-        setShowScrollButton(scrollTop + clientHeight < scrollHeight - 10); // 맨 하단에 있지 않은 경우에만 버튼 표시
+        setShowScrollButton(scrollTop + clientHeight < scrollHeight - 10);
       }
     };
 
@@ -128,15 +130,21 @@ const ChatUI = () => {
 
   return (
     <ChatUIWrapper>
-      <BackgroundImages /> {/* Add the BackgroundImages component here */}
-      <MainNavbar />
+      <BackgroundImages />
+      <MainNavbar onTabSelect={setSelectedTab} />
       <ChatUIContent ref={chatContentRef} className="custom-scrollbar">
-        <ChatContainer messages={messages} loadingMessageId={loadingMessageId} onSend={handleSend} />
-        <ScrollButton visible={showScrollButton} onClick={scrollToBottom}>
-          <ArrowDownwardIcon />
-        </ScrollButton>
+        {selectedTab === '내정보' ? (
+          <UserInfo />
+        ) : (
+          <>
+            <ChatContainer messages={messages} loadingMessageId={loadingMessageId} onSend={handleSend} />
+            <ScrollButton visible={showScrollButton} onClick={scrollToBottom}>
+              <ArrowDownwardIcon />
+            </ScrollButton>
+          </>
+        )}
       </ChatUIContent>
-      <ChatInput onSend={handleSend} />
+      {selectedTab !== '내정보' && <ChatInput onSend={handleSend} />}
     </ChatUIWrapper>
   );
 };
