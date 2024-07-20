@@ -23,34 +23,41 @@ public class ChatController {
     }
 
     @PostMapping("/room")
-    public ResponseEntity<Map<String, Long>> createRoom() {
-        String userId = chatService.getCurrentUserId();
+    public ResponseEntity<Map<String, String>> createRoom(@RequestBody Map<String, String> payload) {
+        String userId = payload.get("userId");
+        if (userId == null || userId.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "User ID is required"));
+        }
         Long roomId = chatService.createRoom(userId);
-        return ResponseEntity.ok(Map.of("roomId", roomId));
+        return ResponseEntity.ok(Map.of("roomId", String.valueOf(roomId)));
     }
 
-    @PostMapping("/save")
-    public ResponseEntity<Void> saveMessages(@RequestBody chatMessageDto chatMessageDto) {
-        String userId = chatService.getCurrentUserId();
-        try {
-            chatService.saveMessages(chatMessageDto.getRoomId(), userId,
-                    chatMessageDto.getUserMessage(), chatMessageDto.getBotResponse());
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    @GetMapping("/rooms/{userId}")
+    public ResponseEntity<List<ChatRoom>> getRooms(@PathVariable String userId) {
+        if (userId == null || userId.isEmpty()) {
+            return ResponseEntity.badRequest().build();
         }
+        List<ChatRoom> rooms = chatService.getRoomsByUserId(userId);
+        return ResponseEntity.ok(rooms);
     }
 
-
-
-    @GetMapping("/history/{roomId}")
-    public ResponseEntity<List<ChatContents>> getChatHistory(@PathVariable Long roomId) {
-        String userId = chatService.getCurrentUserId();
-        try {
-            List<ChatContents> history = chatService.getChatHistory(roomId, userId);
-            return ResponseEntity.ok(history);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    @DeleteMapping("/room/{roomId}/{userId}")
+    public ResponseEntity<Void> deleteRoom(@PathVariable Long roomId, @PathVariable String userId) {
+        if (userId == null || userId.isEmpty()) {
+            return ResponseEntity.badRequest().build();
         }
+        chatService.deleteRoom(roomId, userId);
+        return ResponseEntity.noContent().build();
     }
+
+
+
+
+
+
+
+
+
+
+
 }

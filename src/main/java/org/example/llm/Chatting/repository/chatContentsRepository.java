@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface chatContentsRepository extends JpaRepository<ChatContents, Long> {
-     List<ChatContents> findByRoomIdOrderByChattedAt(ChatRoom roomId);
+     List<ChatContents> findByRoomIdOrderByTimestampAsc(Long roomId);
 }

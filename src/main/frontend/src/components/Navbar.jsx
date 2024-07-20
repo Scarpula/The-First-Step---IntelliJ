@@ -202,7 +202,7 @@ const Navbar = ({ onLoginSuccess }) => {
             if (response.status === 200 && response.data.message === 'Login successful') {
                 setError(false);
                 onLoginSuccess();  // 로그인 성공 시 콜백 호출
-                setIsOpen(false);  // 사이드바 닫기
+                setIsOpen(false);
                 checkSession();
                 navigate('/chat');  // 로그인 성공 시 /chat 경로로 이동
             } else {
