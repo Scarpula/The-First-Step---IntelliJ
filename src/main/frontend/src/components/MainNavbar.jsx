@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { ReactComponent as DensityIcon } from './density_medium_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg';
 import { ReactComponent as TableRowsIcon } from './table_rows_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg';
+import { ReactComponent as CloseIcon } from './close_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg';
 import './MainNavbar.css';
-import axios from 'axios';
+import { getSession, logout } from '../api'; // api 파일에서 getSession 함수 임포트
 import { useNavigate } from 'react-router-dom';
 
-const itemVariants: Variants = {
+const itemVariants = {
   open: {
     opacity: 1,
     y: 0,
@@ -31,15 +33,102 @@ const menuVariants = {
     transition: {
       type: 'spring',
       bounce: 0,
-      duration: 0.3,
-    },
+      duration: 0.3 },
   },
 };
 
+const underlineVariants = {
+  hidden: { opacity: 0, width: '0%' },
+  visible: { opacity: 1, width: '100%' },
+};
+
+const Overlay = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: ${props => (props.show ? 'block' : 'none')};
+    z-index: 999;
+`;
+
+const Sidebar = styled.div`
+  position: fixed;
+  top: 0;
+  right: ${props => (props.show ? '0' : '-350px')};
+  width: 300px;
+  height: 100%;
+  background: #fff;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+  transition: right 0.3s ease;
+  z-index: 1000;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 15px;
+`;
+
+const CloseButton = styled(CloseIcon)`
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  transform: rotate(45deg);
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: rotate(90deg);
+  }
+`;
+
+const LeftSidebar = styled.div`
+  position: fixed;
+  top: 150px;
+  left: ${props => (props.show ? '0' : '-350px')};
+  width: 300px;
+  height: 70%;
+  background: #fff;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  transition: left 0.3s ease;
+  z-index: 998;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 15px;
+  border-right: 1px solid #fff7f7;
+  border-radius: 8px;
+`;
+
+const NavbarContainer = styled.div`
+  width: 100%;
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0);
+  padding: 0 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  align-items: center;
+  height: 40px; /* 버튼 높이 지정 */
+  background: transparent; /* 배경색 투명하게 설정 */
+`;
+
 const MainNavbar = ({ onTabClick }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [selectedTab, setSelectedTab] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
+  const [selectedTab, setSelectedTab] = useState(null);
   const [user, setUser] = useState(null);
   const [chatRooms, setChatRooms] = useState(['Chat Room 1', 'Chat Room 2']);
   const navigate = useNavigate();
@@ -47,9 +136,9 @@ const MainNavbar = ({ onTabClick }) => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const response = await axios.get('http://localhost:8082/api/session', { withCredentials: true });
-        if (response.status === 200 && response.data.user) {
-          setUser(response.data.user);
+        const response = await getSession();
+        if (response && response.user) {
+          setUser(response.user);
         }
       } catch (error) {
         console.error('Error during session check:', error);
@@ -59,27 +148,24 @@ const MainNavbar = ({ onTabClick }) => {
     checkSession();
   }, []);
 
-  const handleMouseEnter = () => {
-    setIsVisible(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsVisible(false);
-  };
-
   const handleTabClick = (tab) => {
     setSelectedTab(tab);
     onTabClick(tab);
+    setIsSidebarOpen(false); // 탭 클릭 시 사이드바 닫기
   };
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  const toggleLeftSidebar = () => {
+    setIsLeftSidebarOpen(!isLeftSidebarOpen);
+  };
+
   const handleLogout = async () => {
     try {
-      const response = await axios.get('http://localhost:8082/api/logout', { withCredentials: true });
-      if (response.status === 200) {
+      const response = await logout();
+      if (response) {
         setUser(null);
         navigate('/'); // 로그아웃 후 홈으로 리디렉션합니다.
       } else {
@@ -103,92 +189,90 @@ const MainNavbar = ({ onTabClick }) => {
     setChatRooms(chatRooms.filter(r => r !== room));
   };
 
-  const spanVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
-
-  const underlineVariants = {
-    hidden: { opacity: 0, width: '0%' },
-    visible: { opacity: 1, width: '100%' },
-  };
-
-  const sidebarVariants = {
-    open: { x: 0 },
-    closed: { x: '-120%' },
+  const handleChatRoomClick = (room) => {
+    const userId = user ? user.id : 'guest';
+    navigate(`/chat?roomid=${room}&userid=${userId}`);
   };
 
   return (
     <div>
-      <div
-        className="main-navbar"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={toggleSidebar}>
-          <TableRowsIcon style={{ marginLeft: '25px' }} />
-        </div>
-        <div className={`header-options ${isVisible ? 'visible' : ''}`}>
-          <AnimatePresence>
-            {isVisible && (
-              <>
-                {['실시간 차트', '재무제표 확인', '모의투자', '내정보'].map((tab) => (
-                  <motion.span
-                    key={tab}
-                    initial="hidden"
-                    animate="visible"
-                    exit="hidden"
-                    variants={spanVariants}
-                    transition={{ duration: 0.3 }}
-                    onClick={() => handleTabClick(tab)}
-                    style={{ position: 'relative', cursor: 'pointer' }}
-                  >
-                    {tab}
-                    {selectedTab === tab && (
-                      <motion.div
-                        className="underline"
-                        layoutId="underline"
-                        initial="hidden"
-                        animate="visible"
-                        exit="hidden"
-                        variants={underlineVariants}
-                        transition={{ duration: 0.3 }}
-                      />
-                    )}
-                  </motion.span>
-                ))}
-              </>
-            )}
-          </AnimatePresence>
-        </div>
-        {user && (
-          <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto', marginRight: '25px' }}>
-            <span>반가워요! <b>{user.name}</b>님</span>
-            <button onClick={handleLogout} style={{ marginLeft: '10px', padding: '5px 10px', cursor: 'pointer' }}>
-              로그아웃
-            </button>
-          </div>
-        )}
-      </div>
-      <motion.div
-        className="menu"
-        initial="closed"
-        animate={isSidebarOpen ? 'open' : 'closed'}
-        variants={sidebarVariants}
-        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        onMouseEnter={() => setIsVisible(false)}
-      >
+      <NavbarContainer>
+        <ButtonContainer onClick={toggleLeftSidebar} style={{ cursor: 'pointer', position: 'fixed', top: '10px', left: '10px' }}>
+          <TableRowsIcon />
+        </ButtonContainer>
+        <ButtonContainer onClick={toggleSidebar} style={{ cursor: 'pointer', position: 'fixed', top: '10px', right: '10px' }}>
+          <DensityIcon style={{ width: '30px', height: '30px' }} />
+        </ButtonContainer>
+      </NavbarContainer>
+      <Overlay show={isSidebarOpen} onClick={toggleSidebar} />
+      <Sidebar show={isSidebarOpen}>
+        <CloseButton onClick={toggleSidebar} />
         <motion.ul
           initial="closed"
           animate={isSidebarOpen ? 'open' : 'closed'}
           variants={menuVariants}
-          style={{ listStyle: 'none', padding: 0 }}
+          style={{ listStyle: 'none', padding: '15px' }}
+        >
+          {['◎ 실시간 차트', '◎ 재무제표 확인', '◎ 챗봇', '◎ 내정보'].map((tab) => (
+            <motion.li
+              key={tab}
+              variants={itemVariants}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="hahmlet-text"
+              style={{ marginTop: '65px', marginBottom: '65px', cursor: 'pointer', fontSize: '32px' }}
+              onClick={() => handleTabClick(tab)}
+            >
+              {tab}
+              {selectedTab === tab && (
+                <motion.div
+                  className="underline"
+                  layoutId="underline"
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  variants={underlineVariants}
+                  transition={{ duration: 0.3 }}
+                />
+              )}
+            </motion.li>
+          ))}
+          {user && (
+            <>
+              <motion.li
+                variants={itemVariants}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                style={{ marginTop: '320px', cursor: 'pointer' }}
+              >
+                반가워요! <b>{user.name}</b>님
+              </motion.li>
+              <motion.li
+                variants={itemVariants}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                style={{ marginTop: '5px', cursor: 'pointer' }}
+                onClick={handleLogout}
+              >
+                로그아웃
+              </motion.li>
+            </>
+          )}
+        </motion.ul>
+      </Sidebar>
+      <LeftSidebar show={isLeftSidebarOpen}>
+        <motion.ul
+          initial="closed"
+          animate={isLeftSidebarOpen ? 'open' : 'closed'}
+          variants={menuVariants}
+          style={{ listStyle: 'none', padding: '15px' }}
         >
           <motion.li
             variants={itemVariants}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            style={{ marginBottom: '10px', cursor: 'pointer' }}
+            className="hahmlet-text"
+            style={{ marginBottom: '35px', cursor: 'pointer', fontSize: '24px' }}
             onClick={handleCreateChatRoom}
           >
             새 채팅방 만들기
@@ -199,7 +283,8 @@ const MainNavbar = ({ onTabClick }) => {
               variants={itemVariants}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              style={{ marginBottom: '10px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between' }}
+              style={{ marginBottom: '15px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between' }}
+              onClick={() => handleChatRoomClick(room)}
             >
               <span>{room}</span>
               <button onClick={() => handleDeleteChatRoom(room)} style={{ cursor: 'pointer', background: 'transparent', border: 'none', color: 'red' }}>
@@ -208,7 +293,7 @@ const MainNavbar = ({ onTabClick }) => {
             </motion.li>
           ))}
         </motion.ul>
-      </motion.div>
+      </LeftSidebar>
     </div>
   );
 };

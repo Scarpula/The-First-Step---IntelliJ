@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import MainNavbar from './MainNavbar';
 import ChatContainer from './ChatContainer';
 import ChatInput from './ChatInput';
@@ -8,8 +9,8 @@ import './ChatUI.css';
 import { ReactComponent as ArrowDownwardIcon } from './arrow_downward_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg';
 import RealtimeChartPage from "./RealtimeChartPage";
 import FinancialStatementsPage from "./FinancialStatementsPage";
-import MockInvestmentPage from "./MockInvestmentPage";
 import UserInfo from './UserInfo';
+import { getSession } from '../api'; // Import the getSession function
 
 const ChatUIWrapper = styled.div`
   display: flex;
@@ -53,12 +54,51 @@ const ScrollButton = styled.button`
 `;
 
 const ChatUI = () => {
-  const [messages, setMessages] = useState([]);
-  const [loadingMessageId, setLoadingMessageId] = useState(null);
-  const [selectedTab, setSelectedTab] = useState(null);
+  const [messages, setMessages] = useState({});
+  const [animatedMessageIds, setAnimatedMessageIds] = useState(new Set());
+  const [showLogoAndButtons, setShowLogoAndButtons] = useState({});
   const chatContentRef = useRef(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [currentPage, setCurrentPage] = useState('chat');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [user, setUser] = useState(null);
+  const roomId = searchParams.get('roomid') || '1';
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await getSession();
+        if (response && response.user) {
+          setUser(response.user);
+          setSearchParams({ roomid: roomId, userid: response.user.id });
+        }
+      } catch (error) {
+        console.error('Error during session check:', error);
+      }
+    };
+
+    checkSession();
+  }, [roomId, setSearchParams]);
+
+  // Load messages from localStorage
+  useEffect(() => {
+    const storedMessages = localStorage.getItem(`chat_messages_${roomId}`);
+    if (storedMessages) {
+      setMessages((prevMessages) => ({
+        ...prevMessages,
+        [roomId]: JSON.parse(storedMessages),
+      }));
+    }
+  }, [roomId]);
+
+  // Load animated message IDs from localStorage
+  useEffect(() => {
+    const storedAnimatedIds = localStorage.getItem(`animatedMessageIds_${roomId}`);
+    if (storedAnimatedIds) {
+      setAnimatedMessageIds(new Set(JSON.parse(storedAnimatedIds)));
+    }
+  }, [roomId]);
 
   useEffect(() => {
     if (chatContentRef.current) {
@@ -75,12 +115,13 @@ const ChatUI = () => {
       }
     };
 
-    if (chatContentRef.current) {
-      chatContentRef.current.addEventListener('scroll', handleScroll);
+    const chatContentNode = chatContentRef.current;
+    if (chatContentNode) {
+      chatContentNode.addEventListener('scroll', handleScroll);
     }
     return () => {
-      if (chatContentRef.current) {
-        chatContentRef.current.removeEventListener('scroll', handleScroll);
+      if (chatContentNode) {
+        chatContentNode.removeEventListener('scroll', handleScroll);
       }
     };
   }, []);
@@ -97,12 +138,25 @@ const ChatUI = () => {
   const handleSend = async (messageText) => {
     const messageId = Date.now();
     const userMessage = { id: messageId, text: messageText, sender: 'user' };
-    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    console.log('User message sent:', userMessage);
+    setMessages((prevMessages) => {
+      const updatedMessages = {
+        ...prevMessages,
+        [roomId]: [...(prevMessages[roomId] || []), userMessage],
+      };
+      localStorage.setItem(`chat_messages_${roomId}`, JSON.stringify(updatedMessages[roomId]));
+      return updatedMessages;
+    });
 
-    const loadingMessage = { id: 'loading', text: '', sender: 'bot' };
-    setMessages((prevMessages) => [...prevMessages, loadingMessage]);
-
-    setLoadingMessageId(messageId);
+    const loadingMessage = { id: 'loading', text: '...', sender: 'bot' };
+    setMessages((prevMessages) => {
+      const updatedMessages = {
+        ...prevMessages,
+        [roomId]: [...(prevMessages[roomId] || []), loadingMessage],
+      };
+      localStorage.setItem(`chat_messages_${roomId}`, JSON.stringify(updatedMessages[roomId]));
+      return updatedMessages;
+    });
 
     try {
       const response = await fetch('http://112.217.124.195:30001/ask', {
@@ -119,31 +173,62 @@ const ChatUI = () => {
 
       const data = await response.json();
       const botMessage = { id: Date.now(), text: data.response, sender: 'bot' };
+      console.log('Bot response received:', botMessage);
 
-      setMessages((prevMessages) => prevMessages.filter((message) => message.id !== 'loading'));
-      setMessages((prevMessages) => [...prevMessages, botMessage]);
+      setMessages((prevMessages) => {
+        const updatedMessages = {
+          ...prevMessages,
+          [roomId]: prevMessages[roomId].filter((message) => message.id !== 'loading'),
+        };
+        localStorage.setItem(`chat_messages_${roomId}`, JSON.stringify(updatedMessages[roomId]));
+        return updatedMessages;
+      });
+
+      setMessages((prevMessages) => {
+        const updatedMessages = {
+          ...prevMessages,
+          [roomId]: [...(prevMessages[roomId] || []), botMessage],
+        };
+        localStorage.setItem(`chat_messages_${roomId}`, JSON.stringify(updatedMessages[roomId]));
+        return updatedMessages;
+      });
     } catch (error) {
       console.error('Error:', error);
       const errorMessage = { id: Date.now(), text: '챗봇이 응답할 수 없습니다.', sender: 'bot' };
-      setMessages((prevMessages) => prevMessages.filter((message) => message.id !== 'loading'));
-      setMessages((prevMessages) => [...prevMessages, errorMessage]);
-    } finally {
-      setLoadingMessageId(null);
+      console.log('Bot error message:', errorMessage);
+      setMessages((prevMessages) => {
+        const updatedMessages = {
+          ...prevMessages,
+          [roomId]: prevMessages[roomId].filter((message) => message.id !== 'loading'),
+        };
+        localStorage.setItem(`chat_messages_${roomId}`, JSON.stringify(updatedMessages[roomId]));
+        return updatedMessages;
+      });
+
+      setMessages((prevMessages) => {
+        const updatedMessages = {
+          ...prevMessages,
+          [roomId]: [...(prevMessages[roomId] || []), errorMessage],
+        };
+        localStorage.setItem(`chat_messages_${roomId}`, JSON.stringify(updatedMessages[roomId]));
+        return updatedMessages;
+      });
     }
   };
 
   const handleTabClick = (tab) => {
+    console.log('Tab clicked:', tab);
     switch (tab) {
-      case '실시간 차트':
+      case '◎ 실시간 차트':
         setCurrentPage('realtime-chart');
         break;
-      case '재무제표 확인':
+      case '◎ 재무제표 확인':
         setCurrentPage('financial-statements');
         break;
-      case '모의투자':
-        setCurrentPage('mock-investment');
+      case '◎ 챗봇':
+        setCurrentPage('chat');
         break;
-      case '내정보':
+      case '◎ 내정보':
         setCurrentPage('user-info');
         break;
       default:
@@ -153,30 +238,36 @@ const ChatUI = () => {
   };
 
   return (
-        <ChatUIWrapper>
-          <BackgroundImages /> {/* Add the BackgroundImages component here */}
-          <MainNavbar onTabClick={handleTabClick}/>
-          {currentPage === 'chat' ? (
-              <>
-                <ChatUIContent ref={chatContentRef} className="custom-scrollbar">
-                  <ChatContainer messages={messages} loadingMessageId={loadingMessageId} onSend={handleSend} />
-                  <ScrollButton visible={showScrollButton} onClick={scrollToBottom}>
-                    <ArrowDownwardIcon />
-                  </ScrollButton>
-                </ChatUIContent>
-                <ChatInput onSend={handleSend} />
-              </>
-          ) : currentPage === 'realtime-chart' ? (
-              <RealtimeChartPage />
-          ) : currentPage === 'financial-statements' ? (
-              <FinancialStatementsPage />
-          ) : currentPage === 'mock-investment' ? (
-              <MockInvestmentPage />
-          ) : (
-              <UserInfo />
-          )}
-        </ChatUIWrapper>
-    );
-  };
+    <ChatUIWrapper>
+      <BackgroundImages />
+      <MainNavbar onTabClick={handleTabClick} />
+      {currentPage === 'chat' ? (
+        <>
+          <ChatUIContent ref={chatContentRef} className="custom-scrollbar">
+            <ChatContainer
+              roomId={roomId}
+              messages={messages[roomId] || []}
+              onSend={handleSend}
+              showLogoAndButtons={showLogoAndButtons[roomId] !== false}
+              setShowLogoAndButtons={(value) => setShowLogoAndButtons((prev) => ({ ...prev, [roomId]: value }))}
+              animatedMessageIds={animatedMessageIds}
+              setAnimatedMessageIds={setAnimatedMessageIds}
+            />
+            <ScrollButton visible={showScrollButton} onClick={scrollToBottom}>
+              <ArrowDownwardIcon />
+            </ScrollButton>
+          </ChatUIContent>
+          <ChatInput onSend={handleSend} />
+        </>
+      ) : currentPage === 'realtime-chart' ? (
+        <RealtimeChartPage />
+      ) : currentPage === 'financial-statements' ? (
+        <FinancialStatementsPage />
+      ) : (
+        <UserInfo />
+      )}
+    </ChatUIWrapper>
+  );
+};
 
-  export default ChatUI;
+export default ChatUI;

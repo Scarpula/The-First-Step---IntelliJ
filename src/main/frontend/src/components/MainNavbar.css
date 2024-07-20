@@ -89,3 +89,7 @@
   height: 2px;
   background-color: #000;
 }
+.hahmlet-text {
+  font-family: "Hahmlet", serif;
+  font-weight: 300;
+}
