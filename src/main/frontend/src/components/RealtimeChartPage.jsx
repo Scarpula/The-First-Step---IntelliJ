@@ -32,8 +32,8 @@ const RealtimeChartPage = () => {
 
     return (
         <div className="App">
-            <h1 style={{ marginTop: '130px' }}>{stockSymbol} Chart</h1>
-            <div style={{ marginBottom: '20px' }}>
+            <h1 style={{ marginTop: '130px' ,marginLeft: '190px'}}>{stockSymbol} Chart</h1>
+            <div style={{ marginBottom: '20px' ,marginLeft: '190px'}}>
                 <input
                     type="text"
                     value={searchInput}

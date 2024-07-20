@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -48,20 +48,45 @@ const DefaultButton = styled.button`
 const ButtonLogo = styled.h3`
   font-family: 'Black Ops One', sans-serif;
   margin: 15px;
-  position : relative;
-  top : 300px;
-  font-size : 36px;
+  position: relative;
+  top: 300px;
+  font-size: 36px;
 `;
 
-const ChatContainer = ({ messages, loadingMessageId, onSend }) => {
-  const [showLogoAndButtons, setShowLogoAndButtons] = useState(true);
+const ChatContainer = ({ roomId, messages, onSend, showLogoAndButtons, setShowLogoAndButtons, animatedMessageIds, setAnimatedMessageIds }) => {
+  const prevMessagesLengthRef = useRef(messages.length);
+  const prevRoomIdRef = useRef(roomId);
+
+  useEffect(() => {
+    if (roomId !== prevRoomIdRef.current) {
+      console.log('Room changed:', roomId);
+      prevMessagesLengthRef.current = messages.length;
+      prevRoomIdRef.current = roomId;
+      setAnimatedMessageIds(new Set()); // Reset animated message IDs when room changes
+    } else if (messages.length > prevMessagesLengthRef.current) {
+      const newMessage = messages[messages.length - 1];
+      console.log('New message added:', newMessage);
+      if (newMessage.sender === 'bot' && newMessage.id !== 'loading') {
+        setAnimatedMessageIds((prevIds) => {
+          const updatedIds = new Set(prevIds).add(newMessage.id);
+          localStorage.setItem(`animatedMessageIds_${roomId}`, JSON.stringify(Array.from(updatedIds)));
+          return updatedIds;
+        });
+      }
+      prevMessagesLengthRef.current = messages.length;
+      setShowLogoAndButtons(false); // Hide logo and buttons when a new message is added
+    }
+  }, [messages, roomId, setAnimatedMessageIds, setShowLogoAndButtons]);
+
+  useEffect(() => {
+    const storedAnimatedIds = localStorage.getItem(`animatedMessageIds_${roomId}`);
+    if (storedAnimatedIds) {
+      setAnimatedMessageIds(new Set(JSON.parse(storedAnimatedIds)));
+    }
+  }, [roomId, setAnimatedMessageIds]);
 
   const handleButtonClick = (message) => {
-    onSend(message);
-    setShowLogoAndButtons(false);
-  };
-
-  const handleSendMessage = (message) => {
+    console.log('Button clicked:', message);
     onSend(message);
     setShowLogoAndButtons(false);
   };
@@ -87,6 +112,40 @@ const ChatContainer = ({ messages, loadingMessageId, onSend }) => {
     return text;
   };
 
+  const renderMessage = (message) => {
+    const processedText = preprocessMarkdown(message.text);
+
+    if (message.id === 'loading') {
+      return <img src={RotateIcon} alt="Loading..." className="loading-icon" />;
+    }
+
+    const shouldAnimate = message.sender !== 'user' && !animatedMessageIds.has(message.id);
+
+    return shouldAnimate ? (
+      <TypeAnimation
+        sequence={[processedText]}
+        speed={50}
+        wrapper="div"
+        cursor={false}
+        repeat={0}
+        onComplete={() => {
+          setAnimatedMessageIds((prevIds) => {
+            const updatedIds = new Set(prevIds).add(message.id);
+            localStorage.setItem(`animatedMessageIds_${roomId}`, JSON.stringify(Array.from(updatedIds)));
+            return updatedIds;
+          });
+        }}
+      />
+    ) : (
+      <ReactMarkdown
+        components={customRenderers}
+        remarkPlugins={[remarkGfm, remarkBreaks]}
+      >
+        {processedText}
+      </ReactMarkdown>
+    );
+  };
+
   return (
     <ChatContainerWrapper className="chat-container">
       {showLogoAndButtons && (
@@ -98,54 +157,26 @@ const ChatContainer = ({ messages, loadingMessageId, onSend }) => {
                 사이트 소개 알려주기
               </DefaultButton>
               <DefaultButton onClick={() => handleButtonClick('투자성향 분석을 도와줘!')}>
-                투자성향 <br/>분석하기
+                투자성향 <br />분석하기
               </DefaultButton>
               <DefaultButton onClick={() => handleButtonClick('오늘의 전략을 추천해줘!')}>
                 전략 추천 받기
               </DefaultButton>
               <DefaultButton onClick={() => handleButtonClick('어제 시장에 대해서 알려줘!')}>
-                어제 시장 <br/>알아보기
+                어제 시장 <br />알아보기
               </DefaultButton>
             </DefaultButtonsContainer>
           )}
         </>
       )}
-      {messages.map((message) => {
-        const processedText = preprocessMarkdown(message.text);
-
-        return (
-          <div
-            key={message.id}
-            className={`chat-bubble ${message.sender === 'user' ? 'right' : 'left'}`}
-          >
-            {message.sender === 'bot' && message.id === 'loading' ? (
-              <img src={RotateIcon} alt="Loading..." className="loading-icon" />
-            ) : (
-              message.sender === 'bot' ? (
-                <TypeAnimation
-                  sequence={[processedText]}
-                  speed={50}
-                  wrapper="div"
-                  cursor={false}
-                  repeat={0}
-                >
-                  {(text) => (
-                    <ReactMarkdown
-                      components={customRenderers}
-                      remarkPlugins={[remarkGfm, remarkBreaks]}
-                      children={text}
-                      linkTarget="_blank"
-                      className="markdown-content"
-                    />
-                  )}
-                </TypeAnimation>
-              ) : (
-                <p>{message.text}</p>
-              )
-            )}
-          </div>
-        );
-      })}
+      {messages.map((message) => (
+        <div
+          key={message.id}
+          className={`chat-bubble ${message.sender === 'user' ? 'right' : 'left'}`}
+        >
+          {renderMessage(message)}
+        </div>
+      ))}
     </ChatContainerWrapper>
   );
 };

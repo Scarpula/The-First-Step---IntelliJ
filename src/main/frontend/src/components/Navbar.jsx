@@ -294,7 +294,7 @@ const Navbar = ({ onLoginSuccess }) => {
             <NavbarContainer>
                 <Logo />
                 <MenuButton src="/images/density_medium_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg" alt="Menu" onClick={toggleSidebar} />
-                {user && <Button onClick={handleLogout}>로그아웃</Button>}
+
             </NavbarContainer>
             <Sidebar show={isOpen}>
                 {!user && (

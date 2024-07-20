@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import ChatUI from './components/ChatUI';
 import BackgroundImages from './components/BackgroundImages';
@@ -16,6 +16,7 @@ const AppWrapper = styled.div`
   height: 100vh;
   overflow: hidden;
 `;
+
 const SectionStyled = styled(Section)`
   width: 100%;
   height: 100vh;
@@ -25,6 +26,7 @@ const SectionStyled = styled(Section)`
   align-items: center;
   position: relative;
 `;
+
 const TitleContainer = styled.div`
   position: absolute;
   top: 50%;
@@ -32,6 +34,7 @@ const TitleContainer = styled.div`
   transform: translate(-50%, -50%);
   text-align: center;
 `;
+
 const Content = styled.p`
   font-family: 'Istok Web', sans-serif;
   font-size: 24px;
@@ -57,6 +60,7 @@ const TypingContent = styled(Content)`
     }
   }
 `;
+
 const ChatUIWrapper = styled(motion.div)`
   display: flex;
   flex-direction: column;
@@ -157,6 +161,7 @@ const Home = ({ handleLoginSuccess }) => {
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     checkLoginStatus();
@@ -167,6 +172,7 @@ const App = () => {
       const response = await axios.get('http://localhost:8082/api/session', { withCredentials: true });
       if (response.status === 200 && response.data.user) {
         setIsLoggedIn(true);
+        setUserId(response.data.user.id);
       } else {
         setIsLoggedIn(false);
       }
@@ -200,7 +206,7 @@ const App = () => {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 1.2 }}
                 >
-                  <ChatUI />
+                  <ChatUI userId={userId} />
                 </ChatUIWrapper>
               ) : (
                 <Navigate to="/" />

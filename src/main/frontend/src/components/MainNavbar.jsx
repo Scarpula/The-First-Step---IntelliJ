@@ -36,12 +36,12 @@ const menuVariants = {
   },
 };
 
-const MainNavbar = () => {
+const MainNavbar = ({ onTabClick }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [selectedTab, setSelectedTab] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const [chatRooms, setChatRooms] = useState([]);
+  const [chatRooms, setChatRooms] = useState(['Chat Room 1', 'Chat Room 2']);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,7 +54,7 @@ const MainNavbar = () => {
       } catch (error) {
         console.error('Error during session check:', error);
       }
-    }
+    };
 
     checkSession();
   }, []);
@@ -69,6 +69,7 @@ const MainNavbar = () => {
 
   const handleTabClick = (tab) => {
     setSelectedTab(tab);
+    onTabClick(tab);
   };
 
   const toggleSidebar = () => {
@@ -88,50 +89,18 @@ const MainNavbar = () => {
       console.error("Error during logout:", error);
     }
   };
-  const fetchChatRooms = async () => {
-    try {
-      const response = await axios.get(`http://localhost:8082/api/rooms/${user.email}`);
-      setChatRooms(response.data);
-    } catch (error) {
-      console.error('Error fetching chat rooms:', error);
-    }
-  };
 
-  useEffect(() => {
-    if (user) {
-      fetchChatRooms();
-    }
-  }, [user]);
-
-  const handleCreateChatRoom = async () => {
+  const handleCreateChatRoom = () => {
     if (chatRooms.length < 3) {
-      try {
-        const response = await axios.post('http://localhost:8082/api/room', {
-          userId: user.email
-        }, { withCredentials: true });
-        console.log(response.data);
-        const newRoom = {
-          id: response.data.roomId,
-          name: `Chat Room ${chatRooms.length + 1}`
-        };
-        setChatRooms(prevRooms => [...prevRooms, newRoom]);
-      } catch (error) {
-        console.error('Error creating chat room:', error);
-        alert('채팅방 생성 중 오류가 발생했습니다.');
-      }
+      const newRoom = `Chat Room ${chatRooms.length + 1}`;
+      setChatRooms([...chatRooms, newRoom]);
     } else {
       alert('채팅방은 최대 3개까지 생성할 수 있습니다.');
     }
   };
 
-  const handleDeleteChatRoom = async (roomId) => {
-    try {
-      await axios.delete(`http://localhost:8082/api/room/${roomId}/${user.email}`, { withCredentials: true });
-      setChatRooms(prevRooms => prevRooms.filter(room => room.id !== roomId));
-    } catch (error) {
-      console.error('Error deleting chat room:', error);
-      alert('채팅방 삭제 중 오류가 발생했습니다.');
-    }
+  const handleDeleteChatRoom = (room) => {
+    setChatRooms(chatRooms.filter(r => r !== room));
   };
 
   const spanVariants = {
@@ -163,7 +132,7 @@ const MainNavbar = () => {
           <AnimatePresence>
             {isVisible && (
               <>
-                {['실시간 차트', '재무재표 확인', '모의 투자', '내정보'].map((tab) => (
+                {['실시간 차트', '재무제표 확인', '모의투자', '내정보'].map((tab) => (
                   <motion.span
                     key={tab}
                     initial="hidden"
@@ -194,7 +163,7 @@ const MainNavbar = () => {
         </div>
         {user && (
           <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto', marginRight: '25px' }}>
-            <span>{user.name}님</span>
+            <span>반가워요! <b>{user.name}</b>님</span>
             <button onClick={handleLogout} style={{ marginLeft: '10px', padding: '5px 10px', cursor: 'pointer' }}>
               로그아웃
             </button>

@@ -48,7 +48,7 @@ const StockChart = ({ data, stockName }) => {
             .call(d3.axisLeft(y))
             .call(g => g.select('.domain').remove())
             .call(g => g.append('text')
-                .attr('x', -margin.left)
+                .attr('x', 3)
                 .attr('y', 10)
                 .attr('fill', 'currentColor')
                 .attr('text-anchor', 'start')
@@ -149,7 +149,7 @@ const StockChart = ({ data, stockName }) => {
                     <option value="month">월봉(Months)</option>
                 </select>
             </div>
-            <svg ref={svgRef} width="100%" height="400"></svg>
+            <svg ref={svgRef} width="80%" height="400"></svg>
         </div>
     );
 };
