@@ -28,6 +28,7 @@ public class UserEntity implements Serializable {
     @Column(name = "user_birthdate")
     private LocalDate birthdate;
 
+    @Column(name = "investment_type")
     private String investmentType;
 
 

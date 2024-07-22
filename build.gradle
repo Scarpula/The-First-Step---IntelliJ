@@ -36,8 +36,9 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
 
 }
+
 tasks.withType(JavaCompile) {
-	options.compilerArgs += ['-parameters']
+	options.compilerArgs << '-parameters'
 }
 
 tasks.named('test') {
