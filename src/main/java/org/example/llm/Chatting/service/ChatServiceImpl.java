@@ -1,7 +1,6 @@
 package org.example.llm.Chatting.service;
 
 import jakarta.transaction.Transactional;
-import org.example.llm.Chatting.entity.ChatContents;
 import org.example.llm.Chatting.entity.ChatRoom;
 import org.example.llm.Chatting.repository.chatContentsRepository;
 import org.example.llm.Chatting.repository.chatRoomRepository;
@@ -9,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -47,17 +47,15 @@ public class ChatServiceImpl implements ChatService{
         return chatRoomRepository.findByUserIdOrderByOpenedAtDesc(userId);
     }
 
-    public void deleteChatRoom(Long roomId, String userId) {
-        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new RuntimeException("Chat room not found"));
 
-        if (!chatRoom.getUserId().equals(userId)) {
-            throw new RuntimeException("User is not authorized to delete this chat room");
+    public void deleteChatRoom(Long roomId, String userId) throws Exception {
+        Optional<ChatRoom> chatRoom = chatRoomRepository.findByRoomIdAndUserId(roomId, userId);
+        if (chatRoom.isPresent()) {
+            chatRoomRepository.delete(chatRoom.get());
+        } else {
+            throw new Exception("Chat room not found or user not authorized");
         }
-
-        chatRoomRepository.delete(chatRoom);
     }
-
 
 
 

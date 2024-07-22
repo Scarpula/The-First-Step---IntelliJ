@@ -1,10 +1,7 @@
 package org.example.llm.Chatting.controller;
 
-import jakarta.servlet.http.HttpSession;
-import org.example.llm.Chatting.dto.CreateChatRoomRequest;
 import org.example.llm.Chatting.entity.ChatRoom;
 import org.example.llm.Chatting.service.ChatService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,18 +35,26 @@ public class ChatController {
     }
 
     @GetMapping("/rooms")
-    public ResponseEntity<?> getChatRooms(@RequestParam String userId) {
-        List<ChatRoom> chatRooms = chatService.getChatRooms(userId);
-        return ResponseEntity.ok(chatRooms);
+    public ResponseEntity<?> getChatRooms(@RequestBody Map<String, String> payload) {
+        try {
+            String userId = payload.get("userId");
+            List<ChatRoom> chatRooms = chatService.getChatRooms(userId);
+            return ResponseEntity.ok(chatRooms);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error fetching chat rooms: " + e.getMessage());
+        }
     }
 
-    @DeleteMapping("/room/{roomId}")
-    public ResponseEntity<?> deleteChatRoom(@PathVariable Long roomId, @RequestParam String userId) {
+    @DeleteMapping("room/delete")
+    public ResponseEntity<?> deleteChatRoom(@RequestBody Map<String, Object> payload) {
+        Long roomId = ((Number) payload.get("room")).longValue();
+        String userId = (String) payload.get("userId");
+
         try {
             chatService.deleteChatRoom(roomId, userId);
             return ResponseEntity.ok().body("Chat room deleted successfully");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body(e.getMessage());
         }
     }
 

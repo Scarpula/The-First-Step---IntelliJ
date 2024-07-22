@@ -231,7 +231,7 @@ const MainNavbar = ({ onTabClick }) => {
       // 서버 응답 구조에 따라 이 부분을 수정
       if (response.data) {
         const newChatRoom = {
-          id: response.data.id,
+          id: response.data.roomId,
           name: response.data.name,
           userId: response.data.userId,
           openedAt: response.data.openedAt
@@ -259,23 +259,37 @@ const MainNavbar = ({ onTabClick }) => {
 
 
   const handleDeleteChatRoom = async (room) => {
-    if (!room || room.id){
-      console.log('Invalid room object:',room);
-      alert('유효하지 않은 채팅방 정보입니다')
+    if (!user || !user.email) {
+      alert('사용자 정보를 찾을 수 없습니다. 다시 로그인해 주세요.');
+      return;
     }
 
+    if (window.confirm('정말로 이 채팅방을 삭제하시겠습니까?')) {
+      try {
+        console.log('Attempting to delete room:', room.id, 'for user:', user.email); // Debug log
 
-    try {
-      await axios.delete(`http://localhost:8082/api/room/${room.id}`, {
-        params: { userId: user.email },
-        withCredentials: true
-      });
+        const response = await axios.delete('http://localhost:8082/api/room/delete', {
+          data: { room: room.id, userId: user.email },
+          withCredentials: true
+        });
 
-      setChatRooms(prevRooms => prevRooms.filter(room => room.roomId !== room.id));
-      alert('채팅바이 성공적으로 삭제되었습니다')
-    } catch (error) {
-      console.error('Error deleting chat room:', error);
-      alert('채팅방 삭제 중 오류가 발생했습니다.');
+        console.log(response.data);
+        if (response.status === 200) {
+          setChatRooms(prevRooms => prevRooms.filter(r => r.id !== room.id));
+          alert('채팅방이 성공적으로 삭제되었습니다');
+        } else {
+          alert('채팅방 삭제에 실패했습니다');
+        }
+      } catch (error) {
+        console.error('채팅방 삭제 중 오류 발생:', error);
+        if (error.response) {
+          alert(`채팅방 삭제 중 오류 발생: ${error.response.data || error.response.statusText}`);
+        } else if (error.request) {
+          alert('서버로부터 응답을 받지 못했습니다. 네트워크 연결을 확인해주세요.');
+        } else {
+          alert(`오류 발생: ${error.message}`);
+        }
+      }
     }
   };
 
