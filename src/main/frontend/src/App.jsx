@@ -88,7 +88,7 @@ const Home = ({ handleLoginSuccess }) => {
   return (
     <>
       <BackgroundImages />
-      <h3 className="black-ops-one-regular" style={{ margin: '15px' }}>InGen</h3>
+      <h3 style={{ margin: '15px' }}>InGen</h3>
       <Navbar onLoginSuccess={handleLoginSuccess} />
       <SectionsContainer {...options}>
         <SectionStyled>

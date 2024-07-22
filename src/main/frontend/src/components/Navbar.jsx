@@ -167,11 +167,11 @@ const Navbar = ({ onLoginSuccess }) => {
     const [signupStatus, setSignupStatus] = useState(null);
     const navigate = useNavigate();  // useNavigate 훅 사용
     const resetSignupForm = () => {
-            setSignupEmail('');
-            setSignupPassword('');
-            setUsername('');
-            setBirthdate('');
-        };
+        setSignupEmail('');
+        setSignupPassword('');
+        setUsername('');
+        setBirthdate('');
+    };
 
     const toggleSidebar = () => {
         setIsOpen(!isOpen);
@@ -202,7 +202,7 @@ const Navbar = ({ onLoginSuccess }) => {
             if (response.status === 200 && response.data.message === 'Login successful') {
                 setError(false);
                 onLoginSuccess();  // 로그인 성공 시 콜백 호출
-                setIsOpen(false);  // 사이드바 닫기
+                setIsOpen(false);
                 checkSession();
                 navigate('/chat');  // 로그인 성공 시 /chat 경로로 이동
             } else {
@@ -218,32 +218,32 @@ const Navbar = ({ onLoginSuccess }) => {
     const [signupSuccess, setSignupSuccess] = useState(false);
 
     const handleSignupSubmit = async (e) => {
-            e.preventDefault();
+        e.preventDefault();
 
-            try {
-                const response = await axios.post('http://localhost:8082/api/signup', {
-                    userId: signupEmail,
-                    password: signupPassword,
-                    name: username,
-                    birthdate,
-                });
+        try {
+            const response = await axios.post('http://localhost:8082/api/signup', {
+                userId: signupEmail,
+                password: signupPassword,
+                name: username,
+                birthdate,
+            });
 
-                if (response.status === 200) {
-                    setError(false);
-                    setSignupSuccess(true);
-                    setTimeout(() => {
-                        setSignupSuccess(false);
-                        setShowSignupForm(false);
-                        resetSignupForm();
-                    }, 2000);
-                } else {
-                    setError(true);
-                }
-            } catch (error) {
-                console.error("Error during signup:", error);
+            if (response.status === 200) {
+                setError(false);
+                setSignupSuccess(true);
+                setTimeout(() => {
+                    setSignupSuccess(false);
+                    setShowSignupForm(false);
+                    resetSignupForm();
+                }, 2000);
+            } else {
                 setError(true);
             }
-        };
+        } catch (error) {
+            console.error("Error during signup:", error);
+            setError(true);
+        }
+    };
 
     const handleLogout = async () => {
         try {
@@ -283,10 +283,10 @@ const Navbar = ({ onLoginSuccess }) => {
     }, [isOpen, showLoginForm, showSignupForm]);
 
     useEffect(() => {
-            if (!isOpen) {
-                resetSignupForm();
-            }
-        }, [isOpen]);
+        if (!isOpen) {
+            resetSignupForm();
+        }
+    }, [isOpen]);
 
     return (
         <>

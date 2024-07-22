@@ -25,24 +25,7 @@ export const AuthProvider = ({ children }) => {
         checkSession();
     }, []);
 
-    const login = async (email, password, onLoginSuccess) => {
-        try {
-            const response = await axios.post('http://localhost:8082/api/login', { email, password });
-            if (response.status === 200 && response.data.message === 'Login successful') {
-                setIsAuthenticated(true);
-                setUser(response.data.user);
-                onLoginSuccess(); // 로그인 성공 시 콜백 호출
-            } else {
-                setIsAuthenticated(false);
-                setUser(null);
-                throw new Error('Login failed');
-            }
-        } catch (error) {
-            setIsAuthenticated(false);
-            setUser(null);
-            throw error;
-        }
-    };
+
 
     const logout = async () => {
         await axios.post('http://localhost:8082/api/logout');

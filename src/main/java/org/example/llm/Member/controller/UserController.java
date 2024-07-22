@@ -4,10 +4,8 @@ package org.example.llm.Member.controller;
 import jakarta.servlet.http.HttpSession;
 import org.example.llm.Member.Entity.UserEntity;
 import org.example.llm.Member.dto.Joindto;
-import org.example.llm.Member.dto.JwtUtil;
 import org.example.llm.Member.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -64,22 +62,6 @@ public class UserController {
             return ResponseEntity.ok().body(Map.of("status","success","user",user));
         }else {
             return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "No active session"));
-        }
-    }
-
-    @PostMapping("/update-password")
-    public ResponseEntity<?> updatePassword(@RequestBody Map<String, String> passwordRequest) {
-        UserEntity user = (UserEntity) httpSession.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "No active session"));
-        }
-
-        String newPassword = passwordRequest.get("newPassword");
-        try {
-            userService.updatePassword(user.getEmail(), newPassword);
-            return ResponseEntity.ok().body(Map.of("status", "success", "message", "Password updated successfully"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Password update failed: " + e.getMessage()));
         }
     }
 
