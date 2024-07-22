@@ -1,7 +1,7 @@
 package org.example.llm.Chatting.controller;
 
-import org.example.llm.Chatting.dto.chatMessageDto;
-import org.example.llm.Chatting.entity.ChatContents;
+import jakarta.servlet.http.HttpSession;
+import org.example.llm.Chatting.dto.CreateChatRoomRequest;
 import org.example.llm.Chatting.entity.ChatRoom;
 import org.example.llm.Chatting.service.ChatService;
 import org.springframework.http.HttpStatus;
@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api")
@@ -23,41 +24,37 @@ public class ChatController {
     }
 
     @PostMapping("/room")
-    public ResponseEntity<Map<String, String>> createRoom(@RequestBody Map<String, String> payload) {
-        String userId = payload.get("userId");
-        if (userId == null || userId.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "User ID is required"));
+    public ResponseEntity<?> createChatRoom(@RequestBody Map<String, String> payload) {
+        try {
+            String userId = payload.get("userId");
+            if (userId == null || userId.isEmpty()) {
+                return ResponseEntity.badRequest().body("UserId is required");
+            }
+            ChatRoom chatRoom = chatService.createChatRoom(userId);
+            return ResponseEntity.ok(chatRoom);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        Long roomId = chatService.createRoom(userId);
-        return ResponseEntity.ok(Map.of("roomId", String.valueOf(roomId)));
     }
 
-    @GetMapping("/rooms/{userId}")
-    public ResponseEntity<List<ChatRoom>> getRooms(@PathVariable String userId) {
-        if (userId == null || userId.isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-        List<ChatRoom> rooms = chatService.getRoomsByUserId(userId);
-        return ResponseEntity.ok(rooms);
+    @GetMapping("/rooms")
+    public ResponseEntity<?> getChatRooms(@RequestParam String userId) {
+        List<ChatRoom> chatRooms = chatService.getChatRooms(userId);
+        return ResponseEntity.ok(chatRooms);
     }
 
-    @DeleteMapping("/room/{roomId}/{userId}")
-    public ResponseEntity<Void> deleteRoom(@PathVariable Long roomId, @PathVariable String userId) {
-        if (userId == null || userId.isEmpty()) {
-            return ResponseEntity.badRequest().build();
+    @DeleteMapping("/room/{roomId}")
+    public ResponseEntity<?> deleteChatRoom(@PathVariable Long roomId, @RequestParam String userId) {
+        try {
+            chatService.deleteChatRoom(roomId, userId);
+            return ResponseEntity.ok().body("Chat room deleted successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        chatService.deleteRoom(roomId, userId);
-        return ResponseEntity.noContent().build();
     }
-
-
-
-
-
-
-
-
-
-
 
 }
+
+
+
+

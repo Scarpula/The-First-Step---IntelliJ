@@ -21,6 +21,9 @@ public class ChatRoom {
     @Column(name = "user_id")
     private String userId;
 
+    @Column(name = "room_name")
+    private String name;
+
     @Column(name = "opend_at")
     private LocalDateTime openedAt;
 

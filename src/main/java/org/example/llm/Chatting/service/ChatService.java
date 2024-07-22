@@ -7,8 +7,7 @@ import org.example.llm.Chatting.entity.ChatRoom;
 import java.util.List;
 
 public interface ChatService {
-    Long createRoom(String userId);
-    List<ChatRoom> getRoomsByUserId(String userId);
-    void deleteRoom(Long roomId, String userId);
-
+    ChatRoom createChatRoom(String userId);
+    List<ChatRoom> getChatRooms(String userId);
+    void deleteChatRoom(Long roomId, String userId);
 }
