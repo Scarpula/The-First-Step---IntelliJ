@@ -63,25 +63,17 @@ const ChatUI = () => {
   const [currentPage, setCurrentPage] = useState('chat');
   const [searchParams, setSearchParams] = useSearchParams();
   const [user, setUser] = useState(null);
-  const [roomId, setRoomId] = useState(null);
+  const roomId = searchParams.get('roomid') || '1';
   const navigate = useNavigate();
 
   useEffect(() => {
     const checkSession = async () => {
       try {
         const response = await getSession();
-        if (response && response.user) {
+        if (response && response.user && response.user.email) {
           setUser(response.user);
-          const roomIdFromParams = searchParams.get('roomid');
-          if (roomIdFromParams) {
-            setRoomId(roomIdFromParams);
-          } else {
-            const userRooms = await fetchUserRooms(response.user.email);
-            if (userRooms.length > 0) {
-              setRoomId(userRooms[0].id);
-              setSearchParams({ roomid: userRooms[0].id, userid: response.user.email });
-            }
-          }
+          // 직접 response.user.email을 사용합니다
+          setSearchParams({ roomid: roomId, userId: user.email });
         }
       } catch (error) {
         console.error('Error during session check:', error);
@@ -89,17 +81,15 @@ const ChatUI = () => {
     };
 
     checkSession();
-  }, [searchParams, setSearchParams]);
+  }, [setSearchParams, roomId]);
 
   const fetchUserRooms = async () => {
     try {
-      const response = await axios.get(`http://localhost:8082/api/rooms?userId=${user.email}`);
-      return response.data.map(room => ({
-        id: room.roomId,
-        name: room.name || `채팅방 ${room.id}`,
-        userId: room.userId,
-        openedAt: room.openedAt
-      }));
+      const response = await axios.get(`http://localhost:8082/api/rooms`, {
+        params: { userId: user.email },
+        withCredentials: true
+      });
+      return response.data;
     } catch (error) {
       console.error('Error fetching user rooms:', error);
       return [];
@@ -170,24 +160,7 @@ const ChatUI = () => {
       [roomId]: [...(prevMessages[roomId] || []), userMessage],
     }));
 
-    // 사용자 메시지를 서버에 저장
-    console.log('Sending user message for roomId:', roomId);
-    try {
-      const userMessageResponse = await axios.post('http://localhost:8082/api/save/user', {
-        roomId: roomId,
-        chatting: userMessage.text,  // 'chatting' 대신 'content'로 변경
-        sender: userMessage.sender
-      });
-      console.log('Sending user message for roomId:', roomId);
-      console.log('User message saved:', userMessageResponse.data);
-    } catch (error) {
-      console.error('Error saving user message:', error);
-      if (error.response) {
-        console.error('Response data:', error.response.data);
-        console.error('Response status:', error.response.status);
-        console.error('Response headers:', error.response.headers);
-      }
-    }
+
 
 
     const loadingMessage = { id: 'loading', text: '...', sender: 'bot' };
@@ -197,6 +170,7 @@ const ChatUI = () => {
         [roomId]: [...(prevMessages[roomId] || []), loadingMessage],
       };
       localStorage.setItem(`chat_messages_${roomId}`, JSON.stringify(updatedMessages[roomId]));
+      console.log(user.email)
       return updatedMessages;
     });
 
@@ -234,22 +208,7 @@ const ChatUI = () => {
         localStorage.setItem(`chat_messages_${roomId}`, JSON.stringify(updatedMessages[roomId]));
         return updatedMessages;
       });
-      console.log('Sending bot message for roomId:', roomId);
-      try {
-        const botMessageResponse = await axios.post('http://localhost:8082/api/save/chatbot', {
-          roomId: roomId,
-          content: data.response,
-          sender: 'BOT'
-        });
-        console.log('Bot message saved:', botMessageResponse.data);
-      } catch (error) {
-        console.error('Error saving bot message:', error);
-        if (error.response) {
-          console.error('Response data:', error.response.data);
-          console.error('Response status:', error.response.status);
-          console.error('Response headers:', error.response.headers);
-        }
-      }
+
     } catch (error) {
       console.error('Error:', error);
       const errorMessage = { id: Date.now(), text: '챗봇이 응답할 수 없습니다.', sender: 'bot' };

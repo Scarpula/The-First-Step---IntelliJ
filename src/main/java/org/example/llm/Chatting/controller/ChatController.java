@@ -34,7 +34,7 @@ public class ChatController {
         }
     }
 
-    @GetMapping("/rooms")
+    @PostMapping("/rooms")
     public ResponseEntity<?> getChatRooms(@RequestBody Map<String, Object> payload) {
         try {
             String userId = (String) payload.get("userId");
