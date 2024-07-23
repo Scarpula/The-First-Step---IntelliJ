@@ -192,12 +192,63 @@ const App = () => {
     return <div>Loading...</div>; // 로딩 상태를 표시합니다.
   }
 
-  return (
+ return (
     <Router>
       <AppWrapper>
         <Routes>
           <Route
-            path="/chat"
+            path="/chat/*"
+            element={
+              isLoggedIn ? (
+                <ChatUIWrapper
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1.2 }}
+                >
+                  <ChatUI userId={userId} />
+                </ChatUIWrapper>
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/realtime-chart"
+            element={
+              isLoggedIn ? (
+                <ChatUIWrapper
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1.2 }}
+                >
+                  <ChatUI userId={userId} />
+                </ChatUIWrapper>
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/financial-statements"
+            element={
+              isLoggedIn ? (
+                <ChatUIWrapper
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1.2 }}
+                >
+                  <ChatUI userId={userId} />
+                </ChatUIWrapper>
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/user-info"
             element={
               isLoggedIn ? (
                 <ChatUIWrapper

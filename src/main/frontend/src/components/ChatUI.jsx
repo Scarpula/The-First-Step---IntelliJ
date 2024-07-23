@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import MainNavbar from './MainNavbar';
 import ChatContainer from './ChatContainer';
 import ChatInput from './ChatInput';
@@ -59,11 +59,9 @@ const ChatUI = () => {
   const [showLogoAndButtons, setShowLogoAndButtons] = useState({});
   const chatContentRef = useRef(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
-  const [currentPage, setCurrentPage] = useState('chat');
-  const [searchParams, setSearchParams] = useSearchParams();
   const [user, setUser] = useState(null);
-  const roomId = searchParams.get('roomid') || '1';
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const checkSession = async () => {
@@ -71,7 +69,6 @@ const ChatUI = () => {
         const response = await getSession();
         if (response && response.user) {
           setUser(response.user);
-          setSearchParams({ roomid: roomId, userid: response.user.id });
         }
       } catch (error) {
         console.error('Error during session check:', error);
@@ -79,26 +76,7 @@ const ChatUI = () => {
     };
 
     checkSession();
-  }, [roomId, setSearchParams]);
-
-  // Load messages from localStorage
-  useEffect(() => {
-    const storedMessages = localStorage.getItem(`chat_messages_${roomId}`);
-    if (storedMessages) {
-      setMessages((prevMessages) => ({
-        ...prevMessages,
-        [roomId]: JSON.parse(storedMessages),
-      }));
-    }
-  }, [roomId]);
-
-  // Load animated message IDs from localStorage
-  useEffect(() => {
-    const storedAnimatedIds = localStorage.getItem(`animatedMessageIds_${roomId}`);
-    if (storedAnimatedIds) {
-      setAnimatedMessageIds(new Set(JSON.parse(storedAnimatedIds)));
-    }
-  }, [roomId]);
+  }, []);
 
   useEffect(() => {
     if (chatContentRef.current) {
@@ -136,6 +114,7 @@ const ChatUI = () => {
   };
 
   const handleSend = async (messageText) => {
+    const roomId = new URLSearchParams(location.search).get('roomid') || '1';
     const messageId = Date.now();
     const userMessage = { id: messageId, text: messageText, sender: 'user' };
     console.log('User message sent:', userMessage);
@@ -144,7 +123,6 @@ const ChatUI = () => {
         ...prevMessages,
         [roomId]: [...(prevMessages[roomId] || []), userMessage],
       };
-      localStorage.setItem(`chat_messages_${roomId}`, JSON.stringify(updatedMessages[roomId]));
       return updatedMessages;
     });
 
@@ -154,7 +132,6 @@ const ChatUI = () => {
         ...prevMessages,
         [roomId]: [...(prevMessages[roomId] || []), loadingMessage],
       };
-      localStorage.setItem(`chat_messages_${roomId}`, JSON.stringify(updatedMessages[roomId]));
       return updatedMessages;
     });
 
@@ -180,7 +157,6 @@ const ChatUI = () => {
           ...prevMessages,
           [roomId]: prevMessages[roomId].filter((message) => message.id !== 'loading'),
         };
-        localStorage.setItem(`chat_messages_${roomId}`, JSON.stringify(updatedMessages[roomId]));
         return updatedMessages;
       });
 
@@ -189,7 +165,6 @@ const ChatUI = () => {
           ...prevMessages,
           [roomId]: [...(prevMessages[roomId] || []), botMessage],
         };
-        localStorage.setItem(`chat_messages_${roomId}`, JSON.stringify(updatedMessages[roomId]));
         return updatedMessages;
       });
     } catch (error) {
@@ -201,7 +176,6 @@ const ChatUI = () => {
           ...prevMessages,
           [roomId]: prevMessages[roomId].filter((message) => message.id !== 'loading'),
         };
-        localStorage.setItem(`chat_messages_${roomId}`, JSON.stringify(updatedMessages[roomId]));
         return updatedMessages;
       });
 
@@ -210,7 +184,6 @@ const ChatUI = () => {
           ...prevMessages,
           [roomId]: [...(prevMessages[roomId] || []), errorMessage],
         };
-        localStorage.setItem(`chat_messages_${roomId}`, JSON.stringify(updatedMessages[roomId]));
         return updatedMessages;
       });
     }
@@ -218,30 +191,16 @@ const ChatUI = () => {
 
   const handleTabClick = (tab) => {
     console.log('Tab clicked:', tab);
-    switch (tab) {
-      case '◎ 실시간 차트':
-        setCurrentPage('realtime-chart');
-        break;
-      case '◎ 재무제표 확인':
-        setCurrentPage('financial-statements');
-        break;
-      case '◎ 챗봇':
-        setCurrentPage('chat');
-        break;
-      case '◎ 내정보':
-        setCurrentPage('user-info');
-        break;
-      default:
-        setCurrentPage('chat');
-        break;
-    }
+    // URL 변경은 MainNavbar에서 처리됩니다.
   };
 
-  return (
-    <ChatUIWrapper>
-      <BackgroundImages />
-      <MainNavbar onTabClick={handleTabClick} />
-      {currentPage === 'chat' ? (
+  const renderCurrentPage = () => {
+    const path = location.pathname;
+    const searchParams = new URLSearchParams(location.search);
+    const roomId = searchParams.get('roomid') || '1';
+
+    if (path.startsWith('/chat')) {
+      return (
         <>
           <ChatUIContent ref={chatContentRef} className="custom-scrollbar">
             <ChatContainer
@@ -259,13 +218,21 @@ const ChatUI = () => {
           </ChatUIContent>
           <ChatInput onSend={handleSend} />
         </>
-      ) : currentPage === 'realtime-chart' ? (
-        <RealtimeChartPage />
-      ) : currentPage === 'financial-statements' ? (
-        <FinancialStatementsPage />
-      ) : (
-        <UserInfo />
-      )}
+      );
+    } else if (path === '/realtime-chart') {
+      return <RealtimeChartPage />;
+    } else if (path === '/financial-statements') {
+      return <FinancialStatementsPage />;
+    } else if (path === '/user-info') {
+      return <UserInfo />;
+    }
+  };
+
+  return (
+    <ChatUIWrapper>
+      <BackgroundImages />
+      <MainNavbar onTabClick={handleTabClick} isChatPage={location.pathname.startsWith('/chat')} />
+      {renderCurrentPage()}
     </ChatUIWrapper>
   );
 };
