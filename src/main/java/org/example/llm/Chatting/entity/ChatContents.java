@@ -17,11 +17,16 @@ public class ChatContents {
     @JoinColumn(name = "room_id")
     private ChatRoom roomId;
 
-    private String chatter;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "chatter")
+    private ChatterType chatter;
 
+    @Column(name = "chatting")
     private String chatting;
 
+    @Column(name = "chatted_at")
     private LocalDateTime chattedAt;
 
 
 }
+

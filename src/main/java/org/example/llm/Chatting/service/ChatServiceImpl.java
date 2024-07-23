@@ -1,8 +1,10 @@
 package org.example.llm.Chatting.service;
 
 import jakarta.transaction.Transactional;
+import org.example.llm.Chatting.entity.ChatContents;
 import org.example.llm.Chatting.entity.ChatRoom;
-import org.example.llm.Chatting.repository.chatContentsRepository;
+import org.example.llm.Chatting.entity.ChatterType;
+import org.example.llm.Chatting.repository.ChatContentsRepository;
 import org.example.llm.Chatting.repository.chatRoomRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +19,12 @@ public class ChatServiceImpl implements ChatService{
 
     private final chatRoomRepository chatRoomRepository;
 
-    private final chatContentsRepository chatContentsRepository;
+    private final ChatContentsRepository chatContentsRepository;
 
 
-    public ChatServiceImpl(org.example.llm.Chatting.repository.chatRoomRepository chatRoomRepository, org.example.llm.Chatting.repository.chatContentsRepository chatContentsRepository) {
 
+
+    public ChatServiceImpl(org.example.llm.Chatting.repository.chatRoomRepository chatRoomRepository, ChatContentsRepository chatContentsRepository) {
         this.chatRoomRepository = chatRoomRepository;
         this.chatContentsRepository = chatContentsRepository;
     }
@@ -48,14 +51,28 @@ public class ChatServiceImpl implements ChatService{
     }
 
 
-    public void deleteChatRoom(Long roomId, String userId) throws Exception {
+    public boolean deleteChatRoom(Long roomId, String userId) {
         Optional<ChatRoom> chatRoom = chatRoomRepository.findByRoomIdAndUserId(roomId, userId);
         if (chatRoom.isPresent()) {
             chatRoomRepository.delete(chatRoom.get());
-        } else {
-            throw new Exception("Chat room not found or user not authorized");
+            return true;
         }
+        return false;
     }
+
+
+    public ChatContents saveMessage(ChatRoom roomId, String content, String sender) {
+        ChatContents chatContents = new ChatContents();
+        chatContents.setRoomId(roomId);
+        chatContents.setChatting(content);
+        chatContents.setChatter(ChatterType.valueOf(sender));
+        chatContents.setChattedAt(LocalDateTime.now());
+
+        return chatContentsRepository.save(chatContents);
+    }
+
+
+
 
 
 

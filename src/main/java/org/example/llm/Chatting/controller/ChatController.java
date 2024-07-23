@@ -2,6 +2,7 @@ package org.example.llm.Chatting.controller;
 
 import org.example.llm.Chatting.entity.ChatRoom;
 import org.example.llm.Chatting.service.ChatService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,8 +20,7 @@ public class ChatController {
     public ChatController(ChatService chatService) {
         this.chatService = chatService;
     }
-
-    @PostMapping("/room")
+    @RequestMapping("/room")
     public ResponseEntity<?> createChatRoom(@RequestBody Map<String, String> payload) {
         try {
             String userId = payload.get("userId");
@@ -35,9 +35,9 @@ public class ChatController {
     }
 
     @GetMapping("/rooms")
-    public ResponseEntity<?> getChatRooms(@RequestBody Map<String, String> payload) {
+    public ResponseEntity<?> getChatRooms(@RequestBody Map<String, Object> payload) {
         try {
-            String userId = payload.get("userId");
+            String userId = (String) payload.get("userId");
             List<ChatRoom> chatRooms = chatService.getChatRooms(userId);
             return ResponseEntity.ok(chatRooms);
         } catch (Exception e) {
@@ -47,14 +47,19 @@ public class ChatController {
 
     @DeleteMapping("room/delete")
     public ResponseEntity<?> deleteChatRoom(@RequestBody Map<String, Object> payload) {
-        Long roomId = ((Number) payload.get("room")).longValue();
-        String userId = (String) payload.get("userId");
-
         try {
-            chatService.deleteChatRoom(roomId, userId);
-            return ResponseEntity.ok().body("Chat room deleted successfully");
+            Long roomId = Long.parseLong(payload.get("roomId").toString());
+            String userId = payload.get("userId").toString();
+
+            boolean isDeleted = chatService.deleteChatRoom(roomId, userId);
+
+            if (isDeleted) {
+                return ResponseEntity.ok().body("Chat room deleted successfully");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Chat room not found or user not authorized");
+            }
         } catch (Exception e) {
-            return ResponseEntity.status(404).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting chat room: " + e.getMessage());
         }
     }
 

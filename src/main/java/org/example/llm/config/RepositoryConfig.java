@@ -1,7 +1,7 @@
 package org.example.llm.config;
 
 import jakarta.persistence.EntityManager;
-import org.example.llm.Chatting.repository.chatContentsRepository;
+import org.example.llm.Chatting.repository.ChatContentsRepository;
 import org.example.llm.Chatting.repository.chatRoomRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +16,7 @@ public class RepositoryConfig {
     }
 
     @Bean
-    public chatContentsRepository chatContentsRepository(EntityManager entityManager) {
-        return new JpaRepositoryFactory(entityManager).getRepository(chatContentsRepository.class);
+    public ChatContentsRepository chatContentsRepository(EntityManager entityManager) {
+        return new JpaRepositoryFactory(entityManager).getRepository(ChatContentsRepository.class);
     }
 }
