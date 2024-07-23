@@ -1,6 +1,8 @@
 package org.example.llm.Member.controller;
 
 import org.example.llm.Member.Entity.AggregatedDataset;
+import org.example.llm.Member.Entity.StockMeta;
+import org.example.llm.Member.Repository.StockMetaRepository;
 import org.example.llm.Member.service.AggregatedDatasetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +22,7 @@ public class StockDataController {
 
     @GetMapping("/api/stock-data")
     public ResponseEntity<List<AggregatedDataset>> getStockData(
-            @RequestParam("assetName") String assetName,
+            @RequestParam("companyName") String companyName,
             @RequestParam("startDate") String startDate,
             @RequestParam("endDate") String endDate) throws ParseException {
 
@@ -28,10 +30,9 @@ public class StockDataController {
         Date start = dateFormat.parse(startDate);
         Date end = dateFormat.parse(endDate);
 
-        List<AggregatedDataset> data = service.getStockDataBySymbolAndDateRange(assetName, start, end);
+        List<AggregatedDataset> data = service.getStockDataByCompanyNameAndDateRange(companyName, start, end);
         return ResponseEntity.ok(data);
     }
-
     @ExceptionHandler(ParseException.class)
     public ResponseEntity<String> handleParseException(ParseException ex) {
         return ResponseEntity.badRequest().body("Invalid date format: " + ex.getMessage());

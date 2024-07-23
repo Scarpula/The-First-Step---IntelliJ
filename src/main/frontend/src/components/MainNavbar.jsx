@@ -1,3 +1,4 @@
+// MainNavbar.js
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
@@ -141,7 +142,7 @@ const MainNavbar = ({ onTabClick }) => {
         if (response && response.user && response.user.email) {
           setUser(response.user);
           await fetchChatRooms(response.user.email);
-        }else {
+        } else {
           console.log('NO active session or invalid user data');
           setUser(null);
           setChatRooms([]);
@@ -153,7 +154,6 @@ const MainNavbar = ({ onTabClick }) => {
       }
     };
 
-
     checkSession();
   }, []);
 
@@ -161,6 +161,12 @@ const MainNavbar = ({ onTabClick }) => {
     setSelectedTab(tab);
     onTabClick(tab);
     setIsSidebarOpen(false); // 탭 클릭 시 사이드바 닫기
+
+    if (tab === '◎ 실시간 차트') {
+      document.body.classList.add('hide-background-images');
+    } else {
+      document.body.classList.remove('hide-background-images');
+    }
   };
 
   const toggleSidebar = () => {
@@ -200,7 +206,6 @@ const MainNavbar = ({ onTabClick }) => {
       console.error('Error fetching chat rooms:', error);
     }
   };
-
 
   const handleCreateChatRoom = async () => {
     if (chatRooms.length >= 3) {
@@ -257,13 +262,11 @@ const MainNavbar = ({ onTabClick }) => {
     }
   };
 
-
   const handleDeleteChatRoom = async (room) => {
-    if (!room || room.id){
+    if (!room || !room.id){
       console.log('Invalid room object:',room);
       alert('유효하지 않은 채팅방 정보입니다')
     }
-
 
     try {
       await axios.delete(`http://localhost:8082/api/room/${room.id}`, {
