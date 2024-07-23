@@ -10,8 +10,7 @@ import { ReactComponent as ArrowDownwardIcon } from './arrow_downward_24dp_5F636
 import RealtimeChartPage from "./RealtimeChartPage";
 import FinancialStatementsPage from "./FinancialStatementsPage";
 import UserInfo from './UserInfo';
-import { getSession } from '../api';
-import axios from "axios"; // Import the getSession function
+import { getSession } from '../api'; // Import the getSession function
 
 const ChatUIWrapper = styled.div`
   display: flex;
@@ -70,10 +69,9 @@ const ChatUI = () => {
     const checkSession = async () => {
       try {
         const response = await getSession();
-        if (response && response.user && response.user.email) {
+        if (response && response.user) {
           setUser(response.user);
-          // 직접 response.user.email을 사용합니다
-          setSearchParams({ roomid: roomId, userId: user.email });
+          setSearchParams({ roomid: roomId, userid: response.user.id });
         }
       } catch (error) {
         console.error('Error during session check:', error);
@@ -81,20 +79,7 @@ const ChatUI = () => {
     };
 
     checkSession();
-  }, [setSearchParams, roomId]);
-
-  const fetchUserRooms = async () => {
-    try {
-      const response = await axios.get(`http://localhost:8082/api/rooms`, {
-        params: { userId: user.email },
-        withCredentials: true
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching user rooms:', error);
-      return [];
-    }
-  };
+  }, [roomId, setSearchParams]);
 
   // Load messages from localStorage
   useEffect(() => {
@@ -151,17 +136,17 @@ const ChatUI = () => {
   };
 
   const handleSend = async (messageText) => {
-    const messageId = Date.now().toString();
+    const messageId = Date.now();
     const userMessage = { id: messageId, text: messageText, sender: 'user' };
     console.log('User message sent:', userMessage);
-
-    setMessages((prevMessages) => ({
-      ...prevMessages,
-      [roomId]: [...(prevMessages[roomId] || []), userMessage],
-    }));
-
-
-
+    setMessages((prevMessages) => {
+      const updatedMessages = {
+        ...prevMessages,
+        [roomId]: [...(prevMessages[roomId] || []), userMessage],
+      };
+      localStorage.setItem(`chat_messages_${roomId}`, JSON.stringify(updatedMessages[roomId]));
+      return updatedMessages;
+    });
 
     const loadingMessage = { id: 'loading', text: '...', sender: 'bot' };
     setMessages((prevMessages) => {
@@ -170,7 +155,6 @@ const ChatUI = () => {
         [roomId]: [...(prevMessages[roomId] || []), loadingMessage],
       };
       localStorage.setItem(`chat_messages_${roomId}`, JSON.stringify(updatedMessages[roomId]));
-      console.log(user.email)
       return updatedMessages;
     });
 
@@ -208,7 +192,6 @@ const ChatUI = () => {
         localStorage.setItem(`chat_messages_${roomId}`, JSON.stringify(updatedMessages[roomId]));
         return updatedMessages;
       });
-
     } catch (error) {
       console.error('Error:', error);
       const errorMessage = { id: Date.now(), text: '챗봇이 응답할 수 없습니다.', sender: 'bot' };

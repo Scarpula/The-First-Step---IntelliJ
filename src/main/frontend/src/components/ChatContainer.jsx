@@ -69,7 +69,6 @@ const ChatContainer = ({ roomId, messages, onSend, showLogoAndButtons, setShowLo
       if (newMessage.sender === 'bot' && newMessage.id !== 'loading') {
         setAnimatedMessageIds((prevIds) => {
           const updatedIds = new Set(prevIds).add(newMessage.id);
-          localStorage.setItem(`animatedMessageIds_${roomId}`, JSON.stringify(Array.from(updatedIds)));
           return updatedIds;
         });
       }
@@ -77,13 +76,6 @@ const ChatContainer = ({ roomId, messages, onSend, showLogoAndButtons, setShowLo
       setShowLogoAndButtons(false); // Hide logo and buttons when a new message is added
     }
   }, [messages, roomId, setAnimatedMessageIds, setShowLogoAndButtons]);
-
-  useEffect(() => {
-    const storedAnimatedIds = localStorage.getItem(`animatedMessageIds_${roomId}`);
-    if (storedAnimatedIds) {
-      setAnimatedMessageIds(new Set(JSON.parse(storedAnimatedIds)));
-    }
-  }, [roomId, setAnimatedMessageIds]);
 
   const handleButtonClick = (message) => {
     console.log('Button clicked:', message);
@@ -131,7 +123,6 @@ const ChatContainer = ({ roomId, messages, onSend, showLogoAndButtons, setShowLo
         onComplete={() => {
           setAnimatedMessageIds((prevIds) => {
             const updatedIds = new Set(prevIds).add(message.id);
-            localStorage.setItem(`animatedMessageIds_${roomId}`, JSON.stringify(Array.from(updatedIds)));
             return updatedIds;
           });
         }}
