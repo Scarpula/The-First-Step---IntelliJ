@@ -126,7 +126,7 @@ const ButtonContainer = styled.div`
   background: transparent; /* 배경색 투명하게 설정 */
 `;
 
-const MainNavbar = ({ onTabClick, }) => {
+const MainNavbar = ({ onTabClick }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState(null);
@@ -140,18 +140,19 @@ const MainNavbar = ({ onTabClick, }) => {
         const response = await getSession();
         if (response && response.user && response.user.email) {
           setUser(response.user);
-          await fetchChatRooms(response.user); // 사용자 정보를 인자로 전달
-        } else {
+          await fetchChatRooms(response.user.email);
+        }else {
           console.log('NO active session or invalid user data');
           setUser(null);
           setChatRooms([]);
         }
       } catch (error) {
         console.error('Error during session check:', error);
-        setUser(null);
-        setChatRooms([]);
+        setUser(null)
+        setChatRooms([])
       }
     };
+
 
     checkSession();
   }, []);
@@ -184,23 +185,17 @@ const MainNavbar = ({ onTabClick, }) => {
     }
   };
 
-  const fetchChatRooms = async (user) => { // 사용자 정보를 인자로 받음
-    if (!user || !user.email) {
+  const fetchChatRooms = async (user) => {
+    if (!user || !user.email){
       console.log('Invalid user data');
       return;
     }
     try {
       const response = await axios.get('http://localhost:8082/api/rooms', {
-        params: { userId: user.email }, // params로 전달
+        params: { userId: user.email },
         withCredentials: true
       });
-      const formattedRooms = response.data.map(room => ({
-        id: room.roomId,
-        name: room.name || `채팅방 ${room.id}`,
-        userId: room.userId,
-        openedAt: room.openedAt
-      }));
-      setChatRooms(formattedRooms);
+      setChatRooms(response.data);
     } catch (error) {
       console.error('Error fetching chat rooms:', error);
     }
@@ -224,7 +219,10 @@ const MainNavbar = ({ onTabClick, }) => {
       const response = await axios.post('http://localhost:8082/api/room',
           { userId: user.email },
           {
-            withCredentials: true
+            withCredentials: true,
+            headers: {
+              'Content-Type': 'application/json'
+            }
           }
       );
 
@@ -232,15 +230,14 @@ const MainNavbar = ({ onTabClick, }) => {
 
       // 서버 응답 구조에 따라 이 부분을 수정
       if (response.data) {
-        const room = {
-          id: response.data.roomId,
+        const newChatRoom = {
+          id: response.data.id,
           name: response.data.name,
           userId: response.data.userId,
           openedAt: response.data.openedAt
         };
 
-
-        setChatRooms(prevRooms => [...prevRooms, room]);
+        setChatRooms(prevRooms => [...prevRooms, newChatRoom]);
         alert('새로운 채팅방이 생성되었습니다.');
       } else {
         throw new Error('Invalid server response');
@@ -261,42 +258,26 @@ const MainNavbar = ({ onTabClick, }) => {
   };
 
 
-
-
-
-
   const handleDeleteChatRoom = async (room) => {
-    if (window.confirm('정말로 이 채팅방을 삭제하시겠습니까?')) {
-      try {
-        if (!user || !user.email) {
-          throw new Error('사용자 정보를 찾을 수 없습니다.');
-        }
+    if (!room || room.id){
+      console.log('Invalid room object:',room);
+      alert('유효하지 않은 채팅방 정보입니다')
+    }
 
-        console.log('Attempting to delete room:', room.id, 'for user:', user.email);
 
-        const response = await axios.delete('http://localhost:8082/api/room/delete', {
-          data: {
-            roomId: room.id,
-            userId: user.email
-          },
-          withCredentials: true
-        });
+    try {
+      await axios.delete(`http://localhost:8082/api/room/${room.id}`, {
+        params: { userId: user.email },
+        withCredentials: true
+      });
 
-        console.log('Server response:', response);
-
-        if (response.status === 200) {
-          setChatRooms(prevRooms => prevRooms.filter(r => r.id !== room.id));
-          alert('채팅방이 성공적으로 삭제되었습니다');
-        } else {
-          throw new Error('서버에서 예상치 못한 응답을 받았습니다.');
-        }
-      } catch (error) {
-        console.error('채팅방 삭제 중 오류 발생:', error);
-        alert('채팅방 삭제 중 오류가 발생했습니다. 다시 시도해 주세요.');
-      }
+      setChatRooms(prevRooms => prevRooms.filter(room => room.roomId !== room.id));
+      alert('채팅바이 성공적으로 삭제되었습니다')
+    } catch (error) {
+      console.error('Error deleting chat room:', error);
+      alert('채팅방 삭제 중 오류가 발생했습니다.');
     }
   };
-
 
   const handleChatRoomClick = (room) => {
     const userId = user ? user.email : 'guest';
