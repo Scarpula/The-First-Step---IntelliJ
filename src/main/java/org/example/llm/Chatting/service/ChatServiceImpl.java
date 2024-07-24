@@ -61,11 +61,14 @@ public class ChatServiceImpl implements ChatService{
     }
 
 
-    public ChatContents saveMessage(ChatRoom roomId, String content, String sender) {
+    public ChatContents saveMessage(Long roomId, String content, String sender) {
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("Chat room not found"));
+
         ChatContents chatContents = new ChatContents();
-        chatContents.setRoomId(roomId);
+        chatContents.setRoomId(chatRoom);
         chatContents.setChatting(content);
-        chatContents.setChatter(ChatterType.valueOf(sender));
+        chatContents.setChatter(ChatterType.valueOf(sender.toUpperCase()));
         chatContents.setChattedAt(LocalDateTime.now());
 
         return chatContentsRepository.save(chatContents);

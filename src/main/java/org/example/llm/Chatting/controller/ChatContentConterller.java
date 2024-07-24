@@ -24,30 +24,32 @@ public class ChatContentConterller {
 
     @PostMapping("/save/user")
     public ResponseEntity<?> saveUserMessage(@RequestBody ChatMessageDTO chatMessageDTO) {
-        System.out.println("Received message: " + chatMessageDTO);
-        if (chatMessageDTO.getRoomId() == null || chatMessageDTO.getChatting() == null || chatMessageDTO.getSender() == null) {
-            return ResponseEntity.badRequest().body("All fields (roomId, chatting, sender) are required");
-        }
         try {
             ChatContents savedMessage = chatService.saveMessage(
-                    chatMessageDTO.getRoomId(),
+                    chatMessageDTO.getRoomId().getRoomId(),
                     chatMessageDTO.getChatting(),
-                    chatMessageDTO.getSender()
+                    "USER"
             );
             return ResponseEntity.ok(savedMessage);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error saving message: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error saving user message: " + e.getMessage());
         }
     }
 
     @PostMapping("/save/chatbot")
-    public ResponseEntity<ChatContents> saveChatbotMessage(@RequestBody ChatMessageDTO chatMessageDTO) {
-        ChatContents savedMessage = chatService.saveMessage(
-                chatMessageDTO.getRoomId(),
-                chatMessageDTO.getChatting(),
-                chatMessageDTO.getSender()
-        );
-        return ResponseEntity.ok(savedMessage);
+    public ResponseEntity<?> saveChatbotMessage(@RequestBody ChatMessageDTO chatMessageDTO) {
+        try {
+            ChatContents savedMessage = chatService.saveMessage(
+                    chatMessageDTO.getRoomId().getRoomId(),
+                    chatMessageDTO.getChatting(),
+                    "CHATBOT"
+            );
+            return ResponseEntity.ok(savedMessage);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error saving chatbot message: " + e.getMessage());
+        }
     }
 
 

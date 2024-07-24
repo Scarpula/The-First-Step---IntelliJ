@@ -10,7 +10,7 @@ public interface ChatService {
     ChatRoom createChatRoom(String userId);
     List<ChatRoom> getChatRooms(String userId);
     boolean deleteChatRoom(Long roomId, String userId);
-    ChatContents saveMessage(ChatRoom roomId, String content, String sender);
+    ChatContents saveMessage(Long roomId, String content, String sender);
 
 
 }

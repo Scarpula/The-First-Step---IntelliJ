@@ -10,7 +10,8 @@ import { ReactComponent as ArrowDownwardIcon } from './arrow_downward_24dp_5F636
 import RealtimeChartPage from "./RealtimeChartPage";
 import FinancialStatementsPage from "./FinancialStatementsPage";
 import UserInfo from './UserInfo';
-import { getSession } from '../api'; // Import the getSession function
+import { getSession } from '../api';
+import axios from "axios"; // Import the getSession function
 
 const ChatUIWrapper = styled.div`
   display: flex;
@@ -71,7 +72,7 @@ const ChatUI = () => {
         const response = await getSession();
         if (response && response.user) {
           setUser(response.user);
-          setSearchParams({ roomid: roomId, userid: response.user.id });
+          setSearchParams({ roomid: roomId, userId : user.email }, { replace: true });
         }
       } catch (error) {
         console.error('Error during session check:', error);
@@ -147,6 +148,22 @@ const ChatUI = () => {
       localStorage.setItem(`chat_messages_${roomId}`, JSON.stringify(updatedMessages[roomId]));
       return updatedMessages;
     });
+    console.log(roomId)
+    try {
+      const userMessageResponse = await axios.post('http://localhost:8082/api/save/user', {
+        roomId: roomId,
+        chatting: messageText,
+        sender: 'USER'
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      console.log('User message saved:', userMessageResponse.data);
+    } catch (error) {
+      console.error('Error saving user message:', error);
+    }
 
     const loadingMessage = { id: 'loading', text: '...', sender: 'bot' };
     setMessages((prevMessages) => {
