@@ -114,10 +114,29 @@ const ChatUI = () => {
   };
 
   const handleSend = async (messageText) => {
-    const roomId = new URLSearchParams(location.search).get('roomid');
+    let roomId = new URLSearchParams(location.search).get('roomid');
+
     if (!roomId) {
-      console.error('roomid가 제공되지 않았습니다.');
-      return;
+      try {
+        const createRoomResponse = await fetch('http://112.217.124.195:30000/create-room', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ user_id: user.email }),
+        });
+
+        if (!createRoomResponse.ok) {
+          throw new Error('채팅방 생성 실패');
+        }
+
+        const createRoomData = await createRoomResponse.json();
+        roomId = createRoomData.room_id;
+        navigate(`/chat?roomid=${roomId}&userid=${user.email}`);
+      } catch (error) {
+        console.error('채팅방 생성 중 오류:', error);
+        return;
+      }
     }
 
     const messageId = Date.now();
@@ -173,7 +192,7 @@ const ChatUI = () => {
         return updatedMessages;
       });
 
-      // URL을 변경하지 않고 현재 roomId 유지
+      navigate(`/chat?roomid=${data.chatroom_id}&userid=${user.email}`);
     } catch (error) {
       console.error('Error:', error);
       const errorMessage = { id: Date.now(), text: '챗봇이 응답할 수 없습니다.', sender: 'bot' };
@@ -203,7 +222,7 @@ const ChatUI = () => {
   const renderCurrentPage = () => {
     const path = location.pathname;
     const searchParams = new URLSearchParams(location.search);
-    const roomId = searchParams.get('roomid');
+    const roomId = searchParams.get('roomid') || '1';
 
     if (path.startsWith('/chat')) {
       return (
@@ -237,7 +256,7 @@ const ChatUI = () => {
 
   return (
     <ChatUIWrapper>
-      <BackgroundImages />
+      {location.pathname !== '/realtime-chart' && <BackgroundImages />}
       <MainNavbar onTabClick={handleTabClick} isChatPage={location.pathname.startsWith('/chat')} />
       {renderCurrentPage()}
     </ChatUIWrapper>
