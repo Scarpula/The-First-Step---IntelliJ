@@ -201,23 +201,23 @@ const ChatUI = () => {
 
     if (path.startsWith('/chat')) {
       return (
-          <>
-            <ChatUIContent ref={chatContentRef} className="custom-scrollbar">
-              <ChatContainer
-                  roomId={roomId}
-                  messages={messages[roomId] || []}
-                  onSend={handleSend}
-                  showLogoAndButtons={showLogoAndButtons[roomId] !== false}
-                  setShowLogoAndButtons={(value) => setShowLogoAndButtons((prev) => ({ ...prev, [roomId]: value }))}
-                  animatedMessageIds={animatedMessageIds}
-                  setAnimatedMessageIds={setAnimatedMessageIds}
-              />
-              <ScrollButton visible={showScrollButton} onClick={scrollToBottom}>
-                <ArrowDownwardIcon />
-              </ScrollButton>
-            </ChatUIContent>
-            <ChatInput onSend={handleSend} />
-          </>
+        <>
+          <ChatUIContent ref={chatContentRef} className="custom-scrollbar">
+            <ChatContainer
+              roomId={roomId}
+              messages={messages[roomId] || []}
+              onSend={handleSend}
+              showLogoAndButtons={showLogoAndButtons[roomId] !== false}
+              setShowLogoAndButtons={(value) => setShowLogoAndButtons((prev) => ({ ...prev, [roomId]: value }))}
+              animatedMessageIds={animatedMessageIds}
+              setAnimatedMessageIds={setAnimatedMessageIds}
+            />
+            <ScrollButton visible={showScrollButton} onClick={scrollToBottom}>
+              <ArrowDownwardIcon />
+            </ScrollButton>
+          </ChatUIContent>
+          <ChatInput onSend={handleSend} />
+        </>
       );
     } else if (path === '/realtime-chart') {
       return <RealtimeChartPage />;
@@ -229,11 +229,11 @@ const ChatUI = () => {
   };
 
   return (
-      <ChatUIWrapper>
-        <BackgroundImages />
-        <MainNavbar onTabClick={handleTabClick} isChatPage={location.pathname.startsWith('/chat')} />
-        {renderCurrentPage()}
-      </ChatUIWrapper>
+    <ChatUIWrapper>
+      <BackgroundImages />
+      <MainNavbar onTabClick={handleTabClick} isChatPage={location.pathname.startsWith('/chat')} />
+      {renderCurrentPage()}
+    </ChatUIWrapper>
   );
 };
 

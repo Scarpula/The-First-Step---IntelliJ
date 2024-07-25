@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
-@EnableJpaRepositories(basePackages = "org.example.llm.Member.Repository")
+@EnableJpaRepositories(basePackages = "org.example.llm") // 최상위 패키지로 설정
 public class LlmApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(LlmApplication.class, args);
@@ -17,5 +17,4 @@ public class LlmApplication {
 	public RestTemplate restTemplate() {
 		return new RestTemplate();
 	}
-
 }

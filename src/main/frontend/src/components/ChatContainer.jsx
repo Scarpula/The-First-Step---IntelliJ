@@ -6,6 +6,7 @@ import { TypeAnimation } from 'react-type-animation';
 import styled from 'styled-components';
 import './ChatUI.css';
 import RotateIcon from './rotate_right_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg';
+import axios from 'axios';
 
 const ChatContainerWrapper = styled.div`
   flex: 1;
@@ -53,13 +54,37 @@ const ButtonLogo = styled.h3`
   font-size: 36px;
 `;
 
-const ChatContainer = ({ roomId, messages, onSend, showLogoAndButtons, setShowLogoAndButtons, animatedMessageIds, setAnimatedMessageIds }) => {
+const ChatContainer = ({ roomId, messages, setMessages, onSend, showLogoAndButtons, setShowLogoAndButtons, animatedMessageIds, setAnimatedMessageIds }) => {
   const prevMessagesLengthRef = useRef(messages.length);
   const prevRoomIdRef = useRef(roomId);
 
   useEffect(() => {
+    const fetchChatHistory = async () => {
+      try {
+        const response = await axios.get('http://112.217.124.195:30000/history', {
+          params: { chatroom_id: roomId }
+        });
+
+        if (response.data && response.data.chat_history) {
+          const chatHistory = response.data.chat_history.map(entry => ({
+            id: entry.id,
+            text: entry.message,
+            sender: entry.speaker
+          }));
+
+          setMessages(prevMessages => ({
+            ...prevMessages,
+            [roomId]: chatHistory
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching chat history:', error);
+      }
+    };
+
     if (roomId !== prevRoomIdRef.current) {
       console.log('Room changed:', roomId);
+      fetchChatHistory();
       prevMessagesLengthRef.current = messages.length;
       prevRoomIdRef.current = roomId;
       setAnimatedMessageIds(new Set()); // Reset animated message IDs when room changes
@@ -75,7 +100,7 @@ const ChatContainer = ({ roomId, messages, onSend, showLogoAndButtons, setShowLo
       prevMessagesLengthRef.current = messages.length;
       setShowLogoAndButtons(false); // Hide logo and buttons when a new message is added
     }
-  }, [messages, roomId, setAnimatedMessageIds, setShowLogoAndButtons]);
+  }, [messages, roomId, setAnimatedMessageIds, setShowLogoAndButtons, setMessages]);
 
   const handleButtonClick = (message) => {
     console.log('Button clicked:', message);
