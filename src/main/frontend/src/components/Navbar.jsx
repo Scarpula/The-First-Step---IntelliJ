@@ -60,13 +60,13 @@ const Sidebar = styled.div`
 `;
 
 const TextButton = styled.div`
-    color: #007bff;
+    color: #ABDFF1;
     cursor: pointer;
     margin: 10px;
     font-size: 18px;
 
     &:hover {
-        color: #0056b3;
+        color: #0C4A60;
     }
 `;
 
@@ -115,14 +115,14 @@ const Button = styled.button`
     padding: 10px;
     font-size: 16px;
     color: #fff;
-    background-color: #007bff;
+    background-color:#ABDFF1;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     margin-top: 10px;
 
     &:hover {
-        background-color: #0056b3;
+        background-color: #0C4A60;
     }
 `;
 
@@ -316,7 +316,7 @@ const Navbar = ({ onLoginSuccess }) => {
                                     onChange={(e) => setLoginPassword(e.target.value)}
                                     error={error}
                                 />
-                                <Button type="submit">Sign In</Button>
+                                <Button type="submit">로그인</Button>
                             </Form>
                         </FormContainer>
                         <TextButton onClick={handleSignupClick}>회원가입</TextButton>

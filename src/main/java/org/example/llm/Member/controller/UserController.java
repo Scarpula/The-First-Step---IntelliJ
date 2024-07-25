@@ -4,6 +4,7 @@ package org.example.llm.Member.controller;
 import jakarta.servlet.http.HttpSession;
 import org.example.llm.Member.Entity.UserEntity;
 import org.example.llm.Member.dto.Joindto;
+import org.example.llm.Member.dto.PasswordUpdateRequest;
 import org.example.llm.Member.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -62,6 +63,18 @@ public class UserController {
             return ResponseEntity.ok().body(Map.of("status","success","user",user));
         }else {
             return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "No active session"));
+        }
+    }
+
+    @PostMapping("/update-password")
+    public ResponseEntity<String> updatePassword(@RequestBody PasswordUpdateRequest request) {
+        try {
+            userService.updatePassword(request.getEmail(), request.getNewPassword());
+            return ResponseEntity.ok("Password updated successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("An error occurred while updating the password");
         }
     }
 

@@ -1,4 +1,3 @@
-// MainNavbar.js
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
@@ -7,8 +6,8 @@ import { ReactComponent as TableRowsIcon } from './table_rows_24dp_5F6368_FILL0_
 import { ReactComponent as CloseIcon } from './close_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg';
 import './MainNavbar.css';
 import { getSession, logout } from '../api'; // api 파일에서 getSession 함수 임포트
-import { useNavigate } from 'react-router-dom';
-import axios from "axios";
+import { useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
 
 const itemVariants = {
   open: {
@@ -45,20 +44,20 @@ const underlineVariants = {
 };
 
 const Overlay = styled.div`
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: ${props => (props.show ? 'block' : 'none')};
-    z-index: 999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: ${(props) => (props.show ? 'block' : 'none')};
+  z-index: 999;
 `;
 
 const Sidebar = styled.div`
   position: fixed;
   top: 0;
-  right: ${props => (props.show ? '0' : '-350px')};
+  right: ${(props) => (props.show ? '0' : '-350px')};
   width: 300px;
   height: 100%;
   background: #fff;
@@ -90,7 +89,7 @@ const CloseButton = styled(CloseIcon)`
 const LeftSidebar = styled.div`
   position: fixed;
   top: 150px;
-  left: ${props => (props.show ? '0' : '-350px')};
+  left: ${(props) => (props.show ? '0' : '-350px')};
   width: 300px;
   height: 70%;
   background: #fff;
@@ -127,13 +126,14 @@ const ButtonContainer = styled.div`
   background: transparent; /* 배경색 투명하게 설정 */
 `;
 
-const MainNavbar = ({ onTabClick }) => {
+const MainNavbar = ({ onTabClick, isChatPage }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState(null);
   const [user, setUser] = useState(null);
   const [chatRooms, setChatRooms] = useState([]);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const checkSession = async () => {
@@ -149,8 +149,8 @@ const MainNavbar = ({ onTabClick }) => {
         }
       } catch (error) {
         console.error('Error during session check:', error);
-        setUser(null)
-        setChatRooms([])
+        setUser(null);
+        setChatRooms([]);
       }
     };
 
@@ -160,12 +160,29 @@ const MainNavbar = ({ onTabClick }) => {
   const handleTabClick = (tab) => {
     setSelectedTab(tab);
     onTabClick(tab);
-    setIsSidebarOpen(false); // 탭 클릭 시 사이드바 닫기
+    setIsSidebarOpen(false);
 
-    if (tab === '◎ 실시간 차트') {
-      document.body.classList.add('hide-background-images');
-    } else {
-      document.body.classList.remove('hide-background-images');
+    // URL 변경 로직 추가
+    switch (tab) {
+      case '◎ 실시간 차트':
+        navigate('/realtime-chart');
+        break;
+      case '◎ 재무제표 확인':
+        navigate('/financial-statements');
+        break;
+      case '◎ 챗봇':
+        if (user) {
+          navigate(`/chat?roomid=1&userid=${user.id}`);
+        } else {
+          navigate(`/chat?roomid=1&userid=guest`);
+        }
+        break;
+      case '◎ 내정보':
+        navigate('/user-info');
+        break;
+      default:
+        navigate('/');
+        break;
     }
   };
 
@@ -192,13 +209,13 @@ const MainNavbar = ({ onTabClick }) => {
   };
 
   const fetchChatRooms = async (user) => {
-    if (!user || !user.email){
+    if (!user || !user.email) {
       console.log('Invalid user data');
       return;
     }
     try {
       const response = await axios.get('http://localhost:8082/api/rooms', {
-        params: { userId: user.email },
+        params: {  },
         withCredentials: true
       });
       setChatRooms(response.data);
@@ -224,7 +241,10 @@ const MainNavbar = ({ onTabClick }) => {
       const response = await axios.post('http://localhost:8082/api/room',
           { userId: user.email },
           {
-            withCredentials: true
+            withCredentials: true,
+            headers: {
+              'Content-Type': 'application/json'
+            }
           }
       );
 
@@ -238,7 +258,6 @@ const MainNavbar = ({ onTabClick }) => {
           userId: response.data.userId,
           openedAt: response.data.openedAt
         };
-
 
         setChatRooms(prevRooms => [...prevRooms, room]);
         alert('새로운 채팅방이 생성되었습니다.');
@@ -259,7 +278,6 @@ const MainNavbar = ({ onTabClick }) => {
       }
     }
   };
-
 
   const handleDeleteChatRoom = async (room) => {
     if (window.confirm('정말로 이 채팅방을 삭제하시겠습니까?')) {
@@ -293,19 +311,19 @@ const MainNavbar = ({ onTabClick }) => {
     }
   };
 
-
   const handleChatRoomClick = (room) => {
     const userId = user ? user.email : 'guest';
-    console.log(user.email, room.id)
     navigate(`/chat?roomid=${room.id}&userid=${userId}`);
   };
 
   return (
       <div>
         <NavbarContainer>
-          <ButtonContainer onClick={toggleLeftSidebar} style={{ cursor: 'pointer', position: 'fixed', top: '10px', left: '10px' }}>
-            <TableRowsIcon />
-          </ButtonContainer>
+          {isChatPage && (
+              <ButtonContainer onClick={toggleLeftSidebar} style={{ cursor: 'pointer', position: 'fixed', top: '10px', left: '10px' }}>
+                <TableRowsIcon />
+              </ButtonContainer>
+          )}
           <ButtonContainer onClick={toggleSidebar} style={{ cursor: 'pointer', position: 'fixed', top: '10px', right: '10px' }}>
             <DensityIcon style={{ width: '30px', height: '30px' }} />
           </ButtonContainer>
