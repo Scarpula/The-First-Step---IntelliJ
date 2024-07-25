@@ -10,12 +10,15 @@ const UserInfoContainer = styled.div`
   padding: 20px;
   position: relative;
   top: 150px;
+    
+    
 `;
 
 const UserInfoForm = styled.form`
   display: flex;
   flex-direction: column;
   width: 300px;
+    
 `;
 
 const UserInfoInput = styled.input`
@@ -43,6 +46,26 @@ const EditButton = styled.button`
     background-color: #0C4A60;
   }
 `;
+const LabelBox = styled.div`
+    padding: 5px;
+    border-radius: 4px;
+    margin-right: 7px;
+    width: 100px; // 네 글자를 수용할 수 있는 너비로 조정
+    text-align: center;
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f9f9f9;
+`;
+
+const InputRow = styled.div`
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+
+`;
+
 
 
 const UserInfo = () => {
@@ -108,30 +131,28 @@ const handleChange = (e) => {
     <UserInfoContainer>
       <h2>내 정보</h2>
         <UserInfoForm onSubmit={handleSave}>
-            <div style={{ marginBottom: "10px" }} >
-                아이디
+            <InputRow>
+                <LabelBox>아이디</LabelBox>
                 <UserInfoInput
                     type="email"
                     id="email"
                     name="email"
                     value={user.email}
                     readOnly={true}
-                    style={{ marginLeft: "30px" }}
                 />
-            </div>
-            <div style={{ marginBottom: "10px" }}>
-                이름
+            </InputRow>
+            <InputRow>
+                <LabelBox>이름</LabelBox>
                 <UserInfoInput
                     type="text"
                     id="name"
                     name="name"
                     value={user.name}
                     readOnly={true}
-                    style={{ marginLeft: "45px" }}
                 />
-            </div>
-            <div style={{ marginBottom: "10px" }}>
-                비밀번호
+            </InputRow>
+            <InputRow>
+                <LabelBox>비밀번호</LabelBox>
                 <UserInfoInput
                     type="password"
                     id="password"
@@ -139,31 +160,28 @@ const handleChange = (e) => {
                     value={isEditing ? newPassword : user.password}
                     readOnly={!isEditing}
                     onChange={handleChange}
-                    style={{ marginLeft: "15px" }}
                 />
-            </div>
-            <div style={{ marginBottom: "10px" }}>
-                생년월일
+            </InputRow>
+            <InputRow>
+                <LabelBox>생년월일</LabelBox>
                 <UserInfoInput
                     type="text"
                     id="birthdate"
                     name="birthdate"
                     value={user.birthdate}
                     readOnly={true}
-                    style={{ marginLeft: "15px" }}
                 />
-            </div>
-            <div style={{ marginBottom: "10px" }}>
-                투자 유형
+            </InputRow>
+            <InputRow>
+                <LabelBox>투자유형</LabelBox>
                 <UserInfoInput
                     type="text"
                     id="investmentType"
                     name="investmentType"
                     value={user.investmentType}
                     readOnly={true}
-                    style={{ marginLeft: "10px" }}
                 />
-            </div>
+            </InputRow>
                     {!isEditing && <EditButton type="button" onClick={handleEdit}>수정</EditButton>}
                     {isEditing && <EditButton type="submit">저장</EditButton>}
         </UserInfoForm>

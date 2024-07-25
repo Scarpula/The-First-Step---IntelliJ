@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// Styled components for Navbar
 const NavbarContainer = styled.div`
     width: 100%;
     height: 60px;
@@ -70,31 +71,12 @@ const TextButton = styled.div`
     }
 `;
 
-const slideDown = keyframes`
-    from {
-        max-height: 0;
-    }
-    to {
-        max-height: 500px;
-    }
-`;
-
-const slideUp = keyframes`
-    from {
-        max-height: 500px;
-    }
-    to {
-        max-height: 0;
-    }
-`;
-
 const FormContainer = styled.div`
     width: 100%;
     background-color: #fff;
     overflow: hidden;
     max-height: ${props => (props.show ? '500px' : '0')};
     transition: max-height 0.5s ease;
-    animation: ${props => (props.show ? slideDown : slideUp)} 0.5s ease forwards;
 `;
 
 const Form = styled.form`
@@ -139,19 +121,20 @@ const SuccessOverlay = styled(motion.div)`
 `;
 
 const SuccessCheckmark = styled(motion.path)`
-  fill: none;
-  stroke: #4caf50;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+    fill: none;
+    stroke: #4caf50;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 `;
 
 const SuccessCircle = styled(motion.circle)`
-  fill: none;
-  stroke: #4caf50;
-  stroke-width: 2;
+    fill: none;
+    stroke: #4caf50;
+    stroke-width: 2;
 `;
 
+// Navbar Component
 const Navbar = ({ onLoginSuccess }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
@@ -164,14 +147,8 @@ const Navbar = ({ onLoginSuccess }) => {
     const [birthdate, setBirthdate] = useState('');
     const [error, setError] = useState(false);
     const [user, setUser] = useState(null);
-    const [signupStatus, setSignupStatus] = useState(null);
-    const navigate = useNavigate();  // useNavigate 훅 사용
-    const resetSignupForm = () => {
-        setSignupEmail('');
-        setSignupPassword('');
-        setUsername('');
-        setBirthdate('');
-    };
+    const [signupSuccess, setSignupSuccess] = useState(false);
+    const navigate = useNavigate();
 
     const toggleSidebar = () => {
         setIsOpen(!isOpen);
@@ -186,13 +163,10 @@ const Navbar = ({ onLoginSuccess }) => {
         setShowSignupForm(!showSignupForm);
         setShowLoginForm(false);
         resetSignupForm();
-
     };
 
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
-        console.log("Email:", loginEmail);
-        console.log("Password:", loginPassword);
         try {
             const response = await axios.post('http://localhost:8082/api/login', {
                 email: loginEmail,
@@ -201,25 +175,20 @@ const Navbar = ({ onLoginSuccess }) => {
 
             if (response.status === 200 && response.data.message === 'Login successful') {
                 setError(false);
-                onLoginSuccess();  // 로그인 성공 시 콜백 호출
+                onLoginSuccess();
                 setIsOpen(false);
                 checkSession();
-                navigate('/chat');  // 로그인 성공 시 /chat 경로로 이동
+                navigate('/chat');
             } else {
                 setError(true);
-                console.log("로그인 실패");
             }
         } catch (error) {
             setError(true);
-            console.log("에러");
         }
     };
 
-    const [signupSuccess, setSignupSuccess] = useState(false);
-
     const handleSignupSubmit = async (e) => {
         e.preventDefault();
-
         try {
             const response = await axios.post('http://localhost:8082/api/signup', {
                 userId: signupEmail,
@@ -240,7 +209,6 @@ const Navbar = ({ onLoginSuccess }) => {
                 setError(true);
             }
         } catch (error) {
-            console.error("Error during signup:", error);
             setError(true);
         }
     };
@@ -288,16 +256,22 @@ const Navbar = ({ onLoginSuccess }) => {
         }
     }, [isOpen]);
 
+    const resetSignupForm = () => {
+        setSignupEmail('');
+        setSignupPassword('');
+        setUsername('');
+        setBirthdate('');
+    };
+
     return (
         <>
             <Overlay show={isOpen ? 'true' : undefined} onClick={toggleSidebar} />
             <NavbarContainer>
                 <Logo />
                 <MenuButton src="/images/density_medium_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg" alt="Menu" onClick={toggleSidebar} />
-
             </NavbarContainer>
             <Sidebar show={isOpen}>
-                {!user && (
+                {!user ? (
                     <>
                         <TextButton onClick={handleLoginClick}>로그인</TextButton>
                         <FormContainer show={showLoginForm}>
@@ -338,62 +312,37 @@ const Navbar = ({ onLoginSuccess }) => {
                                 />
                                 <Input
                                     type="text"
-                                    placeholder="이름"
+                                    placeholder="Username"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
                                     error={error}
                                 />
                                 <Input
                                     type="date"
-                                    placeholder="생년월일"
                                     value={birthdate}
                                     onChange={(e) => setBirthdate(e.target.value)}
                                     error={error}
                                 />
                                 <Button type="submit">회원가입</Button>
                             </Form>
-                            <AnimatePresence>
-                                {signupSuccess && (
-                                    <SuccessOverlay
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        transition={{ duration: 0.3 }}
-                                    >
-                                        <motion.svg
-                                            width="100"
-                                            height="100"
-                                            viewBox="0 0 50 50"
-                                            initial={{ scale: 0 }}
-                                            animate={{ scale: 1 }}
-                                            exit={{ scale: 0 }}
-                                            transition={{ duration: 0.5 }}
-                                        >
-                                            <SuccessCircle
-                                                cx="25"
-                                                cy="25"
-                                                r="20"
-                                                initial={{ pathLength: 0 }}
-                                                animate={{ pathLength: 1 }}
-                                                transition={{ duration: 0.5, delay: 0.2 }}
-                                            />
-                                            <SuccessCheckmark
-                                                d="M14 26 L 22 33 L 36 18"
-                                                initial={{ pathLength: 0 }}
-                                                animate={{ pathLength: 1 }}
-                                                transition={{ duration: 0.5, delay: 0.8 }}
-                                            />
-                                        </motion.svg>
-                                    </SuccessOverlay>
-                                )}
-                            </AnimatePresence>
                         </FormContainer>
                     </>
+                ) : (
+                    <>
+                        <TextButton onClick={handleLogout}>로그아웃</TextButton>
+                    </>
                 )}
-                {user && (
-                    <div>
-                        <h2>Welcome, {user.name}</h2>
-                    </div>
+                {signupSuccess && (
+                    <SuccessOverlay
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <svg width="50" height="50" viewBox="0 0 50 50">
+                            <SuccessCircle cx="25" cy="25" r="20" />
+                            <SuccessCheckmark d="M15 25l10 10 20-20" />
+                        </svg>
+                    </SuccessOverlay>
                 )}
             </Sidebar>
         </>

@@ -3,77 +3,7 @@ import axios from 'axios';
 import { useTable, useSortBy } from 'react-table';
 import './FinancialStatementsPage.css';
 
-const API_KEY = 'afec4e0cfc12aa5baf6ef1074e1eabbf8e379f31';
 
-const topCompanies = [
-    { "name": "기아(KIA)", "code": "(X)" },
-    { "name": "SK하이닉스", "code": "00164779" },
-    { "name": "삼성화재(SAMSUNGFIRE)", "code": "00139214" },
-    { "name": "대한항공", "code": "00113526" },
-    { "name": "엘지(LG)", "code": "00120021" },
-    { "name": "포스코퓨처엠", "code": "00155276" },
-    { "name": "현대자동차(HYUNDAI)", "code": "00164742" },
-    { "name": "POSCO홀딩스", "code": "00155319" },
-    { "name": "삼성전자(SAMSUNG)", "code": "00126380" },
-    { "name": "삼성전자서비스", "code": "(X)" },
-    { "name": "삼성SDI", "code": "00126362" },
-    { "name": "삼성전기", "code": "00126371" },
-    { "name": "HD한국조선해양", "code": "00164830" },
-    { "name": "고려아연", "code": "00102858" },
-    { "name": "HMM", "code": "00164645" },
-    { "name": "현대모비스", "code": "00164788" },
-    { "name": "한화에어로스페이스", "code": "00126566" },
-    { "name": "한국전력공사", "code": "00159193" },
-    { "name": "SK텔레콤", "code": "00159023" },
-    { "name": "삼성에스디에스", "code": "00126186" },
-    { "name": "기업은행", "code": "00149646" },
-    { "name": "삼성물산", "code": "(X)" },
-    { "name": "케이티(KT)", "code": "(X)" },
-    { "name": "삼성생명", "code": "00126256" },
-    { "name": "KT&G", "code": "00244455" },
-    { "name": "두산에너빌리티", "code": "00159616" },
-    { "name": "SK", "code": "00181712" },
-    { "name": "네이버(NAVER)", "code": "00266961" },
-    { "name": "카카오(KAKAO)", "code": "00258801" },
-    { "name": "한화오션", "code": "00111704" },
-    { "name": "한미반도체", "code": "00161383" },
-    { "name": "포스코인터내셔널", "code": "00124504" },
-    { "name": "LG화학", "code": "00356361" },
-    { "name": "신한지주", "code": "00382199" },
-    { "name": "LG전자", "code": "00401731" },
-    { "name": "셀트리온", "code": "(X)" },
-    { "name": "현대글로비스", "code": "00360595" },
-    { "name": "하나금융지주", "code": "00547583" },
-    { "name": "아모레퍼시픽", "code": "00583424" },
-    { "name": "SK이노베이션", "code": "00631518" },
-    { "name": "KB금융", "code": "00688996" },
-    { "name": "메리츠금융지주", "code": "00860332" },
-    { "name": "삼성바이오로직스", "code": "00877059" },
-    { "name": "크래프톤", "code": "00760971" },
-    { "name": "HD현대일렉트릭", "code": "01205851" },
-    { "name": "우리금융지주", "code": "01350869" },
-    { "name": "카카오뱅크(KAKAOBANK)", "code": "(X)" },
-    { "name": "HD현대중공업", "code": "01390344" },
-    { "name": "LG에너지솔루션", "code": "01515323" },
-    { "name": "SK스퀘어", "code": "01596425" }
-];
-
-const columns = [
-    {
-        Header: '계정명',
-        accessor: 'account_nm',
-    },
-    {
-        Header: '당기금액',
-        accessor: 'thstrm_amount',
-        Cell: ({ value }) => (value ? parseInt(value).toLocaleString() + '원' : '-'),
-    },
-    {
-        Header: '당기누적금액',
-        accessor: 'thstrm_add_amount',
-        Cell: ({ value }) => (value ? parseInt(value).toLocaleString() + '원' : '-'),
-    },
-];
 
 function FinancialStatementsPage() {
     const [corpCode, setCorpCode] = useState('');
@@ -88,6 +18,78 @@ function FinancialStatementsPage() {
     const [selectedCompanyName, setSelectedCompanyName] = useState('');
     const companyListRef = useRef(null);
 
+    const API_KEY = 'afec4e0cfc12aa5baf6ef1074e1eabbf8e379f31';
+
+    const topCompanies = [
+        { "name": "기아(KIA)", "code": "(X)" },
+        { "name": "SK하이닉스", "code": "00164779" },
+        { "name": "삼성화재(SAMSUNGFIRE)", "code": "00139214" },
+        { "name": "대한항공", "code": "00113526" },
+        { "name": "엘지(LG)", "code": "00120021" },
+        { "name": "포스코퓨처엠", "code": "00155276" },
+        { "name": "현대자동차(HYUNDAI)", "code": "00164742" },
+        { "name": "POSCO홀딩스", "code": "00155319" },
+        { "name": "삼성전자(SAMSUNG)", "code": "00126380" },
+        { "name": "삼성전자서비스", "code": "(X)" },
+        { "name": "삼성SDI", "code": "00126362" },
+        { "name": "삼성전기", "code": "00126371" },
+        { "name": "HD한국조선해양", "code": "00164830" },
+        { "name": "고려아연", "code": "00102858" },
+        { "name": "HMM", "code": "00164645" },
+        { "name": "현대모비스", "code": "00164788" },
+        { "name": "한화에어로스페이스", "code": "00126566" },
+        { "name": "한국전력공사", "code": "00159193" },
+        { "name": "SK텔레콤", "code": "00159023" },
+        { "name": "삼성에스디에스", "code": "00126186" },
+        { "name": "기업은행", "code": "00149646" },
+        { "name": "삼성물산", "code": "(X)" },
+        { "name": "케이티(KT)", "code": "(X)" },
+        { "name": "삼성생명", "code": "00126256" },
+        { "name": "KT&G", "code": "00244455" },
+        { "name": "두산에너빌리티", "code": "00159616" },
+        { "name": "SK", "code": "00181712" },
+        { "name": "네이버(NAVER)", "code": "00266961" },
+        { "name": "카카오(KAKAO)", "code": "00258801" },
+        { "name": "한화오션", "code": "00111704" },
+        { "name": "한미반도체", "code": "00161383" },
+        { "name": "포스코인터내셔널", "code": "00124504" },
+        { "name": "LG화학", "code": "00356361" },
+        { "name": "신한지주", "code": "00382199" },
+        { "name": "LG전자", "code": "00401731" },
+        { "name": "셀트리온", "code": "(X)" },
+        { "name": "현대글로비스", "code": "00360595" },
+        { "name": "하나금융지주", "code": "00547583" },
+        { "name": "아모레퍼시픽", "code": "00583424" },
+        { "name": "SK이노베이션", "code": "00631518" },
+        { "name": "KB금융", "code": "00688996" },
+        { "name": "메리츠금융지주", "code": "00860332" },
+        { "name": "삼성바이오로직스", "code": "00877059" },
+        { "name": "크래프톤", "code": "00760971" },
+        { "name": "HD현대일렉트릭", "code": "01205851" },
+        { "name": "우리금융지주", "code": "01350869" },
+        { "name": "카카오뱅크(KAKAOBANK)", "code": "(X)" },
+        { "name": "HD현대중공업", "code": "01390344" },
+        { "name": "LG에너지솔루션", "code": "01515323" },
+        { "name": "SK스퀘어", "code": "01596425" }
+    ];
+
+    const columns = [
+        {
+            Header: '계정명',
+            accessor: 'account_nm',
+        },
+        {
+            Header: '당기금액',
+            accessor: 'thstrm_amount',
+            Cell: ({ value }) => (value ? parseInt(value).toLocaleString() + '원' : '-'),
+        },
+        {
+            Header: '당기누적금액',
+            accessor: 'thstrm_add_amount',
+            Cell: ({ value }) => (value ? parseInt(value).toLocaleString() + '원' : '-'),
+        },
+    ];
+
     const fetchFinancials = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -100,6 +102,7 @@ function FinancialStatementsPage() {
                     reprt_code: quarter,
                     fs_div: 'CFS',
                 },
+
             });
 
             if (response.data.status !== '000') {
