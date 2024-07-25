@@ -3,6 +3,7 @@ import styled, { keyframes } from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { login, getSession } from '../api';
 
 const NavbarContainer = styled.div`
     width: 100%;
@@ -167,11 +168,11 @@ const Navbar = ({ onLoginSuccess }) => {
     const [signupStatus, setSignupStatus] = useState(null);
     const navigate = useNavigate();  // useNavigate 훅 사용
     const resetSignupForm = () => {
-        setSignupEmail('');
-        setSignupPassword('');
-        setUsername('');
-        setBirthdate('');
-    };
+            setSignupEmail('');
+            setSignupPassword('');
+            setUsername('');
+            setBirthdate('');
+        };
 
     const toggleSidebar = () => {
         setIsOpen(!isOpen);
@@ -194,56 +195,80 @@ const Navbar = ({ onLoginSuccess }) => {
         console.log("Email:", loginEmail);
         console.log("Password:", loginPassword);
         try {
-            const response = await axios.post('http://localhost:8082/api/login', {
-                email: loginEmail,
-                password: loginPassword,
-            }, { withCredentials: true });
+            const response = await login(loginEmail, loginPassword);
 
-            if (response.status === 200 && response.data.message === 'Login successful') {
+            if (response.message === 'Login successful') {
                 setError(false);
                 onLoginSuccess();  // 로그인 성공 시 콜백 호출
                 setIsOpen(false);
-                checkSession();
-                navigate('/chat');  // 로그인 성공 시 /chat 경로로 이동
+
+                // 세션 정보를 가져옴
+                const sessionResponse = await getSession();
+                const investtype = sessionResponse.user.investtype || '';
+
+                // 전송 데이터 로그
+                console.log("Sending data:", {
+                    userid: loginEmail,
+                    investtype: investtype
+                });
+
+                // Flask 서버로 세션 초기화 요청
+                const initSessionResponse = await axios.post('http://112.217.124.195:30000/init-session', {
+                    userid: loginEmail,
+                    investtype: investtype
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (initSessionResponse.status === 200) {
+                    console.log('세션 초기화 완료:', initSessionResponse.data);
+                    navigate(`/chat?roomid=${initSessionResponse.data.chatroom_id}&userid=${loginEmail}`);
+                } else {
+                    console.error('세션 초기화 실패:', initSessionResponse.data);
+                }
             } else {
                 setError(true);
                 console.log("로그인 실패");
             }
         } catch (error) {
             setError(true);
-            console.log("에러");
+            console.log("에러:", error);
         }
     };
+
+
 
     const [signupSuccess, setSignupSuccess] = useState(false);
 
     const handleSignupSubmit = async (e) => {
-        e.preventDefault();
+            e.preventDefault();
 
-        try {
-            const response = await axios.post('http://localhost:8082/api/signup', {
-                userId: signupEmail,
-                password: signupPassword,
-                name: username,
-                birthdate,
-            });
+            try {
+                const response = await axios.post('http://localhost:8082/api/signup', {
+                    userId: signupEmail,
+                    password: signupPassword,
+                    name: username,
+                    birthdate,
+                });
 
-            if (response.status === 200) {
-                setError(false);
-                setSignupSuccess(true);
-                setTimeout(() => {
-                    setSignupSuccess(false);
-                    setShowSignupForm(false);
-                    resetSignupForm();
-                }, 2000);
-            } else {
+                if (response.status === 200) {
+                    setError(false);
+                    setSignupSuccess(true);
+                    setTimeout(() => {
+                        setSignupSuccess(false);
+                        setShowSignupForm(false);
+                        resetSignupForm();
+                    }, 2000);
+                } else {
+                    setError(true);
+                }
+            } catch (error) {
+                console.error("Error during signup:", error);
                 setError(true);
             }
-        } catch (error) {
-            console.error("Error during signup:", error);
-            setError(true);
-        }
-    };
+        };
 
     const handleLogout = async () => {
         try {
@@ -283,10 +308,10 @@ const Navbar = ({ onLoginSuccess }) => {
     }, [isOpen, showLoginForm, showSignupForm]);
 
     useEffect(() => {
-        if (!isOpen) {
-            resetSignupForm();
-        }
-    }, [isOpen]);
+            if (!isOpen) {
+                resetSignupForm();
+            }
+        }, [isOpen]);
 
     return (
         <>

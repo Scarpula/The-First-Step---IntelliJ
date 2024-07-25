@@ -5,7 +5,7 @@ import { ReactComponent as DensityIcon } from './density_medium_24dp_5F6368_FILL
 import { ReactComponent as TableRowsIcon } from './table_rows_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg';
 import { ReactComponent as CloseIcon } from './close_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg';
 import './MainNavbar.css';
-import { getSession, logout } from '../api'; // api 파일에서 getSession 함수 임포트
+import { getSession, logout } from '../api';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 
@@ -122,8 +122,28 @@ const NavbarContainer = styled.div`
 const ButtonContainer = styled.div`
   display: flex;
   align-items: center;
-  height: 40px; /* 버튼 높이 지정 */
-  background: transparent; /* 배경색 투명하게 설정 */
+  height: 40px;
+  background: transparent;
+`;
+
+const ChatRoomListItem = styled(motion.li)`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  cursor: pointer;
+  font-size: 18px;
+`;
+
+const ChatRoomName = styled.span`
+  flex-grow: 1;
+`;
+
+const DeleteButton = styled.button`
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: red;
 `;
 
 const MainNavbar = ({ onTabClick, isChatPage }) => {
@@ -157,32 +177,32 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
     checkSession();
   }, []);
 
-  const handleTabClick = (tab) => {
+  const handleTabClick = async (tab) => {
     setSelectedTab(tab);
     onTabClick(tab);
     setIsSidebarOpen(false);
 
-    // URL 변경 로직 추가
-    switch (tab) {
-      case '◎ 실시간 차트':
-        navigate('/realtime-chart');
-        break;
-      case '◎ 재무제표 확인':
-        navigate('/financial-statements');
-        break;
-      case '◎ 챗봇':
-        if (user) {
-          navigate(`/chat?roomid=1&userid=${user.id}`);
-        } else {
-          navigate(`/chat?roomid=1&userid=guest`);
-        }
-        break;
-      case '◎ 내정보':
-        navigate('/user-info');
-        break;
-      default:
-        navigate('/');
-        break;
+    if (tab === '◎ 챗봇') {
+      if (chatRooms.length > 0) {
+        navigate(`/chat?roomid=${chatRooms[0].id}&userid=${user.email}`);
+      } else {
+        alert('채팅방이 없습니다. 새 채팅방을 생성해주세요.');
+      }
+    } else {
+      switch (tab) {
+        case '◎ 실시간 차트':
+          navigate('/realtime-chart');
+          break;
+        case '◎ 재무제표 확인':
+          navigate('/financial-statements');
+          break;
+        case '◎ 내정보':
+          navigate('/user-info');
+          break;
+        default:
+          navigate('/');
+          break;
+      }
     }
   };
 
@@ -195,6 +215,14 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
   };
 
   const handleLogout = async () => {
+    if (user) {
+      try {
+        await axios.post('http://112.217.124.195:30000/logout', { userid: user.email });
+      } catch (error) {
+        console.error("Error during session logout:", error);
+      }
+    }
+
     try {
       const response = await logout();
       if (response) {
@@ -208,16 +236,17 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
     }
   };
 
-  const fetchChatRooms = async (user) => {
-    if (!user || !user.email) {
+  const fetchChatRooms = async (userEmail) => {
+    if (!userEmail) {
       console.log('Invalid user data');
       return;
     }
     try {
       const response = await axios.get('http://localhost:8082/api/rooms', {
-        params: { userId: user.email },
+        params: { userId: userEmail },
         withCredentials: true
       });
+      console.log('Fetched chat rooms:', response.data);
       setChatRooms(response.data);
     } catch (error) {
       console.error('Error fetching chat rooms:', error);
@@ -238,8 +267,9 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
 
       console.log('Sending request to create chat room for user:', user.email);
 
-      const response = await axios.post('http://localhost:8082/api/room',
-        { userId: user.email },
+      // Flask 서버로 채팅방 생성 요청
+      const response = await axios.post('http://112.217.124.195:30000/create-chatroom',
+        { userid: user.email },
         {
           withCredentials: true,
           headers: {
@@ -251,16 +281,19 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
       console.log('Server response:', response.data);
 
       // 서버 응답 구조에 따라 이 부분을 수정
-      if (response.data) {
+      if (response.data && response.data.chatroom_id) {
         const newChatRoom = {
-          id: response.data.id,
-          name: response.data.name,
-          userId: response.data.userId,
-          openedAt: response.data.openedAt
+          id: response.data.chatroom_id,
+          name: `채팅방 ${response.data.chatroom_id}`,
+          userId: user.email,
+          openedAt: new Date().toISOString()
         };
 
         setChatRooms(prevRooms => [...prevRooms, newChatRoom]);
         alert('새로운 채팅방이 생성되었습니다.');
+
+        // 새로운 채팅방으로 이동
+        navigate(`/chat?roomid=${response.data.chatroom_id}&userid=${user.email}`);
       } else {
         throw new Error('Invalid server response');
       }
@@ -280,18 +313,24 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
   };
 
   const handleDeleteChatRoom = async (room) => {
-    if (!room || room.id) {
+    if (!room || !room.id) {
       console.log('Invalid room object:', room);
       alert('유효하지 않은 채팅방 정보입니다');
+      return;
     }
 
     try {
-      await axios.delete(`http://localhost:8082/api/room/${room.id}`, {
-        params: { userId: user.email },
-        withCredentials: true
+      await axios.post(`http://112.217.124.195:30000/delete-chatroom`, {
+        chatroom_id: room.id,
+        userid: user.email
+      }, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
-      setChatRooms(prevRooms => prevRooms.filter(room => room.roomId !== room.id));
+      setChatRooms(prevRooms => prevRooms.filter(r => r.id !== room.id));
       alert('채팅방이 성공적으로 삭제되었습니다');
     } catch (error) {
       console.error('Error deleting chat room:', error);
@@ -299,7 +338,17 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
     }
   };
 
-  const handleChatRoomClick = (room) => {
+  const handleChatRoomClick = async (room) => {
+    if (user) {
+      try {
+        await axios.post('http://112.217.124.195:30000/end-session', {
+          chatroom_id: room.id,
+          userid: user.email
+        });
+      } catch (error) {
+        console.error("Error ending session:", error);
+      }
+    }
     const userId = user ? user.email : 'guest';
     navigate(`/chat?roomid=${room.id}&userid=${userId}`);
   };
@@ -389,20 +438,18 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
           >
             새 채팅방 만들기
           </motion.li>
+          {console.log('Rendering chat rooms:', chatRooms)}
           {chatRooms.map((room, index) => (
-            <motion.li
+            <ChatRoomListItem
               key={room.id || index}
               variants={itemVariants}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              style={{ marginBottom: '15px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between' }}
               onClick={() => handleChatRoomClick(room)}
             >
-              <span>{room.name || `채팅방${room.id}`}</span>
-              <button onClick={() => handleDeleteChatRoom(room)} style={{ cursor: 'pointer', background: 'transparent', border: 'none', color: 'red' }}>
+              <ChatRoomName>{room.name || `채팅방${room.id}`}</ChatRoomName>
+              <DeleteButton onClick={(e) => { e.stopPropagation(); handleDeleteChatRoom(room); }}>
                 삭제
-              </button>
-            </motion.li>
+              </DeleteButton>
+            </ChatRoomListItem>
           ))}
         </motion.ul>
       </LeftSidebar>

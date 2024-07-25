@@ -6,6 +6,7 @@ import org.example.llm.Member.Entity.UserEntity;
 import org.example.llm.Member.dto.Joindto;
 import org.example.llm.Member.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,14 +41,39 @@ public class UserController {
         String email = loginRequest.get("email");
         String password = loginRequest.get("password");
 
-        UserEntity user = userService.login(email, password);
-        if (user != null) {
-            httpSession.setAttribute("user", user);  // 세션에 유저 정보 저장
-            return ResponseEntity.ok().body(Map.of("status", "success", "message", "Login successful"));
-        } else {
-            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Invalid email or password"));
+        try {
+            UserEntity user = userService.login(email, password);
+            if (user != null) {
+                httpSession.setAttribute("user", user);  // 세션에 유저 정보 저장
+
+                String investtype = user.getInvestmentType();
+                if (investtype == null) {
+                    investtype = "";  // investtype이 null인 경우 빈 문자열로 설정
+                }
+
+                return ResponseEntity.ok().body(Map.of(
+                        "status", "success",
+                        "message", "Login successful",
+                        "investtype", investtype  // 응답에 investtype 포함
+                ));
+            } else {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "status", "error",
+                        "message", "Invalid email or password"
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();  // 콘솔에 예외 메시지 출력
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "status", "error",
+                    "message", "Internal Server Error",
+                    "error", e.getMessage()
+            ));
         }
     }
+
+
+
 
     @GetMapping("/logout")
     public ResponseEntity<?> logout() {

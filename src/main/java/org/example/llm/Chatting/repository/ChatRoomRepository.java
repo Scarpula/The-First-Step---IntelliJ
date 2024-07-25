@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface chatRoomRepository extends JpaRepository<ChatRoom, Long> {
-    long countByUserId(String userId);
-    List<ChatRoom> findByUserIdOrderByOpenedAtDesc(String userId);
+public interface ChatRoomRepository extends JpaRepository<ChatRoom, Integer> {
+    List<ChatRoom> findByUserId(String userId);
 }
