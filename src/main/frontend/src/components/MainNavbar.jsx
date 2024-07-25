@@ -133,9 +133,11 @@ const ChatRoomListItem = styled(motion.li)`
   margin-bottom: 15px;
   cursor: pointer;
   font-size: 18px;
+  opacity: 1 !important;
+  transform: none !important;
 `;
 
-const ChatRoomName = styled.span`
+const ChatRoomName = styled.p`
   flex-grow: 1;
 `;
 
@@ -183,11 +185,7 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
     setIsSidebarOpen(false);
 
     if (tab === '◎ 챗봇') {
-      if (chatRooms.length > 0) {
-        navigate(`/chat?roomid=${chatRooms[0].id}&userid=${user.email}`);
-      } else {
-        alert('채팅방이 없습니다. 새 채팅방을 생성해주세요.');
-      }
+      navigate(`/chat`);
     } else {
       switch (tab) {
         case '◎ 실시간 차트':
@@ -215,14 +213,6 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
   };
 
   const handleLogout = async () => {
-    if (user) {
-      try {
-        await axios.post('http://112.217.124.195:30000/logout', { userid: user.email });
-      } catch (error) {
-        console.error("Error during session logout:", error);
-      }
-    }
-
     try {
       const response = await logout();
       if (response) {
@@ -253,104 +243,36 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
     }
   };
 
-  const handleCreateChatRoom = async () => {
-    if (chatRooms.length >= 3) {
-      alert('채팅방은 최대 3개까지 생성할 수 있습니다.');
-      return;
-    }
-
-    try {
-      if (!user || !user.email) {
-        alert('사용자 정보를 찾을 수 없습니다. 다시 로그인해 주세요.');
-        return;
-      }
-
-      console.log('Sending request to create chat room for user:', user.email);
-
-      // Flask 서버로 채팅방 생성 요청
-      const response = await axios.post('http://112.217.124.195:30000/create-chatroom',
-        { userid: user.email },
-        {
-          withCredentials: true,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      console.log('Server response:', response.data);
-
-      // 서버 응답 구조에 따라 이 부분을 수정
-      if (response.data && response.data.chatroom_id) {
-        const newChatRoom = {
-          id: response.data.chatroom_id,
-          name: `채팅방 ${response.data.chatroom_id}`,
-          userId: user.email,
-          openedAt: new Date().toISOString()
-        };
-
-        setChatRooms(prevRooms => [...prevRooms, newChatRoom]);
-        alert('새로운 채팅방이 생성되었습니다.');
-
-        // 새로운 채팅방으로 이동
-        navigate(`/chat?roomid=${response.data.chatroom_id}&userid=${user.email}`);
-      } else {
-        throw new Error('Invalid server response');
-      }
-    } catch (error) {
-      console.error('채팅방 생성 오류:', error);
-      if (error.response) {
-        console.error('Error response:', error.response.data);
-        alert(`채팅방 생성 실패: ${error.response.data || '알 수 없는 오류'}`);
-      } else if (error.request) {
-        console.error('No response received:', error.request);
-        alert('서버로부터 응답이 없습니다. 네트워크 연결을 확인해주세요.');
-      } else {
-        console.error('Error message:', error.message);
-        alert('채팅방 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.');
-      }
-    }
+  const handleChatRoomClick = async (room) => {
+    const userId = user ? user.email : 'guest';
+    navigate(`/chat?roomid=${room.chatroomId}&userid=${userId}`);
   };
 
   const handleDeleteChatRoom = async (room) => {
-    if (!room || !room.id) {
-      console.log('Invalid room object:', room);
-      alert('유효하지 않은 채팅방 정보입니다');
-      return;
-    }
-
     try {
-      await axios.post(`http://112.217.124.195:30000/delete-chatroom`, {
-        chatroom_id: room.id,
-        userid: user.email
+      const response = await axios.post('http://112.217.124.195:30000/delete-chatroom', {
+        chatroom_id: room.chatroomId,
+        user_id: user.email
       }, {
-        withCredentials: true,
         headers: {
           'Content-Type': 'application/json'
         }
       });
 
-      setChatRooms(prevRooms => prevRooms.filter(r => r.id !== room.id));
-      alert('채팅방이 성공적으로 삭제되었습니다');
+      if (response.status === 200) {
+        setChatRooms(prevRooms => prevRooms.filter(r => r.chatroomId !== room.chatroomId));
+        alert('채팅방이 성공적으로 삭제되었습니다');
+      } else {
+        alert('채팅방 삭제 실패');
+      }
     } catch (error) {
       console.error('Error deleting chat room:', error);
       alert('채팅방 삭제 중 오류가 발생했습니다.');
     }
   };
 
-  const handleChatRoomClick = async (room) => {
-    if (user) {
-      try {
-        await axios.post('http://112.217.124.195:30000/end-session', {
-          chatroom_id: room.id,
-          userid: user.email
-        });
-      } catch (error) {
-        console.error("Error ending session:", error);
-      }
-    }
-    const userId = user ? user.email : 'guest';
-    navigate(`/chat?roomid=${room.id}&userid=${userId}`);
+  const handleCreateChatRoom = () => {
+    navigate('/chat');
   };
 
   return (
@@ -441,11 +363,11 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
           {console.log('Rendering chat rooms:', chatRooms)}
           {chatRooms.map((room, index) => (
             <ChatRoomListItem
-              key={room.id || index}
+              key={room.chatroomId || index}
               variants={itemVariants}
               onClick={() => handleChatRoomClick(room)}
             >
-              <ChatRoomName>{room.name || `채팅방${room.id}`}</ChatRoomName>
+              <ChatRoomName>{room.roomName || `채팅방${room.chatroomId}`}</ChatRoomName>
               <DeleteButton onClick={(e) => { e.stopPropagation(); handleDeleteChatRoom(room); }}>
                 삭제
               </DeleteButton>

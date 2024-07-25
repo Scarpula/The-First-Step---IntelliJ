@@ -165,14 +165,15 @@ const Navbar = ({ onLoginSuccess }) => {
     const [birthdate, setBirthdate] = useState('');
     const [error, setError] = useState(false);
     const [user, setUser] = useState(null);
-    const [signupStatus, setSignupStatus] = useState(null);
+    const [signupSuccess, setSignupSuccess] = useState(false);
     const navigate = useNavigate();  // useNavigate 훅 사용
+
     const resetSignupForm = () => {
-            setSignupEmail('');
-            setSignupPassword('');
-            setUsername('');
-            setBirthdate('');
-        };
+        setSignupEmail('');
+        setSignupPassword('');
+        setUsername('');
+        setBirthdate('');
+    };
 
     const toggleSidebar = () => {
         setIsOpen(!isOpen);
@@ -187,7 +188,6 @@ const Navbar = ({ onLoginSuccess }) => {
         setShowSignupForm(!showSignupForm);
         setShowLoginForm(false);
         resetSignupForm();
-
     };
 
     const handleLoginSubmit = async (e) => {
@@ -212,22 +212,7 @@ const Navbar = ({ onLoginSuccess }) => {
                     investtype: investtype
                 });
 
-                // Flask 서버로 세션 초기화 요청
-                const initSessionResponse = await axios.post('http://112.217.124.195:30000/init-session', {
-                    userid: loginEmail,
-                    investtype: investtype
-                }, {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (initSessionResponse.status === 200) {
-                    console.log('세션 초기화 완료:', initSessionResponse.data);
-                    navigate(`/chat?roomid=${initSessionResponse.data.chatroom_id}&userid=${loginEmail}`);
-                } else {
-                    console.error('세션 초기화 실패:', initSessionResponse.data);
-                }
+                navigate(`/chat?userid=${loginEmail}`);
             } else {
                 setError(true);
                 console.log("로그인 실패");
@@ -238,37 +223,33 @@ const Navbar = ({ onLoginSuccess }) => {
         }
     };
 
-
-
-    const [signupSuccess, setSignupSuccess] = useState(false);
-
     const handleSignupSubmit = async (e) => {
-            e.preventDefault();
+        e.preventDefault();
 
-            try {
-                const response = await axios.post('http://localhost:8082/api/signup', {
-                    userId: signupEmail,
-                    password: signupPassword,
-                    name: username,
-                    birthdate,
-                });
+        try {
+            const response = await axios.post('http://localhost:8082/api/signup', {
+                userId: signupEmail,
+                password: signupPassword,
+                name: username,
+                birthdate,
+            });
 
-                if (response.status === 200) {
-                    setError(false);
-                    setSignupSuccess(true);
-                    setTimeout(() => {
-                        setSignupSuccess(false);
-                        setShowSignupForm(false);
-                        resetSignupForm();
-                    }, 2000);
-                } else {
-                    setError(true);
-                }
-            } catch (error) {
-                console.error("Error during signup:", error);
+            if (response.status === 200) {
+                setError(false);
+                setSignupSuccess(true);
+                setTimeout(() => {
+                    setSignupSuccess(false);
+                    setShowSignupForm(false);
+                    resetSignupForm();
+                }, 2000);
+            } else {
                 setError(true);
             }
-        };
+        } catch (error) {
+            console.error("Error during signup:", error);
+            setError(true);
+        }
+    };
 
     const handleLogout = async () => {
         try {
@@ -308,10 +289,10 @@ const Navbar = ({ onLoginSuccess }) => {
     }, [isOpen, showLoginForm, showSignupForm]);
 
     useEffect(() => {
-            if (!isOpen) {
-                resetSignupForm();
-            }
-        }, [isOpen]);
+        if (!isOpen) {
+            resetSignupForm();
+        }
+    }, [isOpen]);
 
     return (
         <>
@@ -319,7 +300,6 @@ const Navbar = ({ onLoginSuccess }) => {
             <NavbarContainer>
                 <Logo />
                 <MenuButton src="/images/density_medium_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg" alt="Menu" onClick={toggleSidebar} />
-
             </NavbarContainer>
             <Sidebar show={isOpen}>
                 {!user && (
