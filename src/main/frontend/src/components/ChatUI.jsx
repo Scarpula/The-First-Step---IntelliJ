@@ -10,7 +10,7 @@ import { ReactComponent as ArrowDownwardIcon } from './arrow_downward_24dp_5F636
 import RealtimeChartPage from "./RealtimeChartPage";
 import FinancialStatementsPage from "./FinancialStatementsPage";
 import UserInfo from './UserInfo';
-import { getSession } from '../api';
+import { getSession } from '../api'; // Import the getSession function
 
 const ChatUIWrapper = styled.div`
   display: flex;
@@ -114,31 +114,7 @@ const ChatUI = () => {
   };
 
   const handleSend = async (messageText) => {
-    let roomId = new URLSearchParams(location.search).get('roomid');
-
-    if (!roomId) {
-      try {
-        const createRoomResponse = await fetch('http://112.217.124.195:30000/create-room', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ user_id: user.email }),
-        });
-
-        if (!createRoomResponse.ok) {
-          throw new Error('채팅방 생성 실패');
-        }
-
-        const createRoomData = await createRoomResponse.json();
-        roomId = createRoomData.room_id;
-        navigate(`/chat?roomid=${roomId}&userid=${user.email}`);
-      } catch (error) {
-        console.error('채팅방 생성 중 오류:', error);
-        return;
-      }
-    }
-
+    const roomId = new URLSearchParams(location.search).get('roomid') || '1';
     const messageId = Date.now();
     const userMessage = { id: messageId, text: messageText, sender: 'user' };
     console.log('User message sent:', userMessage);
@@ -160,12 +136,12 @@ const ChatUI = () => {
     });
 
     try {
-      const response = await fetch('http://112.217.124.195:30000/ask', {
+      const response = await fetch('http://112.217.124.195:30001/ask', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ question: messageText, user_id: user.email, room_id: roomId }),
+        body: JSON.stringify({ question: messageText }),
       });
 
       if (!response.ok) {
@@ -191,8 +167,6 @@ const ChatUI = () => {
         };
         return updatedMessages;
       });
-
-      navigate(`/chat?roomid=${data.chatroom_id}&userid=${user.email}`);
     } catch (error) {
       console.error('Error:', error);
       const errorMessage = { id: Date.now(), text: '챗봇이 응답할 수 없습니다.', sender: 'bot' };
@@ -217,6 +191,7 @@ const ChatUI = () => {
 
   const handleTabClick = (tab) => {
     console.log('Tab clicked:', tab);
+    // URL 변경은 MainNavbar에서 처리됩니다.
   };
 
   const renderCurrentPage = () => {
@@ -231,7 +206,6 @@ const ChatUI = () => {
             <ChatContainer
               roomId={roomId}
               messages={messages[roomId] || []}
-              setMessages={setMessages}
               onSend={handleSend}
               showLogoAndButtons={showLogoAndButtons[roomId] !== false}
               setShowLogoAndButtons={(value) => setShowLogoAndButtons((prev) => ({ ...prev, [roomId]: value }))}
@@ -256,7 +230,7 @@ const ChatUI = () => {
 
   return (
     <ChatUIWrapper>
-      {location.pathname !== '/realtime-chart' && <BackgroundImages />}
+      <BackgroundImages />
       <MainNavbar onTabClick={handleTabClick} isChatPage={location.pathname.startsWith('/chat')} />
       {renderCurrentPage()}
     </ChatUIWrapper>
