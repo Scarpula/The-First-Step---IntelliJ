@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -54,53 +54,53 @@ const ButtonLogo = styled.h3`
   font-size: 36px;
 `;
 
-const ChatContainer = ({ roomId, messages, setMessages, onSend, showLogoAndButtons, setShowLogoAndButtons, animatedMessageIds, setAnimatedMessageIds }) => {
+const ChatContainer = ({ roomId, messages, setMessages, onSend, showLogoAndButtons, setShowLogoAndButtons }) => {
   const prevMessagesLengthRef = useRef(messages.length);
   const prevRoomIdRef = useRef(roomId);
+  const [isNewMessage, setIsNewMessage] = useState(false);
+
 
   useEffect(() => {
-    const fetchChatHistory = async () => {
-      try {
-        const response = await axios.get('http://112.217.124.195:30000/history', {
-          params: { chatroom_id: roomId }
-        });
+      const fetchChatHistory = async () => {
+        try {
+          const response = await axios.get('http://112.217.124.195:30000/history', {
+            params: { chatroom_id: roomId }
+          });
 
-        if (response.data && response.data.chat_history) {
-          const chatHistory = response.data.chat_history.map(entry => ({
-            id: entry.id,
-            text: entry.message,
-            sender: entry.speaker
-          }));
+          if (response.data && response.data.chat_history) {
+            const chatHistory = response.data.chat_history.map(entry => ({
+              id: entry.id,
+              text: entry.message,
+              sender: entry.speaker,
+              isHistoryMessage: true // 히스토리 메시지 표시
+            }));
 
-          setMessages(prevMessages => ({
-            ...prevMessages,
-            [roomId]: chatHistory
-          }));
+            setMessages(prevMessages => ({
+              ...prevMessages,
+              [roomId]: chatHistory
+            }));
+          }
+        } catch (error) {
+          console.error('Error fetching chat history:', error);
         }
-      } catch (error) {
-        console.error('Error fetching chat history:', error);
-      }
-    };
+      };
 
-    if (roomId !== prevRoomIdRef.current) {
-      console.log('Room changed:', roomId);
-      fetchChatHistory();
-      prevMessagesLengthRef.current = messages.length;
-      prevRoomIdRef.current = roomId;
-      setAnimatedMessageIds(new Set()); // Reset animated message IDs when room changes
-    } else if (messages.length > prevMessagesLengthRef.current) {
-      const newMessage = messages[messages.length - 1];
-      console.log('New message added:', newMessage);
-      if (newMessage.sender === 'bot' && newMessage.id !== 'loading') {
-        setAnimatedMessageIds((prevIds) => {
-          const updatedIds = new Set(prevIds).add(newMessage.id);
-          return updatedIds;
-        });
+      if (roomId !== prevRoomIdRef.current) {
+        console.log('Room changed:', roomId);
+        fetchChatHistory();
+        prevMessagesLengthRef.current = messages.length;
+        prevRoomIdRef.current = roomId;
+        setIsNewMessage(false);
+      } else if (messages.length > prevMessagesLengthRef.current) {
+        const newMessage = messages[messages.length - 1];
+        console.log('New message added:', newMessage);
+        if (newMessage.sender === 'bot' && newMessage.id !== 'loading') {
+          setIsNewMessage(true);
+        }
+        prevMessagesLengthRef.current = messages.length;
+        setShowLogoAndButtons(false);
       }
-      prevMessagesLengthRef.current = messages.length;
-      setShowLogoAndButtons(false); // Hide logo and buttons when a new message is added
-    }
-  }, [messages, roomId, setAnimatedMessageIds, setShowLogoAndButtons, setMessages]);
+    }, [messages, roomId, setShowLogoAndButtons, setMessages]);
 
   const handleButtonClick = (message) => {
     console.log('Button clicked:', message);
@@ -130,37 +130,32 @@ const ChatContainer = ({ roomId, messages, setMessages, onSend, showLogoAndButto
   };
 
   const renderMessage = (message) => {
-    const processedText = preprocessMarkdown(message.text);
+      const processedText = preprocessMarkdown(message.text);
 
-    if (message.id === 'loading') {
-      return <img src={RotateIcon} alt="Loading..." className="loading-icon" />;
-    }
+      if (message.id === 'loading') {
+        return <img src={RotateIcon} alt="Loading..." className="loading-icon" />;
+      }
 
-    const shouldAnimate = message.sender !== 'user' && !animatedMessageIds.has(message.id);
+      const shouldAnimate = message.sender === 'bot' && !message.isHistoryMessage && isNewMessage;
 
     return shouldAnimate ? (
-        <TypeAnimation
+          <TypeAnimation
             sequence={[processedText]}
             speed={50}
             wrapper="div"
             cursor={false}
             repeat={0}
-            onComplete={() => {
-              setAnimatedMessageIds((prevIds) => {
-                const updatedIds = new Set(prevIds).add(message.id);
-                return updatedIds;
-              });
-            }}
-        />
-    ) : (
-        <ReactMarkdown
+            onComplete={() => setIsNewMessage(false)}
+          />
+        ) : (
+          <ReactMarkdown
             components={customRenderers}
             remarkPlugins={[remarkGfm, remarkBreaks]}
-        >
-          {processedText}
-        </ReactMarkdown>
-    );
-  };
+          >
+            {processedText}
+          </ReactMarkdown>
+        );
+      };
 
   return (
       <ChatContainerWrapper className="chat-container">
@@ -186,15 +181,15 @@ const ChatContainer = ({ roomId, messages, setMessages, onSend, showLogoAndButto
             </>
         )}
         {messages.map((message) => (
-            <div
-                key={message.id}
-                className={`chat-bubble ${message.sender === 'user' ? 'right' : 'left'}`}
-            >
-              {renderMessage(message)}
-            </div>
-        ))}
-      </ChatContainerWrapper>
-  );
-};
+                <div
+                  key={message.id}
+                  className={`chat-bubble ${message.sender === 'user' ? 'right' : 'left'}`}
+                >
+                  {renderMessage(message)}
+                </div>
+              ))}
+            </ChatContainerWrapper>
+          );
+        };
 
 export default ChatContainer;

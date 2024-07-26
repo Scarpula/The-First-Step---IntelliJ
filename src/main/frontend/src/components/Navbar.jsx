@@ -164,6 +164,24 @@ const GoogleButton = styled(Button)`
     }
 `;
 
+const GithubButton = styled(Button)`
+    background-color: #24292e;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+
+    &:hover {
+        background-color: #1b1f23;
+    }
+
+    img {
+        margin-right: 8px;
+        width: 24px;
+        height: 24px;
+    }
+`;
 
 const SuccessOverlay = styled(motion.div)`
     position: absolute;
@@ -204,9 +222,7 @@ const Navbar = ({ onLoginSuccess }) => {
     const [error, setError] = useState(false);
     const [user, setUser] = useState(null);
     const [signupStatus, setSignupStatus] = useState(null);
-    const navigate = useNavigate();
-
-    // useNavigate 훅 사용
+    const navigate = useNavigate();  // useNavigate 훅 사용
     const resetSignupForm = () => {
         setSignupEmail('');
         setSignupPassword('');
@@ -286,38 +302,21 @@ const Navbar = ({ onLoginSuccess }) => {
         }
     };
 
-
-    useEffect(() => {
-        const script = document.createElement('script');
-        script.src = 'https://developers.kakao.com/sdk/js/kakao.js';
-        script.async = true;
-        document.body.appendChild(script);
-
-        return () => {
-            document.body.removeChild(script);
-        };
-    }, []);
-
-    const handleKakaoLogin = () => {
-        window.Kakao.init('d30a03746900aa2ed901790716355981'); // 발급받은 JavaScript 키를 입력하세요
-        window.Kakao.Auth.login({
-            success: function(authObj) {
-                axios.post('http://localhost:8082/api/kakao', { accessToken: authObj.access_token })
-                    .then(response => {
-                        console.log('로그인 성공:', response.data);
-                        // 로그인 성공 후 처리 (예: 리다이렉트, 상태 업데이트 등)
-                    })
-                    .catch(error => {
-                        console.error('로그인 실패:', error);
-                    });
-            },
-            fail: function(err) {
-                console.error('카카오 로그인 실패:', err);
-            },
-        });
+    const handleLogout = async () => {
+        try {
+            const response = await axios.get('http://localhost:8082/api/logout', { withCredentials: true });
+            if (response.status === 200) {
+                setUser(null);
+                alert('Logout successful');
+            } else {
+                alert('Logout failed');
+            }
+        } catch (error) {
+            console.error("Error during logout:", error);
+        }
     };
 
-        const checkSession = async () => {
+    const checkSession = async () => {
         try {
             const response = await axios.get('http://localhost:8082/api/session', { withCredentials: true });
             if (response.status === 200) {
@@ -374,11 +373,13 @@ const Navbar = ({ onLoginSuccess }) => {
                                     error={error}
                                 />
                                 <Button type="submit">로그인</Button>
+                                <KakaoButton>
+                                    카카오톡 로그인
+                                </KakaoButton>
                                 <GoogleButton>
                                     구글 로그인
                                 </GoogleButton>
                             </Form>
-                        <KakaoButton onClick={handleKakaoLogin}>카카오 로그인</KakaoButton>
                         </FormContainer>
                         <TextButton onClick={handleSignupClick}>회원가입</TextButton>
                         <FormContainer show={showSignupForm}>
