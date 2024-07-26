@@ -179,6 +179,30 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
     checkSession();
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      fetchChatRooms(user.email);
+    }
+  }, [user]);
+
+  const fetchChatRooms = async (userEmail) => {
+    if (!userEmail) {
+      console.log('Invalid user data');
+      return;
+    }
+    try {
+      const response = await axios.get('http://localhost:8082/api/rooms', {
+        params: { userId: userEmail },
+        withCredentials: true
+      });
+      console.log('Fetched chat rooms:', response.data);
+      setChatRooms(response.data);
+    } catch (error) {
+      console.error('Error fetching chat rooms:', error);
+
+    }
+  };
+
   const handleTabClick = async (tab) => {
     setSelectedTab(tab);
     onTabClick(tab);
@@ -226,23 +250,6 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
     }
   };
 
-  const fetchChatRooms = async (userEmail) => {
-    if (!userEmail) {
-      console.log('Invalid user data');
-      return;
-    }
-    try {
-      const response = await axios.get('http://localhost:8082/api/rooms', {
-        params: { userId: userEmail },
-        withCredentials: true
-      });
-      console.log('Fetched chat rooms:', response.data);
-      setChatRooms(response.data);
-    } catch (error) {
-      console.error('Error fetching chat rooms:', error);
-    }
-  };
-
   const handleChatRoomClick = async (room) => {
     const userId = user ? user.email : 'guest';
     navigate(`/chat?roomid=${room.chatroomId}&userid=${userId}`);
@@ -261,7 +268,7 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
 
       if (response.status === 200) {
         setChatRooms(prevRooms => prevRooms.filter(r => r.chatroomId !== room.chatroomId));
-        alert('채팅방이 성공적으로 삭제되었습니다');
+
       } else {
         alert('채팅방 삭제 실패');
       }
@@ -271,9 +278,45 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
     }
   };
 
-  const handleCreateChatRoom = () => {
-    navigate('/chat');
+  const createNewChatRoom = async () => {
+    try {
+      const response = await fetch('http://112.217.124.195:30000/create-room', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: user.email }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`서버 응답 오류: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const newRoomId = data.room_id;
+      console.log('New room ID:', newRoomId);
+
+      // 새로운 채팅방 객체 생성
+      const newRoom = {
+        chatroomId: newRoomId,
+        roomName: `채팅방${newRoomId}`,
+      };
+
+      // 새로운 채팅방을 현재 채팅방 목록에 즉시 추가 (낙관적 업데이트)
+      setChatRooms(prevRooms => [...prevRooms, newRoom]);
+
+      // navigate를 사용하여 새 채팅방으로 이동
+      navigate(`/chat?roomid=${newRoomId}&userid=${user.email}`);
+
+    } catch (error) {
+      console.error('새 채팅방 생성 중 오류:', error);
+
+    } finally {
+      // 에러 발생 여부와 관계없이 채팅방 목록을 다시 가져옴
+      await fetchChatRooms(user.email);
+    }
   };
+
 
   return (
     <div>
@@ -356,7 +399,7 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
             whileTap={{ scale: 0.95 }}
             className="hahmlet-text"
             style={{ marginBottom: '35px', cursor: 'pointer', fontSize: '24px' }}
-            onClick={handleCreateChatRoom}
+            onClick={createNewChatRoom}
           >
             새 채팅방 만들기
           </motion.li>
