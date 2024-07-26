@@ -10,7 +10,7 @@ import { ReactComponent as ArrowDownwardIcon } from './arrow_downward_24dp_5F636
 import RealtimeChartPage from "./RealtimeChartPage";
 import FinancialStatementsPage from "./FinancialStatementsPage";
 import UserInfo from './UserInfo';
-import { getSession } from '../api'; // Import the getSession function
+import { getSession } from '../api';
 
 const ChatUIWrapper = styled.div`
   display: flex;
@@ -114,7 +114,13 @@ const ChatUI = () => {
   };
 
   const handleSend = async (messageText) => {
-    const roomId = new URLSearchParams(location.search).get('roomid') || '1';
+    const roomId = new URLSearchParams(location.search).get('roomid');
+
+    if (!roomId) {
+      console.error('채팅방 ID가 필요합니다.');
+      return;
+    }
+
     const messageId = Date.now();
     const userMessage = { id: messageId, text: messageText, sender: 'user' };
     console.log('User message sent:', userMessage);
@@ -136,12 +142,12 @@ const ChatUI = () => {
     });
 
     try {
-      const response = await fetch('http://112.217.124.195:30001/ask', {
+      const response = await fetch('http://112.217.124.195:30000/ask', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ question: messageText }),
+        body: JSON.stringify({ question: messageText, user_id: user.email, room_id: roomId }),
       });
 
       if (!response.ok) {
@@ -191,7 +197,6 @@ const ChatUI = () => {
 
   const handleTabClick = (tab) => {
     console.log('Tab clicked:', tab);
-    // URL 변경은 MainNavbar에서 처리됩니다.
   };
 
   const renderCurrentPage = () => {
@@ -206,6 +211,7 @@ const ChatUI = () => {
             <ChatContainer
               roomId={roomId}
               messages={messages[roomId] || []}
+              setMessages={setMessages}
               onSend={handleSend}
               showLogoAndButtons={showLogoAndButtons[roomId] !== false}
               setShowLogoAndButtons={(value) => setShowLogoAndButtons((prev) => ({ ...prev, [roomId]: value }))}
