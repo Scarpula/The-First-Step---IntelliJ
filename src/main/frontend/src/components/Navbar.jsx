@@ -316,7 +316,7 @@ const Navbar = ({ onLoginSuccess }) => {
                                     onChange={(e) => setLoginPassword(e.target.value)}
                                     error={error}
                                 />
-                                <Button type="submit">Sign In</Button>
+                                <Button type="submit">로그인</Button>
                             </Form>
                         </FormContainer>
                         <TextButton onClick={handleSignupClick}>회원가입</TextButton>
