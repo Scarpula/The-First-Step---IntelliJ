@@ -131,7 +131,7 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState(null);
   const [user, setUser] = useState(null);
-  const [chatRooms, setChatRooms] = useState([]);
+  const [room, setRoom] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -145,12 +145,12 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
         } else {
           console.log('NO active session or invalid user data');
           setUser(null);
-          setChatRooms([]);
+          setRoom([]);
         }
       } catch (error) {
         console.error('Error during session check:', error);
         setUser(null);
-        setChatRooms([]);
+        setRoom([]);
       }
     };
 
@@ -218,14 +218,14 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
         params: { userId: user.email },
         withCredentials: true
       });
-      setChatRooms(response.data);
+      setRoom(response.data);
     } catch (error) {
       console.error('Error fetching chat rooms:', error);
     }
   };
 
   const handleCreateChatRoom = async () => {
-    if (chatRooms.length >= 3) {
+    if (room.length >= 3) {
       alert('채팅방은 최대 3개까지 생성할 수 있습니다.');
       return;
     }
@@ -259,7 +259,7 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
           openedAt: response.data.openedAt
         };
 
-        setChatRooms(prevRooms => [...prevRooms, room]);
+        setRoom(prevRooms => [...prevRooms, room]);
         alert('새로운 채팅방이 생성되었습니다.');
       } else {
         throw new Error('Invalid server response');
@@ -279,7 +279,7 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
     }
   };
 
-  const handleDeleteChatRoom = async (room) => {
+  const handleDeleteChatRoom = async () => {
     if (window.confirm('정말로 이 채팅방을 삭제하시겠습니까?')) {
       try {
         if (!user || !user.email) {
@@ -299,7 +299,7 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
         console.log('Server response:', response);
 
         if (response.status === 200) {
-          setChatRooms(prevRooms => prevRooms.filter(r => r.id !== room.id));
+          setRoom(prevRooms => prevRooms.filter(r => r.id !== room.id));
           alert('채팅방이 성공적으로 삭제되었습니다');
         } else {
           throw new Error('서버에서 예상치 못한 응답을 받았습니다.');
@@ -311,7 +311,7 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
     }
   };
 
-  const handleChatRoomClick = (room) => {
+  const handleChatRoomClick = () => {
     const userId = user ? user.email : 'guest';
     navigate(`/chat?roomid=${room.id}&userid=${userId}`);
   };
@@ -401,7 +401,7 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
           >
             새 채팅방 만들기
           </motion.li>
-          {chatRooms.map((room, index) => (
+          {room.map((room, index) => (
             <motion.li
               key={room.id || index}
               variants={itemVariants}

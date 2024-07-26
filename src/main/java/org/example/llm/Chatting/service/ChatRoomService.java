@@ -25,7 +25,7 @@ public class ChatRoomService {
             throw new RuntimeException("User can't create more than 3 chat rooms");
         }
 
-        String roomName = "ChatRoom " + (count + 1);
+        String roomName = "Room " ;
 
         ChatRoom chatRoom = new ChatRoom();
         chatRoom.setUserId(userId);
