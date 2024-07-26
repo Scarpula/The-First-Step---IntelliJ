@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import ChatUI from './components/ChatUI';
 import BackgroundImages from './components/BackgroundImages';
@@ -9,12 +9,15 @@ import { TypeAnimation } from 'react-type-animation';
 import { AnimatePresence, motion } from 'framer-motion';
 import './App.css';
 import axios from 'axios';
+import { useFollowPointer } from './useFollowPointer'; // Import the custom hook
+
 const AppWrapper = styled.div`
     position: relative;
     width: 100%;
     height: 100vh;
     overflow: hidden;
 `;
+
 const SectionStyled = styled(Section)`
     width: 100%;
     height: 100vh;
@@ -24,6 +27,7 @@ const SectionStyled = styled(Section)`
     align-items: center;
     position: relative;
 `;
+
 const TitleContainer = styled.div`
     position: absolute;
     top: 50%;
@@ -31,6 +35,7 @@ const TitleContainer = styled.div`
     transform: translate(-50%, -50%);
     text-align: center;
 `;
+
 const Content = styled.p`
     font-family: 'Istok Web', sans-serif;
     font-size: 24px;
@@ -41,6 +46,7 @@ const Content = styled.p`
     text-align: center;
     margin-top: 140px;
 `;
+
 const TypingContent = styled(Content)`
     &::after {
         content: '|';
@@ -55,12 +61,14 @@ const TypingContent = styled(Content)`
         }
     }
 `;
+
 const ChatUIWrapper = styled(motion.div)`
     display: flex;
     flex-direction: column;
     height: 100vh;
     border: 1px;
 `;
+
 const Home = ({ handleLoginSuccess }) => {
     const fullTitle = '투자의 ';
     const fullSubtitle = '시작';
@@ -77,6 +85,7 @@ const Home = ({ handleLoginSuccess }) => {
         sectionPaddingBottom: '50px',
         arrowNavigation: true,
     };
+
     return (
         <>
             <BackgroundImages />
@@ -149,13 +158,18 @@ const Home = ({ handleLoginSuccess }) => {
         </>
     );
 };
+
 const App = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [loading, setLoading] = useState(true);
     const [userId, setUserId] = useState(null);
+    const ref = useRef(null);
+    const { x, y } = useFollowPointer(ref);
+
     useEffect(() => {
         checkLoginStatus();
     }, []);
+
     const checkLoginStatus = async () => {
         try {
             const response = await axios.get('http://localhost:8082/api/session', { withCredentials: true });
@@ -172,9 +186,11 @@ const App = () => {
             setLoading(false);
         }
     };
+
     const handleLoginSuccess = () => {
         setIsLoggedIn(true);
     };
+
     if (loading) {
         return <div>Loading...</div>; // 로딩 상태를 표시합니다.
     }
@@ -182,6 +198,7 @@ const App = () => {
     return (
         <Router>
             <AppWrapper>
+                <motion.div ref={ref} className="box" style={{ x, y }} />
                 <Routes>
                     <Route
                         path="/chat/*"

@@ -234,9 +234,11 @@ const ChatUI = () => {
     }
   };
 
+  const showBackgroundImages = !location.pathname.startsWith('/realtime-chart');
+
   return (
     <ChatUIWrapper>
-      <BackgroundImages />
+      {showBackgroundImages && <BackgroundImages />}
       <MainNavbar onTabClick={handleTabClick} isChatPage={location.pathname.startsWith('/chat')} />
       {renderCurrentPage()}
     </ChatUIWrapper>
