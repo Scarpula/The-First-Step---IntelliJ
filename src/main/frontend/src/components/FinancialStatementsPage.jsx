@@ -413,9 +413,26 @@ function FinancialStatementsPage() {
                         quarter === '11012' ? '2분기' :
                             quarter === '11014' ? '3분기' : '4분기'} 재무제표
                     </h3>
-                    <button onClick={handleToggleView} style={{marginBottom : 18}}>
+                    <button
+                        onClick={handleToggleView}
+                        style={{
+                            marginBottom: 18,
+                            padding: '10px 20px',
+                            backgroundColor: showGraph ? '#4CAF50' : '#008CBA',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '5px',
+                            cursor: 'pointer',
+                            fontSize: '16px',
+                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                            transition: 'background-color 0.3s, transform 0.3s'
+                        }}
+                        onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
+                        onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                    >
                         {showGraph ? '재무제표 차트 보기' : '주요 재무항목 그래프 보기'}
                     </button>
+
                     {!showGraph && (
                         <div className="table-container">
                             <table {...getTableProps()}>
@@ -424,7 +441,7 @@ function FinancialStatementsPage() {
                                     <tr {...headerGroup.getHeaderGroupProps()}>
                                         {headerGroup.headers.map(column => (
                                             <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                                                {column.render('Header')}
+                                            {column.render('Header')}
                                                 <span>
                                                     {column.isSorted
                                                         ? column.isSortedDesc
