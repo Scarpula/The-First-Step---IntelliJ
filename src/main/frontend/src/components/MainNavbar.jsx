@@ -215,7 +215,7 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
         case '◎ 실시간 차트':
           navigate('/realtime-chart');
           break;
-        case '◎ 재무제표 확인':
+        case '◎ 재무제표 조회':
           navigate('/financial-statements');
           break;
         case '◎ 내정보':
@@ -339,7 +339,7 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
           variants={menuVariants}
           style={{ listStyle: 'none', padding: '15px' }}
         >
-          {['◎ 실시간 차트', '◎ 재무제표 확인', '◎ 챗봇', '◎ 내정보'].map((tab) => (
+          {['◎ 실시간 차트', '◎ 재무제표 조회', '◎ 챗봇', '◎ 내정보'].map((tab) => (
             <motion.li
               key={tab}
               variants={itemVariants}

@@ -3,7 +3,6 @@ import styled, { keyframes } from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { login, getSession } from '../api';
 
 const NavbarContainer = styled.div`
     width: 100%;
@@ -165,9 +164,8 @@ const Navbar = ({ onLoginSuccess }) => {
     const [birthdate, setBirthdate] = useState('');
     const [error, setError] = useState(false);
     const [user, setUser] = useState(null);
-    const [signupSuccess, setSignupSuccess] = useState(false);
+    const [signupStatus, setSignupStatus] = useState(null);
     const navigate = useNavigate();  // useNavigate 훅 사용
-
     const resetSignupForm = () => {
         setSignupEmail('');
         setSignupPassword('');
@@ -188,6 +186,7 @@ const Navbar = ({ onLoginSuccess }) => {
         setShowSignupForm(!showSignupForm);
         setShowLoginForm(false);
         resetSignupForm();
+
     };
 
     const handleLoginSubmit = async (e) => {
@@ -195,33 +194,28 @@ const Navbar = ({ onLoginSuccess }) => {
         console.log("Email:", loginEmail);
         console.log("Password:", loginPassword);
         try {
-            const response = await login(loginEmail, loginPassword);
+            const response = await axios.post('http://localhost:8082/api/login', {
+                email: loginEmail,
+                password: loginPassword,
+            }, { withCredentials: true });
 
-            if (response.message === 'Login successful') {
+            if (response.status === 200 && response.data.message === 'Login successful') {
                 setError(false);
                 onLoginSuccess();  // 로그인 성공 시 콜백 호출
                 setIsOpen(false);
-
-                // 세션 정보를 가져옴
-                const sessionResponse = await getSession();
-                const investtype = sessionResponse.user.investtype || '';
-
-                // 전송 데이터 로그
-                console.log("Sending data:", {
-                    userid: loginEmail,
-                    investtype: investtype
-                });
-
-                navigate(`/chat?userid=${loginEmail}`);
+                checkSession();
+                navigate('/chat');  // 로그인 성공 시 /chat 경로로 이동
             } else {
                 setError(true);
                 console.log("로그인 실패");
             }
         } catch (error) {
             setError(true);
-            console.log("에러:", error);
+            console.log("에러");
         }
     };
+
+    const [signupSuccess, setSignupSuccess] = useState(false);
 
     const handleSignupSubmit = async (e) => {
         e.preventDefault();
@@ -300,6 +294,7 @@ const Navbar = ({ onLoginSuccess }) => {
             <NavbarContainer>
                 <Logo />
                 <MenuButton src="/images/density_medium_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg" alt="Menu" onClick={toggleSidebar} />
+
             </NavbarContainer>
             <Sidebar show={isOpen}>
                 {!user && (
@@ -321,7 +316,7 @@ const Navbar = ({ onLoginSuccess }) => {
                                     onChange={(e) => setLoginPassword(e.target.value)}
                                     error={error}
                                 />
-                                <Button type="submit">Sign In</Button>
+                                <Button type="submit">로그인</Button>
                             </Form>
                         </FormContainer>
                         <TextButton onClick={handleSignupClick}>회원가입</TextButton>

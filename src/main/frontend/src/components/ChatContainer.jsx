@@ -116,9 +116,9 @@ const ChatContainer = ({ roomId, messages, setMessages, onSend, showLogoAndButto
     ul: ({ children }) => <ul style={{ marginBottom: '1em', paddingLeft: '1.5em' }}>{children}</ul>,
     ol: ({ children }) => <ol style={{ marginBottom: '1em', paddingLeft: '1.5em' }}>{children}</ol>,
     li: ({ children, ordered }) => (
-      <li style={{ marginBottom: ordered ? '0.5em' : '0.25em', paddingLeft: '0.5em' }}>
-        {children}
-      </li>
+        <li style={{ marginBottom: ordered ? '0.5em' : '0.25em', paddingLeft: '0.5em' }}>
+          {children}
+        </li>
     ),
   };
 
@@ -139,61 +139,61 @@ const ChatContainer = ({ roomId, messages, setMessages, onSend, showLogoAndButto
     const shouldAnimate = message.sender !== 'user' && !animatedMessageIds.has(message.id);
 
     return shouldAnimate ? (
-      <TypeAnimation
-        sequence={[processedText]}
-        speed={50}
-        wrapper="div"
-        cursor={false}
-        repeat={0}
-        onComplete={() => {
-          setAnimatedMessageIds((prevIds) => {
-            const updatedIds = new Set(prevIds).add(message.id);
-            return updatedIds;
-          });
-        }}
-      />
+        <TypeAnimation
+            sequence={[processedText]}
+            speed={50}
+            wrapper="div"
+            cursor={false}
+            repeat={0}
+            onComplete={() => {
+              setAnimatedMessageIds((prevIds) => {
+                const updatedIds = new Set(prevIds).add(message.id);
+                return updatedIds;
+              });
+            }}
+        />
     ) : (
-      <ReactMarkdown
-        components={customRenderers}
-        remarkPlugins={[remarkGfm, remarkBreaks]}
-      >
-        {processedText}
-      </ReactMarkdown>
+        <ReactMarkdown
+            components={customRenderers}
+            remarkPlugins={[remarkGfm, remarkBreaks]}
+        >
+          {processedText}
+        </ReactMarkdown>
     );
   };
 
   return (
-    <ChatContainerWrapper className="chat-container">
-      {showLogoAndButtons && (
-        <>
-          <ButtonLogo>InGen</ButtonLogo>
-          {messages.length === 0 && (
-            <DefaultButtonsContainer>
-              <DefaultButton onClick={() => handleButtonClick('사이트 소개를 해줘!')}>
-                사이트 소개 알려주기
-              </DefaultButton>
-              <DefaultButton onClick={() => handleButtonClick('투자성향 분석을 도와줘!')}>
-                투자성향 <br />분석하기
-              </DefaultButton>
-              <DefaultButton onClick={() => handleButtonClick('오늘의 전략을 추천해줘!')}>
-                전략 추천 받기
-              </DefaultButton>
-              <DefaultButton onClick={() => handleButtonClick('어제 시장에 대해서 알려줘!')}>
-                어제 시장 <br />알아보기
-              </DefaultButton>
-            </DefaultButtonsContainer>
-          )}
-        </>
-      )}
-      {messages.map((message) => (
-        <div
-          key={message.id}
-          className={`chat-bubble ${message.sender === 'user' ? 'right' : 'left'}`}
-        >
-          {renderMessage(message)}
-        </div>
-      ))}
-    </ChatContainerWrapper>
+      <ChatContainerWrapper className="chat-container">
+        {showLogoAndButtons && (
+            <>
+              <ButtonLogo>InGen</ButtonLogo>
+              {messages.length === 0 && (
+                  <DefaultButtonsContainer>
+                    <DefaultButton onClick={() => handleButtonClick('사이트 소개를 해줘!')}>
+                      사이트 소개 알려주기
+                    </DefaultButton>
+                    <DefaultButton onClick={() => handleButtonClick('투자성향 분석을 도와줘!')}>
+                      투자성향 <br />분석하기
+                    </DefaultButton>
+                    <DefaultButton onClick={() => handleButtonClick('오늘의 전략을 추천해줘!')}>
+                      전략 추천 받기
+                    </DefaultButton>
+                    <DefaultButton onClick={() => handleButtonClick('어제 시장에 대해서 알려줘!')}>
+                      어제 시장 <br />알아보기
+                    </DefaultButton>
+                  </DefaultButtonsContainer>
+              )}
+            </>
+        )}
+        {messages.map((message) => (
+            <div
+                key={message.id}
+                className={`chat-bubble ${message.sender === 'user' ? 'right' : 'left'}`}
+            >
+              {renderMessage(message)}
+            </div>
+        ))}
+      </ChatContainerWrapper>
   );
 };
 
