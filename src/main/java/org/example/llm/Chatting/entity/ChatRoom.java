@@ -1,30 +1,31 @@
 package org.example.llm.Chatting.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 
-@Data
 @Entity
 @Getter
 @Setter
-@Table(name = "chatting_room1")
+@Table(name = "chat_rooms")
 public class ChatRoom {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long roomId;
+    @Column(name = "chatroom_id")
+    private int chatroomId;
 
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false)
     private String userId;
 
-    @Column(name = "room_name")
-    private String name;
-
-    @Column(name = "opend_at")
+    @Column(name = "opened_at", nullable = false)
     private LocalDateTime openedAt;
+
+    @Column(name = "room_name", nullable = false)
+    private String roomName;
+
 
 }

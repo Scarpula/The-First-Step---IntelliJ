@@ -252,14 +252,14 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
 
       // 서버 응답 구조에 따라 이 부분을 수정
       if (response.data) {
-        const newChatRoom = {
+        const room = {
           id: response.data.id,
           name: response.data.name,
           userId: response.data.userId,
           openedAt: response.data.openedAt
         };
 
-        setChatRooms(prevRooms => [...prevRooms, newChatRoom]);
+        setChatRooms(prevRooms => [...prevRooms, room]);
         alert('새로운 채팅방이 생성되었습니다.');
       } else {
         throw new Error('Invalid server response');
@@ -280,22 +280,34 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
   };
 
   const handleDeleteChatRoom = async (room) => {
-    if (!room || room.id) {
-      console.log('Invalid room object:', room);
-      alert('유효하지 않은 채팅방 정보입니다');
-    }
+    if (window.confirm('정말로 이 채팅방을 삭제하시겠습니까?')) {
+      try {
+        if (!user || !user.email) {
+          throw new Error('사용자 정보를 찾을 수 없습니다.');
+        }
 
-    try {
-      await axios.delete(`http://localhost:8082/api/room/${room.id}`, {
-        params: { userId: user.email },
-        withCredentials: true
-      });
+        console.log('Attempting to delete room:', room.id, 'for user:', user.email);
 
-      setChatRooms(prevRooms => prevRooms.filter(room => room.roomId !== room.id));
-      alert('채팅방이 성공적으로 삭제되었습니다');
-    } catch (error) {
-      console.error('Error deleting chat room:', error);
-      alert('채팅방 삭제 중 오류가 발생했습니다.');
+        const response = await axios.delete('http://localhost:8082/api/room/delete', {
+          data: {
+            roomId: room.id,
+            userId: user.email
+          },
+          withCredentials: true
+        });
+
+        console.log('Server response:', response);
+
+        if (response.status === 200) {
+          setChatRooms(prevRooms => prevRooms.filter(r => r.id !== room.id));
+          alert('채팅방이 성공적으로 삭제되었습니다');
+        } else {
+          throw new Error('서버에서 예상치 못한 응답을 받았습니다.');
+        }
+      } catch (error) {
+        console.error('채팅방 삭제 중 오류 발생:', error);
+        alert('채팅방 삭제 중 오류가 발생했습니다. 다시 시도해 주세요.');
+      }
     }
   };
 
