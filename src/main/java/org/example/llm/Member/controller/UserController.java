@@ -4,11 +4,11 @@ package org.example.llm.Member.controller;
 import jakarta.servlet.http.HttpSession;
 import org.example.llm.Member.Entity.UserEntity;
 import org.example.llm.Member.dto.Joindto;
-import org.example.llm.Member.dto.KakaoUserDto;
+//import org.example.llm.Member.dto.KakaoUserDto;
 import org.example.llm.Member.dto.LoginResponseDto;
 import org.example.llm.Member.dto.PasswordUpdateRequest;
 //import org.example.llm.Member.service.KakaoService;
-import org.example.llm.Member.service.KakaoService;
+//import org.example.llm.Member.service.KakaoService;
 import org.example.llm.Member.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -105,11 +105,11 @@ public class UserController {
         }
     }
 
-
-    @GetMapping("/kakao")
-    public ResponseEntity<LoginResponseDto> kakaoLogin(@RequestParam("code") String code) {
-        KakaoTokenDto kakaoTokenDto = KakaoService.getKakaoAccessToken(code);
-        return KakaoService.kakaoLogin(kakaoTokenDto.getAccess_token());
-    }
+//
+//    @GetMapping("/kakao")
+//    public ResponseEntity<LoginResponseDto> kakaoLogin(@RequestParam("code") String code) {
+//        KakaoTokenDto kakaoTokenDto = KakaoService.getKakaoAccessToken(code);
+//        return KakaoService.kakaoLogin(kakaoTokenDto.getAccess_token());
+//    }
 
 }
