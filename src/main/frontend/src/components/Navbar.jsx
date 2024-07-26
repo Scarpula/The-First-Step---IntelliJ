@@ -164,24 +164,6 @@ const GoogleButton = styled(Button)`
     }
 `;
 
-const GithubButton = styled(Button)`
-    background-color: #24292e;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 10px;
-
-    &:hover {
-        background-color: #1b1f23;
-    }
-
-    img {
-        margin-right: 8px;
-        width: 24px;
-        height: 24px;
-    }
-`;
 
 const SuccessOverlay = styled(motion.div)`
     position: absolute;
@@ -222,7 +204,9 @@ const Navbar = ({ onLoginSuccess }) => {
     const [error, setError] = useState(false);
     const [user, setUser] = useState(null);
     const [signupStatus, setSignupStatus] = useState(null);
-    const navigate = useNavigate();  // useNavigate 훅 사용
+    const navigate = useNavigate();
+
+    // useNavigate 훅 사용
     const resetSignupForm = () => {
         setSignupEmail('');
         setSignupPassword('');
@@ -304,36 +288,34 @@ const Navbar = ({ onLoginSuccess }) => {
 
 
     useEffect(() => {
-            // 카카오 SDK 초기화
-            if (!window.Kakao.isInitialized()) {
-                window.Kakao.init('d30a03746900aa2ed901790716355981');
-            }
-            }, []);
+        const script = document.createElement('script');
+        script.src = 'https://developers.kakao.com/sdk/js/kakao.js';
+        script.async = true;
+        document.body.appendChild(script);
 
-        const handleKakaoLogin = () => {
-            window.Kakao.Auth.login({
-                success: async (authObj) => {
-                    // 로그인 성공 시, 카카오에서 받은 인증 정보를 서버로 전달
-                    await axios.post('http://localhost:8082/api/kakao', {
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(authObj),
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log('User info:', data);
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
-                },
-                fail: (err) => {
-                    console.error(err);
-                },
-            });
+        return () => {
+            document.body.removeChild(script);
         };
+    }, []);
 
+    const handleKakaoLogin = () => {
+        window.Kakao.init('d30a03746900aa2ed901790716355981'); // 발급받은 JavaScript 키를 입력하세요
+        window.Kakao.Auth.login({
+            success: function(authObj) {
+                axios.post('http://localhost:8082/api/kakao', { accessToken: authObj.access_token })
+                    .then(response => {
+                        console.log('로그인 성공:', response.data);
+                        // 로그인 성공 후 처리 (예: 리다이렉트, 상태 업데이트 등)
+                    })
+                    .catch(error => {
+                        console.error('로그인 실패:', error);
+                    });
+            },
+            fail: function(err) {
+                console.error('카카오 로그인 실패:', err);
+            },
+        });
+    };
 
         const checkSession = async () => {
         try {
@@ -392,14 +374,11 @@ const Navbar = ({ onLoginSuccess }) => {
                                     error={error}
                                 />
                                 <Button type="submit">로그인</Button>
-                                <KakaoButton>
-                                    카카오톡 로그인
-                                </KakaoButton>
                                 <GoogleButton>
                                     구글 로그인
                                 </GoogleButton>
                             </Form>
-                            <button onClick={handleKakaoLogin}>카카오 로그인</button>
+                        <KakaoButton onClick={handleKakaoLogin}>카카오 로그인</KakaoButton>
                         </FormContainer>
                         <TextButton onClick={handleSignupClick}>회원가입</TextButton>
                         <FormContainer show={showSignupForm}>

@@ -1,51 +1,86 @@
 package org.example.llm.Member.service;
 
-import lombok.Value;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.example.llm.Member.dto.KakaoAccountDto;
+import org.example.llm.Member.dto.LoginResponseDto;
+import org.springframework.beans.factory.annotation.Value;
 import org.example.llm.Member.dto.KakaoUserDto;
 import org.example.llm.Member.Entity.UserEntity;
 import org.example.llm.Member.Repository.UserRepository;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+
+import java.net.URI;
 
 @Service
 public class KakaoService {
-    private final UserRepository userRepository;
-    private final RestTemplate restTemplate;
 
-    @Value("${kakao.api.key}")
-    private String kakaoRestApiKey;
+    private static final URI KAKAO_USER_INFO_URI = ;
+    private final UserRepository userRepository;
 
     public KakaoService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.restTemplate = new RestTemplate();
     }
 
-    public KakaoUserDto getUserInfo(String accessToken) {
-        String url = "https://kapi.kakao.com/v2/user/me";
+    public ResponseEntity<LoginResponseDto> kakaoLogin(String kakaoAccessToken) {
+        UserEntity user = getKakaoInfo(kakaoAccessToken);
+
+        LoginResponseDto loginResponseDto = new LoginResponseDto();
+        loginResponseDto.setLoginSuccess(true);
+        loginResponseDto.setUser(user);
+
+        return ResponseEntity.ok().body(loginResponseDto);
+    }
+
+    public UserEntity getKakaoInfo(String kakaoAccessToken) {
+        RestTemplate rt = new RestTemplate();
+
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + accessToken);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
+        headers.add("Authorization", "Bearer " + kakaoAccessToken);
+        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
-        ResponseEntity<KakaoUserDto> response = restTemplate.exchange(url, HttpMethod.GET, entity, KakaoUserDto.class);
-        return response.getBody();
+        HttpEntity<MultiValueMap<String, String>> accountInfoRequest = new HttpEntity<>(headers);
+
+        ResponseEntity<String> accountInfoResponse = rt.exchange(
+                KAKAO_USER_INFO_URI,
+                HttpMethod.POST,
+                accountInfoRequest,
+                String.class
+        );
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        KakaoAccountDto kakaoAccountDto = null;
+        try {
+            kakaoAccountDto = objectMapper.readValue(accountInfoResponse.getBody(), KakaoAccountDto.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        return processKakaoUser(kakaoAccountDto);
     }
 
-    public UserEntity saveOrUpdateUser(KakaoUserDto kakaoUserDto) {
-        boolean userExists = userRepository.existsByEmail(kakaoUserDto.getEmail());
-        UserEntity user;
-        if (userExists) {
-            user = userRepository.findByEmail(kakaoUserDto.getEmail());
-            user.setName(kakaoUserDto.getNickname());
-            // 필요한 다른 필드도 업데이트
+    private UserEntity processKakaoUser(KakaoAccountDto kakaoAccountDto) {
+        String email = kakaoAccountDto.getKakao_account().getEmail();
+        UserEntity existingUser = userRepository.findByEmail(email).orElse(null);
+
+        if (existingUser != null) {
+            return existingUser;
         } else {
-            user = UserEntity.builder()
-                    .email(kakaoUserDto.getEmail())
-                    .name(kakaoUserDto.getNickname())
-                    // 필요한 다른 필드도 초기화
+            UserEntity newUser = UserEntity.builder()
+                    .email(email)
+                    .name(kakaoAccountDto.getKakao_account().getProfile().getNickname())
+                    // 다른 필드들은 null 또는 기본값으로 설정
                     .build();
+            return userRepository.save(newUser);
         }
-        return userRepository.save(user);
     }
 
 }

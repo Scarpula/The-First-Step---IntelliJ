@@ -5,7 +5,9 @@ import jakarta.servlet.http.HttpSession;
 import org.example.llm.Member.Entity.UserEntity;
 import org.example.llm.Member.dto.Joindto;
 import org.example.llm.Member.dto.KakaoUserDto;
+import org.example.llm.Member.dto.LoginResponseDto;
 import org.example.llm.Member.dto.PasswordUpdateRequest;
+//import org.example.llm.Member.service.KakaoService;
 import org.example.llm.Member.service.KakaoService;
 import org.example.llm.Member.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +25,11 @@ public class UserController {
     @Autowired
     private final HttpSession httpSession;
     private final UserService userService;
-    private final KakaoService kakaoService;
 
-    public UserController(HttpSession httpSession, UserService userService, KakaoService kakaoService) {
+
+    public UserController(HttpSession httpSession, UserService userService) {
         this.httpSession = httpSession;
         this.userService = userService;
-        this.kakaoService = kakaoService;
     }
 
     @PostMapping("/signup")
@@ -104,12 +105,11 @@ public class UserController {
         }
     }
 
-    @PostMapping("/kakao")
-    public ResponseEntity<UserEntity> kakaoLogin(@RequestBody Map<String, String> authInfo) {
-        String accessToken = authInfo.get("access_token");
-        KakaoUserDto kakaoUserDto = kakaoService.getUserInfo(accessToken);
-        UserEntity savedUser = kakaoService.saveOrUpdateUser(kakaoUserDto);
-        return ResponseEntity.ok(savedUser);
+
+    @GetMapping("/kakao")
+    public ResponseEntity<LoginResponseDto> kakaoLogin(@RequestParam("code") String code) {
+        KakaoTokenDto kakaoTokenDto = KakaoService.getKakaoAccessToken(code);
+        return KakaoService.kakaoLogin(kakaoTokenDto.getAccess_token());
     }
 
 }
