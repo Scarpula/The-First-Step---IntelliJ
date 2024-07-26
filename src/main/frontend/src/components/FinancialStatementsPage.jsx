@@ -1,7 +1,26 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import { useTable, useSortBy } from 'react-table';
+import { Bar } from 'react-chartjs-2';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+} from 'chart.js';
 import './FinancialStatementsPage.css';
+
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
+);
 
 const API_KEY = 'afec4e0cfc12aa5baf6ef1074e1eabbf8e379f31';
 
@@ -86,6 +105,7 @@ function FinancialStatementsPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchError, setSearchError] = useState('');
     const [selectedCompanyName, setSelectedCompanyName] = useState('');
+    const [showGraph, setShowGraph] = useState(false);
     const companyListRef = useRef(null);
 
     const fetchFinancials = useCallback(async () => {
@@ -157,6 +177,7 @@ function FinancialStatementsPage() {
         setFinancials(null);
         setError(null);
         setShowCompanyList(true);
+        setShowGraph(false);
     }, []);
 
     const handleSearch = useCallback((e) => {
@@ -194,6 +215,110 @@ function FinancialStatementsPage() {
     const handleCompanyClick = useCallback((code) => {
         setCorpCode(code);
     }, []);
+
+    const handleToggleView = () => {
+        setShowGraph(!showGraph);
+    };
+
+    const prepareChartData = () => {
+        const keyItems = ['매출액', '자산총계', '부채총계', '자본총계'];
+        const data = keyItems.map(item => {
+            const found = financials.find(f => f.account_nm === item);
+            return found ? parseInt(found.thstrm_amount) / 100000000 : 0;
+        });
+
+        return {
+            labels: keyItems,
+            datasets: [
+                {
+                    label: '금액',
+                    data: data,
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(255, 159, 64, 0.6)',
+                        'rgba(255, 205, 86, 0.6)',
+                        'rgba(54, 162, 235, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgb(75, 192, 192)',
+                        'rgb(255, 159, 64)',
+                        'rgb(255, 205, 86)',
+                        'rgb(54, 162, 235)'
+                    ],
+                    borderWidth: 1,
+                    barThickness: 50,
+                    categoryPercentage: 0.8,
+                    barPercentage: 0.9,
+                }
+            ]
+        };
+    };
+
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false,
+            },
+            title: {
+                display: true,
+                text: '주요 재무항목',
+                font: {
+                    size: 20
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        if (context.parsed.y !== null) {
+                            label += new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW', maximumFractionDigits: 0 }).format(context.parsed.y * 100000000);
+                        }
+                        return label;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: '(단위: 억원)',
+                    font: {
+                        size: 16
+                    }
+                },
+                ticks: {
+                    callback: function(value) {
+                        return value.toLocaleString();
+                    },
+                    font: {
+                        size: 14
+                    }
+                },
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.1)',
+                    drawBorder: false,
+                    drawOnChartArea: true
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    font: {
+                        size: 14
+                    }
+                }
+            }
+        }
+    };
 
     const tableData = useMemo(() => financials || [], [financials]);
 
@@ -288,42 +413,52 @@ function FinancialStatementsPage() {
                         quarter === '11012' ? '2분기' :
                             quarter === '11014' ? '3분기' : '4분기'} 재무제표
                     </h3>
-                    <div className="table-container">
-                        <table {...getTableProps()}>
-                            <thead>
-                            {headerGroups.map(headerGroup => (
-                                <tr {...headerGroup.getHeaderGroupProps()}>
-                                    {headerGroup.headers.map(column => (
-                                        <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                                            {column.render('Header')}
-                                            <span>
-                                                {column.isSorted
-                                                    ? column.isSortedDesc
-                                                        ? ' 🔽'
-                                                        : ' 🔼'
-                                                    : ''}
-                                            </span>
-                                        </th>
-                                    ))}
-                                </tr>
-                            ))}
-                            </thead>
-                            <tbody {...getTableBodyProps()}>
-                            {rows.map(row => {
-                                prepareRow(row);
-                                return (
-                                    <tr {...row.getRowProps()}>
-                                        {row.cells.map(cell => (
-                                            <td {...cell.getCellProps()}>
-                                                {cell.render('Cell')}
-                                            </td>
+                    <button onClick={handleToggleView} style={{marginBottom : 18}}>
+                        {showGraph ? '재무제표 차트 보기' : '주요 재무항목 그래프 보기'}
+                    </button>
+                    {!showGraph && (
+                        <div className="table-container">
+                            <table {...getTableProps()}>
+                                <thead>
+                                {headerGroups.map(headerGroup => (
+                                    <tr {...headerGroup.getHeaderGroupProps()}>
+                                        {headerGroup.headers.map(column => (
+                                            <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                                                {column.render('Header')}
+                                                <span>
+                                                    {column.isSorted
+                                                        ? column.isSortedDesc
+                                                            ? ' 🔽'
+                                                            : ' 🔼'
+                                                        : ''}
+                                                </span>
+                                            </th>
                                         ))}
                                     </tr>
-                                );
-                            })}
-                            </tbody>
-                        </table>
-                    </div>
+                                ))}
+                                </thead>
+                                <tbody {...getTableBodyProps()}>
+                                {rows.map(row => {
+                                    prepareRow(row);
+                                    return (
+                                        <tr {...row.getRowProps()}>
+                                            {row.cells.map(cell => (
+                                                <td {...cell.getCellProps()}>
+                                                    {cell.render('Cell')}
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    );
+                                })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                    {showGraph && (
+                        <div className="graph-container" style={{ height: '400px', width: '100%' }}>
+                            <Bar data={prepareChartData()} options={chartOptions} />
+                        </div>
+                    )}
                 </div>
             )}
         </div>
