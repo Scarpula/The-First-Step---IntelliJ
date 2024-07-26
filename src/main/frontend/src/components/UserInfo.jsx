@@ -37,13 +37,14 @@ const EditButton = styled.button`
   margin-top: 10px;
   padding: 10px;
   background-color: #ABDFF1;
-  color: #fff;
+  color: #000000;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 
   &:hover {
     background-color: #0C4A60;
+      color: #f9f9f9;
   }
 `;
 const LabelBox = styled.div`
