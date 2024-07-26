@@ -1,3 +1,4 @@
+// src/App.js
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import axios from 'axios';
@@ -126,6 +127,62 @@ const Button = styled.button`
     }
 `;
 
+const KakaoButton = styled(Button)`
+    background-color: #FFEB00;
+    color: #3c1e1e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+        background-color: #e5d100;
+    }
+
+    img {
+        margin-right: 8px;
+        width: 24px;
+        height: 24px;
+    }
+`;
+
+const GoogleButton = styled(Button)`
+    background-color: #DB4437;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+
+    &:hover {
+        background-color: #c33d2e;
+    }
+
+    img {
+        margin-right: 8px;
+        width: 24px;
+        height: 24px;
+    }
+`;
+
+const GithubButton = styled(Button)`
+    background-color: #24292e;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+
+    &:hover {
+        background-color: #1b1f23;
+    }
+
+    img {
+        margin-right: 8px;
+        width: 24px;
+        height: 24px;
+    }
+`;
+
 const SuccessOverlay = styled(motion.div)`
     position: absolute;
     top: 0;
@@ -139,11 +196,11 @@ const SuccessOverlay = styled(motion.div)`
 `;
 
 const SuccessCheckmark = styled(motion.path)`
-  fill: none;
-  stroke: #4caf50;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+    fill: none;
+    stroke: #4caf50;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 `;
 
 const SuccessCircle = styled(motion.circle)`
@@ -294,7 +351,6 @@ const Navbar = ({ onLoginSuccess }) => {
             <NavbarContainer>
                 <Logo />
                 <MenuButton src="/images/density_medium_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg" alt="Menu" onClick={toggleSidebar} />
-
             </NavbarContainer>
             <Sidebar show={isOpen}>
                 {!user && (
@@ -317,6 +373,12 @@ const Navbar = ({ onLoginSuccess }) => {
                                     error={error}
                                 />
                                 <Button type="submit">로그인</Button>
+                                <KakaoButton>
+                                    카카오톡 로그인
+                                </KakaoButton>
+                                <GoogleButton>
+                                    구글 로그인
+                                </GoogleButton>
                             </Form>
                         </FormContainer>
                         <TextButton onClick={handleSignupClick}>회원가입</TextButton>
