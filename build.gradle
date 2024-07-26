@@ -86,3 +86,4 @@ tasks.register('copyReactBuildFiles', Copy) {
 tasks.withType(JavaCompile) {
 	options.compilerArgs += ['-parameters']
 }
+

@@ -245,21 +245,40 @@ const Navbar = ({ onLoginSuccess }) => {
         }
     };
 
-    const handleLogout = async () => {
-        try {
-            const response = await axios.get('http://localhost:8082/api/logout', { withCredentials: true });
-            if (response.status === 200) {
-                setUser(null);
-                alert('Logout successful');
-            } else {
-                alert('Logout failed');
-            }
-        } catch (error) {
-            console.error("Error during logout:", error);
-        }
-    };
 
-    const checkSession = async () => {
+    useEffect(() => {
+            // 카카오 SDK 초기화
+            if (!window.Kakao.isInitialized()) {
+                window.Kakao.init('d30a03746900aa2ed901790716355981');
+            }
+            }, []);
+
+        const handleKakaoLogin = () => {
+            window.Kakao.Auth.login({
+                success: async (authObj) => {
+                    // 로그인 성공 시, 카카오에서 받은 인증 정보를 서버로 전달
+                    await axios.post('http://localhost:8082/api/kakao', {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(authObj),
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('User info:', data);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                },
+                fail: (err) => {
+                    console.error(err);
+                },
+            });
+        };
+
+
+        const checkSession = async () => {
         try {
             const response = await axios.get('http://localhost:8082/api/session', { withCredentials: true });
             if (response.status === 200) {
@@ -318,6 +337,7 @@ const Navbar = ({ onLoginSuccess }) => {
                                 />
                                 <Button type="submit">로그인</Button>
                             </Form>
+                            <button onClick={handleKakaoLogin}>카카오 로그인</button>
                         </FormContainer>
                         <TextButton onClick={handleSignupClick}>회원가입</TextButton>
                         <FormContainer show={showSignupForm}>

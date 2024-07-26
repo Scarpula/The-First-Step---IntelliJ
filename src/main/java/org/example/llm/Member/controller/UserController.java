@@ -4,7 +4,9 @@ package org.example.llm.Member.controller;
 import jakarta.servlet.http.HttpSession;
 import org.example.llm.Member.Entity.UserEntity;
 import org.example.llm.Member.dto.Joindto;
+import org.example.llm.Member.dto.KakaoUserDto;
 import org.example.llm.Member.dto.PasswordUpdateRequest;
+import org.example.llm.Member.service.KakaoService;
 import org.example.llm.Member.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,16 +18,17 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin("*")
 public class UserController {
 
     @Autowired
     private final HttpSession httpSession;
     private final UserService userService;
+    private final KakaoService kakaoService;
 
-    public UserController(HttpSession httpSession, UserService userService) {
+    public UserController(HttpSession httpSession, UserService userService, KakaoService kakaoService) {
         this.httpSession = httpSession;
         this.userService = userService;
+        this.kakaoService = kakaoService;
     }
 
     @PostMapping("/signup")
@@ -73,9 +76,6 @@ public class UserController {
         }
     }
 
-
-
-
     @GetMapping("/logout")
     public ResponseEntity<?> logout() {
         httpSession.invalidate();  // 세션 무효화
@@ -102,6 +102,14 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body("An error occurred while updating the password");
         }
+    }
+
+    @PostMapping("/kakao")
+    public ResponseEntity<UserEntity> kakaoLogin(@RequestBody Map<String, String> authInfo) {
+        String accessToken = authInfo.get("access_token");
+        KakaoUserDto kakaoUserDto = kakaoService.getUserInfo(accessToken);
+        UserEntity savedUser = kakaoService.saveOrUpdateUser(kakaoUserDto);
+        return ResponseEntity.ok(savedUser);
     }
 
 }
