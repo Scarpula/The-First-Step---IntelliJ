@@ -22,7 +22,7 @@ ChartJS.register(
     Legend
 );
 
-const API_KEY = 'afec4e0cfc12aa5baf6ef1074e1eabbf8e379f31';
+const API_KEY = 'f0615ca3d4e64374b6b3f427df3d4693093f5860';
 
 const topCompanies = [
     { "name": "기아(KIA)", "code": "(X)" },
