@@ -9,7 +9,7 @@ import { TypeAnimation } from 'react-type-animation';
 import { AnimatePresence, motion } from 'framer-motion';
 import './App.css';
 import axios from 'axios';
-import { useFollowPointer } from './useFollowPointer'; // Import the custom hook
+import { useFollowPointer } from './useFollowPointer';
 
 const AppWrapper = styled.div`
     position: relative;
@@ -39,72 +39,30 @@ const TitleContainer = styled.div`
 const fadeIn = keyframes`
     from {
         opacity: 0;
+        transform: translateY(20px);
     }
     to {
         opacity: 1;
+        transform: translateY(0);
     }
 `;
 
-const fadeOut = keyframes`
+const delayedFadeIn = keyframes`
     from {
-        opacity: 1;
+        opacity: 0;
+        transform: translateY(-20px);
     }
     to {
-        opacity: 0;
+        opacity: 1;
+        transform: translateY(0);
     }
-`;
-
-const Content = styled.p`
-    font-family: 'Istok Web', sans-serif;
-    font-size: 24px;
-    color: black;
-    margin: 20px 0;
-    white-space: pre-wrap;
-    overflow: hidden;
-    text-align: center;
-    margin-top: 140px;
-`;
-
-const TypingContent = styled(Content)`
-    &::after {
-        content: '|';
-        animation: blink 0.7s infinite;
-    }
-    @keyframes blink {
-        0%, 100% {
-            opacity: 1;
-        }
-        50% {
-            opacity: 0;
-        }
-    }
-`;
-
-const ChatUIWrapper = styled(motion.div)`
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    border: 1px;
 `;
 
 const Container = styled.div`
     display: flex;
     width: 100%;
     height: 100%;
-`;
-
-const TextWrapper = styled.div`
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    text-align: center;
-
-    @media (max-width: 962px) {
-        margin-left: 40px;
-        margin-bottom: 190px;
-    }
+    overflow-x: hidden;
 `;
 
 const TextWrapperSmallScreen = styled.div`
@@ -113,84 +71,92 @@ const TextWrapperSmallScreen = styled.div`
     font-size: 50px;
     color: black;
     margin-left: 130px;
-    height : 450px;
-    margin-top : 220px;
-    margin-right : 60px;
-    position : relative;
-    bottom : 60px;
+    height: 450px;
+    margin-top: 220px;
+    margin-right: 60px;
+    position: relative;
+    bottom: 60px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s, transform 2.2s;
+
+    &.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
 
     @media (max-width: 962px) {
         margin-left: 40px;
         margin-bottom: 0px;
         font-size: 35px;
-        position : relative;
-        top : 10px;
-        height : 450px;
-        width : 40%;
+        position: relative;
+        top: 10px;
+        height: 450px;
+        width: 40%;
     }
 `;
 
-const TypeAnimationStyled = styled(TypeAnimation)`
+const TypeAnimationStyled = styled.div`
     display: flex;
     white-space: pre-wrap;
-    font-family: 'Istok Web', sans-serif;
+    font-family: 'Hahmlet', serif;
+    font-weight : 300;
     font-size: 24px;
     color: black;
-    text-align: right;
+    text-align: start;
     justify-content: center;
     margin-top: 85px;
     margin-right: 40px;
-    position : relative;
-    top : 60px;
-
+    position: relative;
+    top: 60px;
+    opacity: 0;
+    animation: ${fadeIn} 0.5s forwards;
+    animation-delay: 0.7s;
 
     @media (max-width: 962px) {
         margin-top: 140px;
     }
 `;
 
-const TypeAnimationStyled2 = styled(TypeAnimation)`
-    display: flex;
-    white-space: pre-wrap;
-    font-family: 'Istok Web', sans-serif;
-    font-size: 24px;
-    color: black;
-    text-align: right;
-    justify-content: center;
-    margin-top: 125px;
-    margin-left: 0;
+const TypeAnimationStyled2 = styled.div`
+    opacity: 0;
+    font-family: 'Hahmlet', serif;
+    font-weight : 300;
+    transform: translateY(-20px);
+    animation: ${delayedFadeIn} 0.5s forwards;
+    animation-delay: 1s;
+    font-size : 28px;
+    margin-top : 90px;
 
     @media (max-width: 962px) {
         margin-left: -122px;
     }
 `;
 
-const TypeAnimationStyled3 = styled(TypeAnimation)`
-    display: flex;
-    white-space: pre-wrap;
-    font-family: 'Istok Web', sans-serif;
-    font-size: 24px;
-    color: black;
-    text-align: right;
-    justify-content: center;
-    margin-top: 30px;
-    margin-left: 77px;
+const TypeAnimationStyled3 = styled.div`
+    opacity: 0;
+    font-family: 'Hahmlet', serif;
+    font-weight : 300;
+    transform: translateY(-20px);
+    animation: ${delayedFadeIn} 0.5s forwards;
+    animation-delay: 1.5s;
+    font-size : 28px;
+    margin-top : 25px;
 
     @media (max-width: 962px) {
         margin-left: -46px;
     }
 `;
 
-const TypeAnimationStyled4 = styled(TypeAnimation)`
-    display: flex;
-    white-space: pre-wrap;
-    font-family: 'Istok Web', sans-serif;
-    font-size: 24px;
-    color: black;
-    text-align: right;
-    justify-content: center;
-    margin-top: 30px;
-    margin-left: 52px;
+const TypeAnimationStyled4 = styled.div`
+    opacity: 0;
+    font-family: 'Hahmlet', serif;
+    font-weight : 300;
+    transform: translateY(-20px);
+    animation: ${delayedFadeIn} 0.5s forwards;
+    animation-delay: 2s;
+    font-size : 28px;
+    margin-top : 25px;
 
     @media (max-width: 962px) {
         margin-left: -71px;
@@ -203,21 +169,26 @@ const ImageWrapper1 = styled.div`
     justify-content: center;
     align-items: center;
     padding: 20px;
-    background-image: url('/images/Section2.png'); /* 이미지 파일 경로를 설정 */
+    background-image: url('/images/Section2.png');
     background-size: cover;
     background-position: center;
     opacity: 0;
-    transition: opacity 0.5s;
+    transform: translateX(450px); /* 초기 위치를 줄임 */
+    transition: opacity 0.7s, transform 0.8s;
+    overflow: hidden; /* 요소가 프레임을 벗어나지 않도록 설정 */
+    min-width: 300px; /* 최소 너비 설정 */
+    min-height: 300px; /* 최소 높이 설정 */
+    flex-shrink: 0; /* 크기 축소 방지 */
 
     &.visible {
         opacity: 1;
+        transform: translateX(65px);
     }
 
-    @media (max-width : 962px){
-        margin-left : 0px;
+    @media (max-width: 962px){
+        margin-left: 0px;
     }
 `;
-
 const ImageWrapper2 = styled.div`
     flex: 1;
     display: flex;
@@ -226,6 +197,7 @@ const ImageWrapper2 = styled.div`
     padding: 20px;
     position: relative;
     perspective: 1000px;
+    overflow-x: hidden;
 
     &:hover .image1 {
         transform: rotateY(-40deg) scale(1.1) translateX(100px);
@@ -253,6 +225,13 @@ const ImageWrapper2 = styled.div`
     }
 `;
 
+const ChatUIWrapper = styled(motion.div)`
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    border: 1px;
+`;
+
 const Home = ({ handleLoginSuccess }) => {
     const fullTitle = '투자의 ';
     const fullSubtitle = '시작';
@@ -261,6 +240,8 @@ const Home = ({ handleLoginSuccess }) => {
     const fullText2 = '◎ 실시간 주식 차트 기능';
     const fullText3 = '◎ 국내 주요 회사 재무제표 조회';
     const fullText4 = '◎ 주식에 전문화 된 챗봇 기능';
+    const [showTypeAnimation, setShowTypeAnimation] = useState(false);
+    const [showAdditionalText, setShowAdditionalText] = useState(false);
     const options = {
         sectionClassName: 'section',
         anchors: ['sectionOne', 'sectionTwo', 'sectionThree'],
@@ -268,21 +249,54 @@ const Home = ({ handleLoginSuccess }) => {
         navigation: true,
         verticalAlign: false,
         arrowNavigation: true,
-        onLeave: (origin, destination, direction) => {
-            const imageWrapper1 = document.querySelector('.image-wrapper-1');
-            const textWrapper = document.querySelector('.text-wrapper-small-screen');
-
-            if (destination.index === 1) {
-                imageWrapper1.classList.add('visible');
-                textWrapper.style.animation = `0.5s ${fadeOut} forwards`;
-                textWrapper.style.transform = 'translateY(20px)';
-            } else {
-                imageWrapper1.classList.remove('visible');
-                textWrapper.style.animation = 'none';
-                textWrapper.style.transform = 'none';
-            }
-        }
     };
+
+    useEffect(() => {
+        const observerOptions = {
+            threshold: 0.1,
+        };
+
+        const observerCallback = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    if (entry.target.classList.contains('text-wrapper-small-screen1')) {
+                        setTimeout(() => setShowTypeAnimation(true), 1000);
+                    }
+                    if (entry.target.classList.contains('text-wrapper-small-screen2')) {
+                        setTimeout(() => setShowAdditionalText(true), 1000);
+                    }
+                } else {
+                    entry.target.classList.remove('visible');
+                    if (entry.target.classList.contains('text-wrapper-small-screen1')) {
+                        setShowTypeAnimation(false);
+                    }
+                    if (entry.target.classList.contains('text-wrapper-small-screen2')) {
+                        setShowAdditionalText(false);
+                    }
+                }
+            });
+        };
+
+        const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+        const imageWrapper1 = document.querySelector('.image-wrapper-1');
+        const textWrapper1 = document.querySelector('.text-wrapper-small-screen1');
+        const textWrapper2 = document.querySelector('.text-wrapper-small-screen2');
+        const imageWrapper2 = document.querySelector('.image-wrapper-2');
+
+        if (imageWrapper1) observer.observe(imageWrapper1);
+        if (textWrapper1) observer.observe(textWrapper1);
+        if (imageWrapper2) observer.observe(imageWrapper2);
+        if (textWrapper2) observer.observe(textWrapper2);
+
+        return () => {
+            if (imageWrapper1) observer.unobserve(imageWrapper1);
+            if (textWrapper1) observer.unobserve(textWrapper1);
+            if (imageWrapper2) observer.unobserve(imageWrapper2);
+            if (textWrapper2) observer.unobserve(textWrapper2);
+        };
+    }, []);
 
     return (
         <>
@@ -307,7 +321,7 @@ const Home = ({ handleLoginSuccess }) => {
                                 display: 'inline-block',
                                 whiteSpace: 'pre-wrap',
                                 fontFamily: "Hahmlet, serif",
-                                fontWeight : '300',
+                                fontWeight: '300',
                                 fontSize: '70px',
                                 color: 'black',
                                 textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
@@ -319,58 +333,36 @@ const Home = ({ handleLoginSuccess }) => {
                 </SectionStyled>
                 <SectionStyled>
                     <Container>
-                        <TextWrapperSmallScreen className="text-wrapper-small-screen" style={{fontFamily : 'Hahmlet, serif', fontWeight : '800'}}>
+                        <TextWrapperSmallScreen className="text-wrapper-small-screen1" style={{fontFamily: 'Hahmlet, serif', fontWeight: '800'}}>
                             AI 기반 투자 성향 분석
-                            <TypeAnimationStyled
-                                sequence={[fullText]}
-                                wrapper="div"
-                                cursor={false}
-                                repeat={0}
-                                style = {{
-                                    fontFamily : 'Hahmlet, serif',
-                                    fontWeight : '300'
-                                }}
-                            />
+                            {showTypeAnimation && (
+                                <TypeAnimationStyled>
+                                    {fullText}
+                                </TypeAnimationStyled>
+                            )}
                         </TextWrapperSmallScreen>
-                        <ImageWrapper1 className="image-wrapper-1" style={{ height: '450px', marginTop: '150px', marginRight: '60px',marginLeft : '60px' }} />
+                        <ImageWrapper1 className="image-wrapper-1" style={{ height: '450px', marginTop: '150px', marginRight: '60px'}} />
                     </Container>
                 </SectionStyled>
                 <SectionStyled>
                     <Container>
-                        <TextWrapperSmallScreen style={{ marginBottom: '270px' ,fontFamily : 'Hahmlet, serif', fontWeight : '800'}}>
+                        <TextWrapperSmallScreen className="text-wrapper-small-screen2" style={{ marginBottom: '270px', fontFamily: 'Hahmlet, serif', fontWeight: '800'}}>
                             투자에 필요한 시각적인 자료 지원
-                            <TypeAnimationStyled2
-                                sequence={[fullText2]}
-                                wrapper="div"
-                                cursor={false}
-                                repeat={0}
-                                style={{
-                                    fontFamily : 'Hahmlet, serif',
-                                    fontWeight : '300'
-                                }}
-                            />
-                            <TypeAnimationStyled3
-                                sequence={[fullText3]}
-                                wrapper="div"
-                                cursor={false}
-                                repeat={0}
-                                style={{
-                                    fontFamily : 'Hahmlet, serif',
-                                    fontWeight : '300'
-                                }}
-                            />
-                            <TypeAnimationStyled4
-                                sequence={[fullText4]}
-                                wrapper="div"
-                                cursor={false}
-                                repeat={0}
-                                style={{
-                                    fontFamily : 'Hahmlet, serif',
-                                    fontWeight : '300'
-                                }}
-                            />
+                            {showAdditionalText && (
+                                <>
+                                    <TypeAnimationStyled2>
+                                        {fullText2}
+                                    </TypeAnimationStyled2>
+                                    <TypeAnimationStyled3>
+                                        {fullText3}
+                                    </TypeAnimationStyled3>
+                                    <TypeAnimationStyled4>
+                                        {fullText4}
+                                    </TypeAnimationStyled4>
+                                </>
+                            )}
                         </TextWrapperSmallScreen>
-                        <ImageWrapper2 style={{ height: '450px', marginTop: '150px', marginRight: '60px' }}>
+                        <ImageWrapper2 className="image-wrapper-2" style={{ height: '450px', marginTop: '150px', marginRight: '60px' }}>
                             <div className="image image1" />
                             <div className="image image2" />
                         </ImageWrapper2>
@@ -414,7 +406,7 @@ const App = () => {
     };
 
     if (loading) {
-        return <div>Loading...</div>; // 로딩 상태를 표시합니다.
+        return <div>Loading...</div>;
     }
 
     return (
