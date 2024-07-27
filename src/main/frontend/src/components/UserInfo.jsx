@@ -52,7 +52,6 @@ const LabelBox = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #f9f9f9;
 `;
 
 const InputRow = styled.div`

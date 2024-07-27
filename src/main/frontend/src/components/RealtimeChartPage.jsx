@@ -168,47 +168,47 @@ const YearDropdown = ({ isOpen, year, onYearChange, buttonRef }) => {
   const dropdownPosition = buttonRef.current?.getBoundingClientRect();
 
   return createPortal(
-    <DropdownContainer
-      initial={false}
-      animate={isOpen ? "open" : "closed"}
-      variants={{
-        open: {
-          clipPath: "inset(0% 0% 0% 0% round 10px)",
-          transition: {
-            type: "spring",
-            bounce: 0,
-            duration: 0.7,
-            delayChildren: 0.3,
-            staggerChildren: 0.05
-          }
-        },
-        closed: {
-          clipPath: "inset(10% 50% 90% 50% round 10px)",
-          transition: {
-            type: "spring",
-            bounce: 0,
-            duration: 0.3
-          }
-        }
-      }}
-      style={{
-        top: dropdownPosition ? `${dropdownPosition.bottom + window.scrollY}px` : '0',
-        left: dropdownPosition ? `${dropdownPosition.left + window.scrollX}px` : '0',
-      }}
-      isOpen={isOpen}
-      ref={dropdownRef}
-    >
-      {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map(year => (
-        <DropdownItem
-          key={year}
-          variants={itemVariants}
-          onClick={() => onYearChange(year)}
-        >
-          {year}
-        </DropdownItem>
-      ))}
-    </DropdownContainer>,
-    document.body
+      <DropdownContainer
+          initial={false}
+          animate={isOpen ? "open" : "closed"}
+          variants={{
+            open: {
+              clipPath: "inset(0% 0% 0% 0% round 10px)",
+              transition: {
+                type: "spring",
+                bounce: 0,
+                duration: 0.7,
+                delayChildren: 0.3,
+                staggerChildren: 0.05
+              }
+            },
+            closed: {
+              clipPath: "inset(10% 50% 90% 50% round 10px)",
+              transition: {
+                type: "spring",
+                bounce: 0,
+                duration: 0.3
+              }
+            }
+          }}
+          style={{
+            top: dropdownPosition ? `${dropdownPosition.bottom + window.scrollY}px` : '0',
+            left: dropdownPosition ? `${dropdownPosition.left + window.scrollX}px` : '0',
+          }}
+          isOpen={isOpen}
+          ref={dropdownRef}
+      >
+        {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map(year => (
+            <DropdownItem
+                key={year}
+                variants={itemVariants}
+                onClick={() => onYearChange(year)}
+            >
+              {year}
+            </DropdownItem>
+        ))}
+      </DropdownContainer>,
+      document.body
   );
 };
 
@@ -218,6 +218,7 @@ const StockChart = () => {
   const [error, setError] = useState(null);
   const [companyName, setCompanyName] = useState('Apple');
   const [year, setYear] = useState(new Date().getFullYear().toString());
+  const [displayedCompanyName, setDisplayedCompanyName] = useState('Apple');
   const [showKeywordTable, setShowKeywordTable] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const yearButtonRef = useRef(null);
@@ -245,6 +246,7 @@ const StockChart = () => {
         }));
         setStockData(formattedData);
         setShowKeywordTable(false);
+        setDisplayedCompanyName(company);
       }
     } catch (err) {
       setError('해당 주식 데이터는 없습니다...');
@@ -280,7 +282,7 @@ const StockChart = () => {
 
   const options = {
     title: {
-      text: `${companyName} Stock Price - ${year}`
+      text: `${displayedCompanyName} Stock Price - ${year}`
     },
     charts: [{
       data: [{
@@ -302,9 +304,9 @@ const StockChart = () => {
   };
 
   return (
-    <div className="flex flex-col items-center w-full min-h-screen bg-gray-100" style={{ marginTop: '75px' }}>
-      <div className="w-full p-4 bg-white shadow-md" style={{display : 'flex', justifyContent:'center'}}>
-        <form onSubmit={handleSubmit} className="flex space-x-4" style={{
+      <div className="flex flex-col items-center w-full min-h-screen bg-gray-100" style={{ marginTop: '75px' }}>
+        <div className="w-full p-4 bg-white shadow-md" style={{display : 'flex', justifyContent:'center'}}>
+          <form onSubmit={handleSubmit} className="flex space-x-4" style={{
             position: 'absolute',
             top: '41px',
             zIndex: 0,
@@ -312,87 +314,87 @@ const StockChart = () => {
             flexDirection: 'row',
             alignItems: 'baseline',
             flexFlow: 'row',
-        }}>
-          <InputContainer>
-            <Input
-              type="text"
-              value={companyName}
-              onChange={handleCompanyNameChange}
-              required
-              className="SearchingInput"
-            />
-            <Label>회사 이름</Label>
-            <Span></Span>
-          </InputContainer>
-          <motion.nav
-            initial={false}
-            animate={isOpen ? "open" : "closed"}
-            className="selectYear"
-          >
-            <Button
-              ref={yearButtonRef}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => setIsOpen(!isOpen)}
-              type="button"
-              style={{
-                marginLeft : '45px',
-                marginRight : '25px',
-              }}
+          }}>
+            <InputContainer>
+              <Input
+                  type="text"
+                  value={companyName}
+                  onChange={handleCompanyNameChange}
+                  required
+                  className="SearchingInput"
+              />
+              <Label>회사 이름</Label>
+              <Span></Span>
+            </InputContainer>
+            <motion.nav
+                initial={false}
+                animate={isOpen ? "open" : "closed"}
+                className="selectYear"
             >
-              {year}
-              <motion.div
-                variants={{
-                  open: { rotate: 180 },
-                  closed: { rotate: 0 }
-                }}
-                transition={{ duration: 0.2 }}
-                style={{ originY: 0.55, display: 'inline-block', marginLeft: '5px' }}
+              <Button
+                  ref={yearButtonRef}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setIsOpen(!isOpen)}
+                  type="button"
+                  style={{
+                    marginLeft : '45px',
+                    marginRight : '25px',
+                  }}
               >
-                <svg width="15" height="15" viewBox="0 0 20 20">
-                  <path d="M0 7 L 20 7 L 10 16" />
-                </svg>
-              </motion.div>
+                {year}
+                <motion.div
+                    variants={{
+                      open: { rotate: 180 },
+                      closed: { rotate: 0 }
+                    }}
+                    transition={{ duration: 0.2 }}
+                    style={{ originY: 0.55, display: 'inline-block', marginLeft: '5px' }}
+                >
+                  <svg width="15" height="15" viewBox="0 0 20 20">
+                    <path d="M0 7 L 20 7 L 10 16" />
+                  </svg>
+                </motion.div>
+              </Button>
+              <YearDropdown
+                  isOpen={isOpen}
+                  year={year}
+                  onYearChange={handleYearChange}
+                  buttonRef={yearButtonRef}
+              />
+            </motion.nav>
+            <Button
+                type="submit"
+                whileHover={{ scale: 1.1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                style ={{
+                  position : 'relative',
+                  top : '2px'
+                }}
+            >
+              검색
             </Button>
-            <YearDropdown
-              isOpen={isOpen}
-              year={year}
-              onYearChange={handleYearChange}
-              buttonRef={yearButtonRef}
-            />
-          </motion.nav>
-          <Button
-            type="submit"
-            whileHover={{ scale: 1.1 }}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
-            style ={{
-                position : 'relative',
-                top : '2px'
-            }}
-          >
-            검색
-          </Button>
-        </form>
-      </div>
+          </form>
+        </div>
 
-      <div className="flex-grow w-full p-4 relative flex justify-center items-center" style={{ marginTop: '65px' }}>
-        {isLoading && (
-          <LoadingOverlay>
-            <LoadingContent>로딩 중...</LoadingContent>
-          </LoadingOverlay>
-        )}
-        {error && <div className="text-center text-red-500 mb-4" style={{ textAlign: 'center' }}>{error}</div>}
-        {!isLoading && !error && stockData.length > 0 && (
-          <div className="w-full">
-            <CanvasJSStockChart options={options} />
-          </div>
-        )}
-        {showKeywordTable && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <KeywordTable onKeywordClick={handleKeywordClick} />
-          </div>
-        )}
+        <div className="flex-grow w-full p-4 relative flex justify-center items-center" style={{ marginTop: '65px' }}>
+          {isLoading && (
+              <LoadingOverlay>
+                <LoadingContent>로딩 중...</LoadingContent>
+              </LoadingOverlay>
+          )}
+          {error && <div className="text-center text-red-500 mb-4" style={{ textAlign: 'center' }}>{error}</div>}
+          {!isLoading && !error && stockData.length > 0 && (
+              <div className="w-full">
+                <CanvasJSStockChart options={options} />
+              </div>
+          )}
+          {showKeywordTable && (
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <KeywordTable onKeywordClick={handleKeywordClick} />
+              </div>
+          )}
+        </div>
       </div>
-    </div>
   );
 };
 
