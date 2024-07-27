@@ -336,71 +336,6 @@ const Navbar = ({ onLoginSuccess }) => {
         }
     };
 
-
-
-    const KAKAO_REST_API_KEY = 'd30a03746900aa2ed901790716355981';
-    const KAKAO_REDIRECT_URI = 'http://localhost:8081/api/kakao';
-
-    const handlekakaologin = () => {
-        console.log("Redirecting to Kakao login...");
-        window.location.href = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_REST_API_KEY}&redirect_uri=${KAKAO_REDIRECT_URI}`;
-    };
-
-
-
-    const handleKakaoCallback = async () => {
-        const code = new URL(window.location.href).searchParams.get("code");
-        console.log("Received authorization code:", code);
-
-        if (code) {
-            try {
-                console.log("Requesting access token with code:", code);
-
-                const tokenResponse = await axios.post('https://kauth.kakao.com/oauth/token', null, {
-                    params: {
-                        grant_type: 'authorization_code',
-                        client_id: KAKAO_REST_API_KEY,
-                        redirect_uri: KAKAO_REDIRECT_URI,
-                        code: code,
-                    },
-                    headers: {
-                        'Content-type': 'application/x-www-form-urlencoded;charset=utf-8'
-                    }
-                });
-
-                console.log("Received token response:", tokenResponse.data);
-
-                const { access_token, refresh_token } = tokenResponse.data;
-
-                console.log("Sending tokens to backend...");
-
-                const response = await axios.post('http://localhost:8082/api/kakao', {
-                    accessToken: access_token,
-                    refreshToken: refresh_token
-                });
-
-                console.log('Backend response:', response.data);
-                await checkLoginStatus();
-                onLoginSuccess();
-                navigate('/chat');  // 성공 시에만 채팅 페이지로 이동
-            } catch (error) {
-                console.error('Error in Kakao login process:', error);
-                if (error.response) {
-                    console.error('Error response:', error.response.data);
-                }
-                // 에러 발생 시 처리 (예: 에러 페이지로 이동 또는 에러 메시지 표시)
-                navigate('/error');  // 또는 적절한 에러 처리
-            }
-        } else {
-            console.log("No authorization code found in URL");
-            navigate('/');  // 코드가 없을 경우 홈페이지로 이동
-        }
-    };
-
-
-
-
-
     // Handle signup form submission
     const handleSignupSubmit = async (e) => {
         e.preventDefault();
@@ -436,29 +371,11 @@ const Navbar = ({ onLoginSuccess }) => {
             }
         } catch (error) {
             console.error("Error during session check:", error);
-            if (error.response) {
-                console.error("Response data:", error.response.data);
-                console.error("Response status:", error.response.status);
-                console.error("Response headers:", error.response.headers);
-            } else if (error.request) {
-                console.error("No response received:", error.request);
-            } else {
-                console.error("Error setting up request:", error.message);
-            }
         }
     };
 
     useEffect(() => {
-        console.log("Checking for Kakao authorization code...");
-        const code = new URL(window.location.href).searchParams.get("code");
-        if (code) {
-            handleKakaoCallback().then(() => {
-                checkSession();
-            });
-        } else {
-            console.log("No code found, not calling handleKakaoCallback");
-            checkSession();
-        }
+        checkSession();
     }, []);
 
     return (
@@ -526,9 +443,9 @@ const Navbar = ({ onLoginSuccess }) => {
                             <Button type="submit" style={{marginLeft:30}}>
                                 <span>{showLoginForm ? 'Login' : 'Join'}</span>
                             </Button>
-                            <Button onClick={handlekakaologin} style={{marginTop:10, marginLeft:30, backgroundColor:"#fee500",
-                                border:"none"}}>
-                                <span  style={{color:"#3c1a1a",fontSize:"18px", fontWeight:"bold"}}>카카오톡 로그인</span>
+                            <Button style={{marginTop:10, marginLeft:30, backgroundColor:"#fee500",
+                            border:"none"}}>
+                                <span style={{color:"#3c1a1a",fontSize:"18px", fontWeight:"bold"}}>카카오톡 로그인</span>
                             </Button>
                         </form>
                         <Footer>

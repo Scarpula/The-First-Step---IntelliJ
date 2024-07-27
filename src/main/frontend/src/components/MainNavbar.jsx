@@ -274,7 +274,6 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
       }
     } catch (error) {
       console.error('Error deleting chat room:', error);
-      alert('채팅방 삭제 중 오류가 발생했습니다.');
     }
   };
 
