@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Global styles
+// 전역 스타일
 const GlobalStyle = createGlobalStyle`
     body {
         color: #666666;
@@ -15,7 +15,7 @@ const GlobalStyle = createGlobalStyle`
     }
 `;
 
-// Navbar styles
+// 네비게이션 바 스타일
 const NavbarContainer = styled.div`
     width: 100%;
     height: 60px;
@@ -43,7 +43,7 @@ const MenuButton = styled.img`
     right: 55px;
 `;
 
-// Sidebar styles
+// 사이드바 스타일
 const Overlay = styled.div`
     position: fixed;
     top: 0;
@@ -72,7 +72,7 @@ const Sidebar = styled.div`
     padding-top: 15px;
 `;
 
-// Container and Card styles
+// 컨테이너 및 카드 스타일
 const Container = styled.div`
     position: relative;
     max-width: 460px;
@@ -110,7 +110,7 @@ const Title = styled.h1`
     text-transform: uppercase;
 `;
 
-// Input and Label styles
+// 입력 필드 및 레이블 스타일
 const InputContainer = styled.div`
     position: relative;
     margin: 0 60px 50px;
@@ -178,7 +178,7 @@ const Bar = styled.div`
     }
 `;
 
-// Button styles
+// 버튼 스타일
 const Button = styled.button`
     outline: 0;
     cursor: pointer;
@@ -240,7 +240,18 @@ const Button = styled.button`
     }
 `;
 
-// Footer styles
+// 카카오 버튼 스타일
+const KakaoButton = styled(Button)`
+    padding: 0;
+    border: none; // 테두리 없애기
+`;
+
+const KakaoImage = styled.img`
+    width: 100%;
+    height: 100%;
+`;
+
+// 푸터 스타일
 const Footer = styled.div`
     margin: 40px 0 0;
     color: #d3d3d3;
@@ -259,7 +270,7 @@ const Footer = styled.div`
     }
 `;
 
-// Success animation styles
+// 성공 애니메이션 스타일
 const SuccessOverlay = styled(motion.div)`
     position: absolute;
     top: 0;
@@ -286,8 +297,7 @@ const SuccessCircle = styled(motion.circle)`
     stroke-width: 2;
 `;
 
-
-// Navbar component
+// 네비게이션 바 컴포넌트
 const Navbar = ({ onLoginSuccess }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(true);
@@ -302,17 +312,62 @@ const Navbar = ({ onLoginSuccess }) => {
     const [signupSuccess, setSignupSuccess] = useState(false);
     const navigate = useNavigate();
 
-    // Toggle sidebar visibility
+    useEffect(() => {
+        if (window.Kakao && !window.Kakao.isInitialized()) {
+            window.Kakao.init('YOUR_KAKAO_JAVASCRIPT_KEY');
+        }
+    }, []);
+
+    const handleKakaoLogin = () => {
+        if (window.Kakao) {
+            window.Kakao.Auth.login({
+                success: (authObj) => {
+                    window.Kakao.API.request({
+                        url: '/v2/user/me',
+                        success: (res) => {
+                            console.log(res);
+                            axios.post('http://localhost:8082/api/kakao-login', {
+                                kakaoId: res.id,
+                                email: res.kakao_account.email,
+                                nickname: res.properties.nickname
+                            }).then(response => {
+                                if (response.status === 200) {
+                                    setError(false);
+                                    onLoginSuccess();
+                                    setIsOpen(false);
+                                    checkSession();
+                                    navigate('/chat');
+                                } else {
+                                    setError(true);
+                                }
+                            }).catch(() => {
+                                setError(true);
+                            });
+                        },
+                        fail: (error) => {
+                            console.log(error);
+                            setError(true);
+                        }
+                    });
+                },
+                fail: (err) => {
+                    console.log(err);
+                    setError(true);
+                }
+            });
+        } else {
+            console.error("Kakao 객체를 사용할 수 없습니다");
+        }
+    };
+
     const toggleSidebar = () => {
         setIsOpen(!isOpen);
     };
 
-    // Toggle between login and signup forms
     const toggleForm = () => {
         setShowLoginForm(!showLoginForm);
     };
 
-    // Handle login form submission
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -335,7 +390,6 @@ const Navbar = ({ onLoginSuccess }) => {
         }
     };
 
-    // Handle signup form submission
     const handleSignupSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -361,7 +415,6 @@ const Navbar = ({ onLoginSuccess }) => {
         }
     };
 
-    // Check user session
     const checkSession = async () => {
         try {
             const response = await axios.get('http://localhost:8082/api/session', { withCredentials: true });
@@ -369,7 +422,7 @@ const Navbar = ({ onLoginSuccess }) => {
                 setUser(response.data.user);
             }
         } catch (error) {
-            console.error("Error during session check:", error);
+            console.error("세션 확인 중 오류 발생:", error);
         }
     };
 
@@ -389,7 +442,7 @@ const Navbar = ({ onLoginSuccess }) => {
                 <Container>
                     <Card />
                     <Card>
-                        <Title style={{marginRight:200}}>{showLoginForm ? 'Login' : 'Join'}</Title>
+                        <Title style={{ marginRight: 200 }}>{showLoginForm ? 'Login' : 'Join'}</Title>
                         <form onSubmit={showLoginForm ? handleLoginSubmit : handleSignupSubmit}>
                             <InputContainer>
                                 <Input
@@ -399,7 +452,7 @@ const Navbar = ({ onLoginSuccess }) => {
                                     value={showLoginForm ? loginEmail : signupEmail}
                                     onChange={(e) => showLoginForm ? setLoginEmail(e.target.value) : setSignupEmail(e.target.value)}
                                 />
-                                <InputLabel htmlFor="email">Email</InputLabel>
+                                <InputLabel htmlFor="email">아이디(Email)</InputLabel>
                                 <Bar />
                             </InputContainer>
                             <InputContainer>
@@ -423,7 +476,7 @@ const Navbar = ({ onLoginSuccess }) => {
                                             value={username}
                                             onChange={(e) => setUsername(e.target.value)}
                                         />
-                                        <InputLabel htmlFor="username">Username</InputLabel>
+                                        <InputLabel htmlFor="username">Name</InputLabel>
                                         <Bar />
                                     </InputContainer>
                                     <InputContainer>
@@ -439,18 +492,17 @@ const Navbar = ({ onLoginSuccess }) => {
                                     </InputContainer>
                                 </>
                             )}
-                            <Button type="submit" style={{marginLeft:30}}>
+                            <Button type="submit" style={{ marginLeft: 30 }}>
                                 <span>{showLoginForm ? 'Login' : 'Join'}</span>
                             </Button>
-                            <Button style={{marginTop:10, marginLeft:30, backgroundColor:"#fee500",
-                            border:"none"}}>
-                                <span style={{color:"#3c1a1a",fontSize:"18px", fontWeight:"bold"}}>카카오톡 로그인</span>
-                            </Button>
+                            <KakaoButton onClick={handleKakaoLogin} style={{marginTop:10, marginLeft:30}}>
+                                <KakaoImage src="https://developers.kakao.com/assets/img/about/logos/kakaologin/kr/kakao_account_login_btn_medium_wide.png" alt="Kakao Login" />
+                            </KakaoButton>
                         </form>
                         <Footer>
                             <a href="#" onClick={toggleForm} style={{ fontSize: 18, color: "black" }}>
                                 {showLoginForm
-                                    ? <>계정이 없으신가요? <strong>가입하기</strong></>
+                                    ? <>계정이 없으신가요? <strong>회원가입</strong></>
                                     : <>이미 계정이 있으신가요? <strong>로그인</strong></>}
                             </a>
                         </Footer>
