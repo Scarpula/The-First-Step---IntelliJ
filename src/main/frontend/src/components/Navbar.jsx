@@ -362,6 +362,60 @@ const Navbar = ({ onLoginSuccess }) => {
         }
     };
 
+    const KAKAO_REST_API_KEY = 'd30a03746900aa2ed901790716355981';
+    const KAKAO_REDIRECT_URI = 'http://localhost:8081/api/kakao';
+
+    const handlekakaologin = () => {
+        window.location.href = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_REST_API_KEY}&redirect_uri=${KAKAO_REDIRECT_URI}`;
+
+    };
+
+    const handleKakaoCallback = async () => {
+        const code = new URL(window.location.href).searchParams.get("code");
+        console.log("Received authorization code:", code);
+
+        if (code) {
+            try {
+                console.log("Requesting access token with code:", code);
+
+                const tokenResponse = await axios.post('https://kauth.kakao.com/oauth/token', new URLSearchParams({
+                    grant_type: 'authorization_code',
+                    client_id: KAKAO_REST_API_KEY,
+                    redirect_uri: KAKAO_REDIRECT_URI,
+                    code: code,
+                }), {
+                    headers: {
+                        'Content-type': 'application/x-www-form-urlencoded;charset=utf-8'
+                    }
+                });
+
+                console.log("Received token response:", tokenResponse.data);
+
+                const { access_token, refresh_token } = tokenResponse.data;
+
+                console.log("Sending tokens to backend...");
+
+                const response = await axios.post('http://localhost:8082/api/kakao', {
+                    accessToken: access_token,
+                    refreshToken: refresh_token,
+                }, { withCredentials: true });
+
+                console.log('Backend response:', response.data);
+
+            } catch (error) {
+                console.error('Error in Kakao login process:', error);
+                if (error.response) {
+                    console.error('Error response:', error.response.data);
+                }
+                navigate('/error');  // 또는 적절한 에러 처리
+            }
+        } else {
+            console.log("No authorization code found in URL");
+            navigate('/');  // 코드가 없을 경우 홈페이지로 이동
+        }
+    };
+
+
     // Check user session
     const checkSession = async () => {
         try {
@@ -375,8 +429,14 @@ const Navbar = ({ onLoginSuccess }) => {
     };
 
     useEffect(() => {
-        checkSession();
+        const code = new URL(window.location.href).searchParams.get("code");
+        if (code) {
+            handleKakaoCallback();
+        } else {
+            checkSession();
+        }
     }, []);
+
 
     return (
         <>
@@ -390,7 +450,7 @@ const Navbar = ({ onLoginSuccess }) => {
                 <Container>
                     <Card />
                     <Card>
-                        <Title style={{marginRight:200}}>{showLoginForm ? 'Login' : 'Join'}</Title>
+                        <Title  style={{marginRight:200}}>{showLoginForm ? 'Login' : 'Join'}</Title>
                         <form onSubmit={showLoginForm ? handleLoginSubmit : handleSignupSubmit}>
                             <InputContainer>
                                 <Input
@@ -443,7 +503,7 @@ const Navbar = ({ onLoginSuccess }) => {
                             <Button type="submit" style={{marginLeft:30}}>
                                 <span>{showLoginForm ? 'Login' : 'Join'}</span>
                             </Button>
-                            <Button style={{marginTop:10, marginLeft:30, backgroundColor:"#fee500",
+                            <Button onClick={handlekakaologin} style={{marginTop:10, marginLeft:30, backgroundColor:"#fee500",
                             border:"none"}}>
                                 <span style={{color:"#3c1a1a",fontSize:"18px", fontWeight:"bold"}}>카카오톡 로그인</span>
                             </Button>

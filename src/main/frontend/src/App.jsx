@@ -329,7 +329,8 @@ const App = () => {
 
     const checkLoginStatus = async () => {
         try {
-            const response = await axios.get('http://localhost:8082/api/session', { withCredentials: true });
+            const response = await axios.get('http://localhost:8082/api/session',
+                { withCredentials: true });
             if (response.status === 200 && response.data.user) {
                 setIsLoggedIn(true);
                 setUserId(response.data.user.id);
