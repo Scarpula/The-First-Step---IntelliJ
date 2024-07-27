@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import Navbar from './components/Navbar';
 import ChatUI from './components/ChatUI';
 import BackgroundImages from './components/BackgroundImages';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { SectionsContainer, Section } from 'react-fullpage';
 import { TypeAnimation } from 'react-type-animation';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -34,6 +34,24 @@ const TitleContainer = styled.div`
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
+`;
+
+const fadeIn = keyframes`
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+`;
+
+const fadeOut = keyframes`
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
 `;
 
 const Content = styled.p`
@@ -97,6 +115,9 @@ const TextWrapperSmallScreen = styled.div`
     margin-left: 130px;
     height : 450px;
     margin-top : 220px;
+    margin-right : 60px;
+    position : relative;
+    bottom : 60px;
 
     @media (max-width: 962px) {
         margin-left: 40px;
@@ -105,7 +126,7 @@ const TextWrapperSmallScreen = styled.div`
         position : relative;
         top : 10px;
         height : 450px;
-        width : 42%;
+        width : 40%;
     }
 `;
 
@@ -119,6 +140,9 @@ const TypeAnimationStyled = styled(TypeAnimation)`
     justify-content: center;
     margin-top: 85px;
     margin-right: 40px;
+    position : relative;
+    top : 60px;
+
 
     @media (max-width: 962px) {
         margin-top: 140px;
@@ -182,6 +206,16 @@ const ImageWrapper1 = styled.div`
     background-image: url('/images/Section2.png'); /* 이미지 파일 경로를 설정 */
     background-size: cover;
     background-position: center;
+    opacity: 0;
+    transition: opacity 0.5s;
+
+    &.visible {
+        opacity: 1;
+    }
+
+    @media (max-width : 962px){
+        margin-left : 0px;
+    }
 `;
 
 const ImageWrapper2 = styled.div`
@@ -234,6 +268,20 @@ const Home = ({ handleLoginSuccess }) => {
         navigation: true,
         verticalAlign: false,
         arrowNavigation: true,
+        onLeave: (origin, destination, direction) => {
+            const imageWrapper1 = document.querySelector('.image-wrapper-1');
+            const textWrapper = document.querySelector('.text-wrapper-small-screen');
+
+            if (destination.index === 1) {
+                imageWrapper1.classList.add('visible');
+                textWrapper.style.animation = `0.5s ${fadeOut} forwards`;
+                textWrapper.style.transform = 'translateY(20px)';
+            } else {
+                imageWrapper1.classList.remove('visible');
+                textWrapper.style.animation = 'none';
+                textWrapper.style.transform = 'none';
+            }
+        }
     };
 
     return (
@@ -258,7 +306,8 @@ const Home = ({ handleLoginSuccess }) => {
                             style={{
                                 display: 'inline-block',
                                 whiteSpace: 'pre-wrap',
-                                fontFamily: 'Istok Web, sans-serif',
+                                fontFamily: "Hahmlet, serif",
+                                fontWeight : '300',
                                 fontSize: '70px',
                                 color: 'black',
                                 textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
@@ -270,39 +319,55 @@ const Home = ({ handleLoginSuccess }) => {
                 </SectionStyled>
                 <SectionStyled>
                     <Container>
-                        <TextWrapperSmallScreen>
+                        <TextWrapperSmallScreen className="text-wrapper-small-screen" style={{fontFamily : 'Hahmlet, serif', fontWeight : '800'}}>
                             AI 기반 투자 성향 분석
                             <TypeAnimationStyled
                                 sequence={[fullText]}
                                 wrapper="div"
                                 cursor={false}
                                 repeat={0}
+                                style = {{
+                                    fontFamily : 'Hahmlet, serif',
+                                    fontWeight : '300'
+                                }}
                             />
                         </TextWrapperSmallScreen>
-                        <ImageWrapper1 style={{ height: '450px', marginTop: '150px', marginRight: '60px' }} />
+                        <ImageWrapper1 className="image-wrapper-1" style={{ height: '450px', marginTop: '150px', marginRight: '60px',marginLeft : '60px' }} />
                     </Container>
                 </SectionStyled>
                 <SectionStyled>
                     <Container>
-                        <TextWrapperSmallScreen style={{ marginBottom: '270px' }}>
+                        <TextWrapperSmallScreen style={{ marginBottom: '270px' ,fontFamily : 'Hahmlet, serif', fontWeight : '800'}}>
                             투자에 필요한 시각적인 자료 지원
                             <TypeAnimationStyled2
                                 sequence={[fullText2]}
                                 wrapper="div"
                                 cursor={false}
                                 repeat={0}
+                                style={{
+                                    fontFamily : 'Hahmlet, serif',
+                                    fontWeight : '300'
+                                }}
                             />
                             <TypeAnimationStyled3
                                 sequence={[fullText3]}
                                 wrapper="div"
                                 cursor={false}
                                 repeat={0}
+                                style={{
+                                    fontFamily : 'Hahmlet, serif',
+                                    fontWeight : '300'
+                                }}
                             />
                             <TypeAnimationStyled4
                                 sequence={[fullText4]}
                                 wrapper="div"
                                 cursor={false}
                                 repeat={0}
+                                style={{
+                                    fontFamily : 'Hahmlet, serif',
+                                    fontWeight : '300'
+                                }}
                             />
                         </TextWrapperSmallScreen>
                         <ImageWrapper2 style={{ height: '450px', marginTop: '150px', marginRight: '60px' }}>
