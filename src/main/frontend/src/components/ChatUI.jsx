@@ -150,6 +150,8 @@ const ChatUI = () => {
         body: JSON.stringify({ question: messageText, user_id: user.email, room_id: roomId }),
       });
 
+
+        console.log(response)
       if (!response.ok) {
         throw new Error('서버 응답이 실패했습니다.');
       }

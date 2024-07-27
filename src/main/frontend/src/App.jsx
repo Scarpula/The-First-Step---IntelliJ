@@ -69,27 +69,177 @@ const ChatUIWrapper = styled(motion.div)`
     border: 1px;
 `;
 
+const Container = styled.div`
+    display: flex;
+    width: 100%;
+    height: 100%;
+`;
+
+const TextWrapper = styled.div`
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    text-align: center;
+
+    @media (max-width: 962px) {
+        margin-left: 40px;
+        margin-bottom: 190px;
+    }
+`;
+
+const TextWrapperSmallScreen = styled.div`
+    display: flex;
+    flex-direction: column;
+    font-size: 50px;
+    color: black;
+    margin-left: 130px;
+    height : 450px;
+    margin-top : 220px;
+
+    @media (max-width: 962px) {
+        margin-left: 40px;
+        margin-bottom: 0px;
+        font-size: 35px;
+        position : relative;
+        top : 10px;
+        height : 450px;
+        width : 42%;
+    }
+`;
+
+const TypeAnimationStyled = styled(TypeAnimation)`
+    display: flex;
+    white-space: pre-wrap;
+    font-family: 'Istok Web', sans-serif;
+    font-size: 24px;
+    color: black;
+    text-align: right;
+    justify-content: center;
+    margin-top: 85px;
+    margin-right: 40px;
+
+    @media (max-width: 962px) {
+        margin-top: 140px;
+    }
+`;
+
+const TypeAnimationStyled2 = styled(TypeAnimation)`
+    display: flex;
+    white-space: pre-wrap;
+    font-family: 'Istok Web', sans-serif;
+    font-size: 24px;
+    color: black;
+    text-align: right;
+    justify-content: center;
+    margin-top: 125px;
+    margin-left: 0;
+
+    @media (max-width: 962px) {
+        margin-left: -122px;
+    }
+`;
+
+const TypeAnimationStyled3 = styled(TypeAnimation)`
+    display: flex;
+    white-space: pre-wrap;
+    font-family: 'Istok Web', sans-serif;
+    font-size: 24px;
+    color: black;
+    text-align: right;
+    justify-content: center;
+    margin-top: 30px;
+    margin-left: 77px;
+
+    @media (max-width: 962px) {
+        margin-left: -46px;
+    }
+`;
+
+const TypeAnimationStyled4 = styled(TypeAnimation)`
+    display: flex;
+    white-space: pre-wrap;
+    font-family: 'Istok Web', sans-serif;
+    font-size: 24px;
+    color: black;
+    text-align: right;
+    justify-content: center;
+    margin-top: 30px;
+    margin-left: 52px;
+
+    @media (max-width: 962px) {
+        margin-left: -71px;
+    }
+`;
+
+const ImageWrapper1 = styled.div`
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-image: url('/images/Section2.png'); /* 이미지 파일 경로를 설정 */
+    background-size: cover;
+    background-position: center;
+`;
+
+const ImageWrapper2 = styled.div`
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+    perspective: 1000px;
+
+    &:hover .image1 {
+        transform: rotateY(-40deg) scale(1.1) translateX(100px);
+    }
+
+    &:hover .image2 {
+        transform: rotateY(-40deg) scale(1.1) translateX(-150px);
+    }
+
+    .image {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        transition: transform 0.5s;
+    }
+
+    .image1 {
+        background-image: url('/images/section2-1.png');
+    }
+
+    .image2 {
+        background-image: url('/images/section2-2.png');
+    }
+`;
+
 const Home = ({ handleLoginSuccess }) => {
     const fullTitle = '투자의 ';
     const fullSubtitle = '시작';
     const fullSubtext = 'InvestGenius';
-    const fullText = '당신의 투자 성향에 맞춘 전략을 제공해드립니다.\n당신이 원하는 정보를 검색해보세요!';
-    const fullText2 = '채팅하는 장면 동영상 섹션';
+    const fullText = '최적의 포트폴리오를 제시!\n당신의 성향에 맞는 포트폴리오를 추천받아보세요!';
+    const fullText2 = '◎ 실시간 주식 차트 기능';
+    const fullText3 = '◎ 국내 주요 회사 재무제표 조회';
+    const fullText4 = '◎ 주식에 전문화 된 챗봇 기능';
     const options = {
         sectionClassName: 'section',
         anchors: ['sectionOne', 'sectionTwo', 'sectionThree'],
         scrollBar: false,
         navigation: true,
         verticalAlign: false,
-        sectionPaddingTop: '50px',
-        sectionPaddingBottom: '50px',
         arrowNavigation: true,
     };
 
     return (
         <>
             <BackgroundImages />
-            <h3 style={{ margin: '15px' }}>InGen</h3>
+            <h3 style={{ margin: '15px', fontFamily: 'Black Ops One, sans-serif' }}>InGen</h3>
             <Navbar onLoginSuccess={handleLoginSuccess} />
             <SectionsContainer {...options}>
                 <SectionStyled>
@@ -113,46 +263,53 @@ const Home = ({ handleLoginSuccess }) => {
                                 color: 'black',
                                 textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
                                 textAlign: 'center',
-                                marginBottom: '300px',
+                                marginBottom: '165px',
                             }}
                         />
                     </TitleContainer>
                 </SectionStyled>
                 <SectionStyled>
-                    <TypeAnimation
-                        sequence={[fullText]}
-                        wrapper="div"
-                        cursor={true}
-                        repeat={0}
-                        style={{
-                            display: 'flex',
-                            whiteSpace: 'pre-wrap',
-                            fontFamily: 'Istok Web, sans-serif',
-                            fontSize: '24px',
-                            color: 'black',
-                            textAlign: 'center',
-                            justifyContent: 'center',
-                            marginTop: '140px',
-                        }}
-                    />
+                    <Container>
+                        <TextWrapperSmallScreen>
+                            AI 기반 투자 성향 분석
+                            <TypeAnimationStyled
+                                sequence={[fullText]}
+                                wrapper="div"
+                                cursor={false}
+                                repeat={0}
+                            />
+                        </TextWrapperSmallScreen>
+                        <ImageWrapper1 style={{ height: '450px', marginTop: '150px', marginRight: '60px' }} />
+                    </Container>
                 </SectionStyled>
                 <SectionStyled>
-                    <TypeAnimation
-                        sequence={[fullText2]}
-                        wrapper="div"
-                        cursor={true}
-                        repeat={0}
-                        style={{
-                            display: 'flex',
-                            whiteSpace: 'pre-wrap',
-                            fontFamily: 'Istok Web, sans-serif',
-                            fontSize: '24px',
-                            color: 'black',
-                            textAlign: 'center',
-                            justifyContent: 'center',
-                            marginTop: '130px',
-                        }}
-                    />
+                    <Container>
+                        <TextWrapperSmallScreen style={{ marginBottom: '270px' }}>
+                            투자에 필요한 시각적인 자료 지원
+                            <TypeAnimationStyled2
+                                sequence={[fullText2]}
+                                wrapper="div"
+                                cursor={false}
+                                repeat={0}
+                            />
+                            <TypeAnimationStyled3
+                                sequence={[fullText3]}
+                                wrapper="div"
+                                cursor={false}
+                                repeat={0}
+                            />
+                            <TypeAnimationStyled4
+                                sequence={[fullText4]}
+                                wrapper="div"
+                                cursor={false}
+                                repeat={0}
+                            />
+                        </TextWrapperSmallScreen>
+                        <ImageWrapper2 style={{ height: '450px', marginTop: '150px', marginRight: '60px' }}>
+                            <div className="image image1" />
+                            <div className="image image2" />
+                        </ImageWrapper2>
+                    </Container>
                 </SectionStyled>
             </SectionsContainer>
         </>
