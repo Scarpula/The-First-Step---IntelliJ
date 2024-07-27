@@ -1,10 +1,22 @@
-// src/App.js
 import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// Global styles
+const GlobalStyle = createGlobalStyle`
+    body {
+        background: #e9e9e9;
+        color: #666666;
+        font-family: 'RobotoDraft', 'Roboto', sans-serif;
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+`;
+
+// Navbar styles
 const NavbarContainer = styled.div`
     width: 100%;
     height: 60px;
@@ -32,6 +44,7 @@ const MenuButton = styled.img`
     right: 55px;
 `;
 
+// Sidebar styles
 const Overlay = styled.div`
     position: fixed;
     top: 0;
@@ -60,129 +73,194 @@ const Sidebar = styled.div`
     padding-top: 15px;
 `;
 
-const TextButton = styled.div`
-    color: #007bff;
-    cursor: pointer;
-    margin: 10px;
-    font-size: 18px;
-
-    &:hover {
-        color: #0056b3;
-    }
-`;
-
-const slideDown = keyframes`
-    from {
-        max-height: 0;
-    }
-    to {
-        max-height: 500px;
-    }
-`;
-
-const slideUp = keyframes`
-    from {
-        max-height: 500px;
-    }
-    to {
-        max-height: 0;
-    }
-`;
-
-const FormContainer = styled.div`
+// Container and Card styles
+const Container = styled.div`
+    position: relative;
+    max-width: 460px;
     width: 100%;
-    background-color: #fff;
-    overflow: hidden;
-    max-height: ${props => (props.show ? '500px' : '0')};
-    transition: max-height 0.5s ease;
-    animation: ${props => (props.show ? slideDown : slideUp)} 0.5s ease forwards;
+    margin: 0 auto 100px;
 `;
 
-const Form = styled.form`
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
+const Card = styled.div`
+    position: relative;
+    background: #ffffff;
+    border-radius: 5px;
+    padding: 60px 0 40px 0;
+    box-sizing: border-box;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    transition: 0.3s ease;
+
+    &:first-child {
+        background: #fafafa;
+        height: 10px;
+        border-radius: 5px 5px 0 0;
+        margin: 0 10px;
+        padding: 0;
+    }
+`;
+
+const Title = styled.h1`
+    position: relative;
+    z-index: 1;
+    border-left: 5px solid skyblue;
+    margin: 0 0 35px;
+    padding: 10px 0 10px 50px;
+    color: skyblue;
+    font-size: 32px;
+    font-weight: 600;
+    text-transform: uppercase;
+`;
+
+// Input and Label styles
+const InputContainer = styled.div`
+    position: relative;
+    margin: 0 60px 50px;
 `;
 
 const Input = styled.input`
-    margin: 10px 0;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid ${props => (props.error ? 'red' : '#ccc')};
-    border-radius: 4px;
+    outline: none;
+    z-index: 1;
+    position: relative;
+    background: none;
+    width: 100%;
+    height: 60px;
+    border: 0;
+    color: #212121;
+    font-size: 24px;
+    font-weight: 400;
+
+    &:focus ~ label,
+    &:valid ~ label {
+        color: #9d9d9d;
+        transform: translate(-12%, -50%) scale(0.75);
+    }
+
+    &:focus ~ .bar:before,
+    &:focus ~ .bar:after {
+        width: 50%;
+    }
 `;
 
+const InputLabel = styled.label`
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: #757575;
+    font-size: 24px;
+    font-weight: 300;
+    line-height: 60px;
+    transition: 0.2s ease;
+`;
+
+const Bar = styled.div`
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    background: #757575;
+    width: 100%;
+    height: 1px;
+
+    &:before,
+    &:after {
+        content: '';
+        position: absolute;
+        background: skyblue;
+        width: 0;
+        height: 2px;
+        transition: 0.2s ease;
+    }
+
+    &:before {
+        left: 50%;
+    }
+
+    &:after {
+        right: 50%;
+    }
+`;
+
+// Button styles
 const Button = styled.button`
-    padding: 10px;
-    font-size: 16px;
-    color: #fff;
-    background-color: #007bff;
-    border: none;
-    border-radius: 4px;
+    outline: 0;
     cursor: pointer;
-    margin-top: 10px;
+    position: relative;
+    display: inline-block;
+    background: 0;
+    width: 240px;
+    border: 2px solid #e3e3e3;
+    padding: 20px 0;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1;
+    text-transform: uppercase;
+    overflow: hidden;
+    transition: 0.3s ease;
 
-    &:hover {
-        background-color: #0056b3;
+    span {
+        position: relative;
+        z-index: 1;
+        color: #ddd;
+        transition: 0.3s ease;
+    }
+
+    &:before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        display: block;
+        background: skyblue;
+        width: 30px;
+        height: 30px;
+        border-radius: 100%;
+        margin: -15px 0 0 -15px;
+        opacity: 0;
+        transition: 0.3s ease;
+    }
+
+    &:hover,
+    &:active,
+    &:focus {
+        border-color: skyblue;
+
+        span {
+            color: skyblue;
+        }
+    }
+
+    &:active,
+    &:focus {
+        span {
+            color: #ffffff;
+        }
+
+        &:before {
+            opacity: 1;
+            transform: scale(10);
+        }
     }
 `;
 
-const KakaoButton = styled(Button)`
-    background-color: #FFEB00;
-    color: #3c1e1e;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+// Footer styles
+const Footer = styled.div`
+    margin: 40px 0 0;
+    color: #d3d3d3;
+    font-size: 24px;
+    font-weight: 300;
+    text-align: center;
 
-    &:hover {
-        background-color: #e5d100;
-    }
+    a {
+        color: inherit;
+        text-decoration: none;
+        transition: 0.3s ease;
 
-    img {
-        margin-right: 8px;
-        width: 24px;
-        height: 24px;
-    }
-`;
-
-const GoogleButton = styled(Button)`
-    background-color: #DB4437;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 10px;
-
-    &:hover {
-        background-color: #c33d2e;
-    }
-
-    img {
-        margin-right: 8px;
-        width: 24px;
-        height: 24px;
+        &:hover {
+            color: #bababa;
+        }
     }
 `;
 
-const GithubButton = styled(Button)`
-    background-color: #24292e;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 10px;
-
-    &:hover {
-        background-color: #1b1f23;
-    }
-
-    img {
-        margin-right: 8px;
-        width: 24px;
-        height: 24px;
-    }
-`;
-
+// Success animation styles
 const SuccessOverlay = styled(motion.div)`
     position: absolute;
     top: 0;
@@ -204,15 +282,16 @@ const SuccessCheckmark = styled(motion.path)`
 `;
 
 const SuccessCircle = styled(motion.circle)`
-  fill: none;
-  stroke: #4caf50;
-  stroke-width: 2;
+    fill: none;
+    stroke: #4caf50;
+    stroke-width: 2;
 `;
 
+
+// Navbar component
 const Navbar = ({ onLoginSuccess }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [showLoginForm, setShowLoginForm] = useState(false);
-    const [showSignupForm, setShowSignupForm] = useState(false);
+    const [showLoginForm, setShowLoginForm] = useState(true);
     const [loginEmail, setLoginEmail] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
     const [signupEmail, setSignupEmail] = useState('');
@@ -221,35 +300,22 @@ const Navbar = ({ onLoginSuccess }) => {
     const [birthdate, setBirthdate] = useState('');
     const [error, setError] = useState(false);
     const [user, setUser] = useState(null);
-    const [signupStatus, setSignupStatus] = useState(null);
-    const navigate = useNavigate();  // useNavigate 훅 사용
-    const resetSignupForm = () => {
-        setSignupEmail('');
-        setSignupPassword('');
-        setUsername('');
-        setBirthdate('');
-    };
+    const [signupSuccess, setSignupSuccess] = useState(false);
+    const navigate = useNavigate();
 
+    // Toggle sidebar visibility
     const toggleSidebar = () => {
         setIsOpen(!isOpen);
     };
 
-    const handleLoginClick = () => {
+    // Toggle between login and signup forms
+    const toggleForm = () => {
         setShowLoginForm(!showLoginForm);
-        setShowSignupForm(false);
     };
 
-    const handleSignupClick = () => {
-        setShowSignupForm(!showSignupForm);
-        setShowLoginForm(false);
-        resetSignupForm();
-
-    };
-
+    // Handle login form submission
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
-        console.log("Email:", loginEmail);
-        console.log("Password:", loginPassword);
         try {
             const response = await axios.post('http://localhost:8082/api/login', {
                 email: loginEmail,
@@ -258,25 +324,86 @@ const Navbar = ({ onLoginSuccess }) => {
 
             if (response.status === 200 && response.data.message === 'Login successful') {
                 setError(false);
-                onLoginSuccess();  // 로그인 성공 시 콜백 호출
+                onLoginSuccess();
                 setIsOpen(false);
                 checkSession();
-                navigate('/chat');  // 로그인 성공 시 /chat 경로로 이동
+                navigate('/chat');
             } else {
                 setError(true);
-                console.log("로그인 실패");
             }
         } catch (error) {
             setError(true);
-            console.log("에러");
         }
     };
 
-    const [signupSuccess, setSignupSuccess] = useState(false);
 
+
+    const KAKAO_REST_API_KEY = 'd30a03746900aa2ed901790716355981';
+    const KAKAO_REDIRECT_URI = 'http://localhost:8081/api/kakao';
+
+    const handlekakaologin = () => {
+        console.log("Redirecting to Kakao login...");
+        window.location.href = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_REST_API_KEY}&redirect_uri=${KAKAO_REDIRECT_URI}`;
+    };
+
+
+
+    const handleKakaoCallback = async () => {
+        const code = new URL(window.location.href).searchParams.get("code");
+        console.log("Received authorization code:", code);
+
+        if (code) {
+            try {
+                console.log("Requesting access token with code:", code);
+
+                const tokenResponse = await axios.post('https://kauth.kakao.com/oauth/token', null, {
+                    params: {
+                        grant_type: 'authorization_code',
+                        client_id: KAKAO_REST_API_KEY,
+                        redirect_uri: KAKAO_REDIRECT_URI,
+                        code: code,
+                    },
+                    headers: {
+                        'Content-type': 'application/x-www-form-urlencoded;charset=utf-8'
+                    }
+                });
+
+                console.log("Received token response:", tokenResponse.data);
+
+                const { access_token, refresh_token } = tokenResponse.data;
+
+                console.log("Sending tokens to backend...");
+
+                const response = await axios.post('http://localhost:8082/api/kakao', {
+                    accessToken: access_token,
+                    refreshToken: refresh_token
+                });
+
+                console.log('Backend response:', response.data);
+                await checkLoginStatus();
+                onLoginSuccess();
+                navigate('/chat');  // 성공 시에만 채팅 페이지로 이동
+            } catch (error) {
+                console.error('Error in Kakao login process:', error);
+                if (error.response) {
+                    console.error('Error response:', error.response.data);
+                }
+                // 에러 발생 시 처리 (예: 에러 페이지로 이동 또는 에러 메시지 표시)
+                navigate('/error');  // 또는 적절한 에러 처리
+            }
+        } else {
+            console.log("No authorization code found in URL");
+            navigate('/');  // 코드가 없을 경우 홈페이지로 이동
+        }
+    };
+
+
+
+
+
+    // Handle signup form submission
     const handleSignupSubmit = async (e) => {
         e.preventDefault();
-
         try {
             const response = await axios.post('http://localhost:8082/api/signup', {
                 userId: signupEmail,
@@ -290,32 +417,17 @@ const Navbar = ({ onLoginSuccess }) => {
                 setSignupSuccess(true);
                 setTimeout(() => {
                     setSignupSuccess(false);
-                    setShowSignupForm(false);
-                    resetSignupForm();
+                    setShowLoginForm(true);
                 }, 2000);
             } else {
                 setError(true);
             }
         } catch (error) {
-            console.error("Error during signup:", error);
             setError(true);
         }
     };
 
-    const handleLogout = async () => {
-        try {
-            const response = await axios.get('http://localhost:8082/api/logout', { withCredentials: true });
-            if (response.status === 200) {
-                setUser(null);
-                alert('Logout successful');
-            } else {
-                alert('Logout failed');
-            }
-        } catch (error) {
-            console.error("Error during logout:", error);
-        }
-    };
-
+    // Check user session
     const checkSession = async () => {
         try {
             const response = await axios.get('http://localhost:8082/api/session', { withCredentials: true });
@@ -324,139 +436,145 @@ const Navbar = ({ onLoginSuccess }) => {
             }
         } catch (error) {
             console.error("Error during session check:", error);
+            if (error.response) {
+                console.error("Response data:", error.response.data);
+                console.error("Response status:", error.response.status);
+                console.error("Response headers:", error.response.headers);
+            } else if (error.request) {
+                console.error("No response received:", error.request);
+            } else {
+                console.error("Error setting up request:", error.message);
+            }
         }
     };
 
     useEffect(() => {
-        checkSession();
-    }, []);
-
-    useEffect(() => {
-        if (isOpen || showLoginForm || showSignupForm) {
-            document.body.style.overflow = 'hidden';
+        console.log("Checking for Kakao authorization code...");
+        const code = new URL(window.location.href).searchParams.get("code");
+        if (code) {
+            handleKakaoCallback().then(() => {
+                checkSession();
+            });
         } else {
-            document.body.style.overflow = 'auto';
+            console.log("No code found, not calling handleKakaoCallback");
+            checkSession();
         }
-    }, [isOpen, showLoginForm, showSignupForm]);
-
-    useEffect(() => {
-        if (!isOpen) {
-            resetSignupForm();
-        }
-    }, [isOpen]);
+    }, []);
 
     return (
         <>
-            <Overlay show={isOpen ? 'true' : undefined} onClick={toggleSidebar} />
+            <GlobalStyle />
+            <Overlay show={isOpen} onClick={toggleSidebar} />
             <NavbarContainer>
-                <Logo />
+                <Logo></Logo>
                 <MenuButton src="/images/density_medium_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg" alt="Menu" onClick={toggleSidebar} />
             </NavbarContainer>
             <Sidebar show={isOpen}>
-                {!user && (
-                    <>
-                        <TextButton onClick={handleLoginClick}>로그인</TextButton>
-                        <FormContainer show={showLoginForm}>
-                            <Form onSubmit={handleLoginSubmit}>
+                <Container>
+                    <Card />
+                    <Card>
+                        <Title style={{marginRight:200}}>{showLoginForm ? 'Login' : 'Join'}</Title>
+                        <form onSubmit={showLoginForm ? handleLoginSubmit : handleSignupSubmit}>
+                            <InputContainer>
                                 <Input
                                     type="email"
-                                    placeholder="Email"
-                                    value={loginEmail}
-                                    onChange={(e) => setLoginEmail(e.target.value)}
-                                    error={error}
+                                    id="email"
+                                    required
+                                    value={showLoginForm ? loginEmail : signupEmail}
+                                    onChange={(e) => showLoginForm ? setLoginEmail(e.target.value) : setSignupEmail(e.target.value)}
                                 />
+                                <InputLabel htmlFor="email">Email</InputLabel>
+                                <Bar />
+                            </InputContainer>
+                            <InputContainer>
                                 <Input
                                     type="password"
-                                    placeholder="Password"
-                                    value={loginPassword}
-                                    onChange={(e) => setLoginPassword(e.target.value)}
-                                    error={error}
+                                    id="password"
+                                    required
+                                    value={showLoginForm ? loginPassword : signupPassword}
+                                    onChange={(e) => showLoginForm ? setLoginPassword(e.target.value) : setSignupPassword(e.target.value)}
                                 />
-                                <Button type="submit">로그인</Button>
-                                <KakaoButton>
-                                    카카오톡 로그인
-                                </KakaoButton>
-                                <GoogleButton>
-                                    구글 로그인
-                                </GoogleButton>
-                            </Form>
-                        </FormContainer>
-                        <TextButton onClick={handleSignupClick}>회원가입</TextButton>
-                        <FormContainer show={showSignupForm}>
-                            <Form onSubmit={handleSignupSubmit}>
-                                <Input
-                                    type="email"
-                                    placeholder="Email"
-                                    value={signupEmail}
-                                    onChange={(e) => setSignupEmail(e.target.value)}
-                                    error={error}
-                                />
-                                <Input
-                                    type="password"
-                                    placeholder="Password"
-                                    value={signupPassword}
-                                    onChange={(e) => setSignupPassword(e.target.value)}
-                                    error={error}
-                                />
-                                <Input
-                                    type="text"
-                                    placeholder="이름"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    error={error}
-                                />
-                                <Input
-                                    type="date"
-                                    placeholder="생년월일"
-                                    value={birthdate}
-                                    onChange={(e) => setBirthdate(e.target.value)}
-                                    error={error}
-                                />
-                                <Button type="submit">회원가입</Button>
-                            </Form>
-                            <AnimatePresence>
-                                {signupSuccess && (
-                                    <SuccessOverlay
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        transition={{ duration: 0.3 }}
+                                <InputLabel htmlFor="password">Password</InputLabel>
+                                <Bar />
+                            </InputContainer>
+                            {!showLoginForm && (
+                                <>
+                                    <InputContainer>
+                                        <Input
+                                            type="text"
+                                            id="username"
+                                            required
+                                            value={username}
+                                            onChange={(e) => setUsername(e.target.value)}
+                                        />
+                                        <InputLabel htmlFor="username">Username</InputLabel>
+                                        <Bar />
+                                    </InputContainer>
+                                    <InputContainer>
+                                        <Input
+                                            type="date"
+                                            id="birthdate"
+                                            required
+                                            value={birthdate}
+                                            onChange={(e) => setBirthdate(e.target.value)}
+                                        />
+                                        <InputLabel htmlFor="birthdate"></InputLabel>
+                                        <Bar />
+                                    </InputContainer>
+                                </>
+                            )}
+                            <Button type="submit" style={{marginLeft:30}}>
+                                <span>{showLoginForm ? 'Login' : 'Join'}</span>
+                            </Button>
+                            <Button onClick={handlekakaologin} style={{marginTop:10, marginLeft:30, backgroundColor:"#fee500",
+                                border:"none"}}>
+                                <span  style={{color:"#3c1a1a",fontSize:"18px", fontWeight:"bold"}}>카카오톡 로그인</span>
+                            </Button>
+                        </form>
+                        <Footer>
+                            <a href="#" onClick={toggleForm} style={{ fontSize: 18, color: "black" }}>
+                                {showLoginForm
+                                    ? <>계정이 없으신가요? <strong>가입하기</strong></>
+                                    : <>이미 계정이 있으신가요? <strong>로그인</strong></>}
+                            </a>
+                        </Footer>
+                        <AnimatePresence>
+                            {signupSuccess && (
+                                <SuccessOverlay
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    <motion.svg
+                                        width="100"
+                                        height="100"
+                                        viewBox="0 0 50 50"
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        exit={{ scale: 0 }}
+                                        transition={{ duration: 0.5 }}
                                     >
-                                        <motion.svg
-                                            width="100"
-                                            height="100"
-                                            viewBox="0 0 50 50"
-                                            initial={{ scale: 0 }}
-                                            animate={{ scale: 1 }}
-                                            exit={{ scale: 0 }}
-                                            transition={{ duration: 0.5 }}
-                                        >
-                                            <SuccessCircle
-                                                cx="25"
-                                                cy="25"
-                                                r="20"
-                                                initial={{ pathLength: 0 }}
-                                                animate={{ pathLength: 1 }}
-                                                transition={{ duration: 0.5, delay: 0.2 }}
-                                            />
-                                            <SuccessCheckmark
-                                                d="M14 26 L 22 33 L 36 18"
-                                                initial={{ pathLength: 0 }}
-                                                animate={{ pathLength: 1 }}
-                                                transition={{ duration: 0.5, delay: 0.8 }}
-                                            />
-                                        </motion.svg>
-                                    </SuccessOverlay>
-                                )}
-                            </AnimatePresence>
-                        </FormContainer>
-                    </>
-                )}
-                {user && (
-                    <div>
-                        <h2>Welcome, {user.name}</h2>
-                    </div>
-                )}
+                                        <SuccessCircle
+                                            cx="25"
+                                            cy="25"
+                                            r="20"
+                                            initial={{ pathLength: 0 }}
+                                            animate={{ pathLength: 1 }}
+                                            transition={{ duration: 0.5, delay: 0.2 }}
+                                        />
+                                        <SuccessCheckmark
+                                            d="M14 26 L 22 33 L 36 18"
+                                            initial={{ pathLength: 0 }}
+                                            animate={{ pathLength: 1 }}
+                                            transition={{ duration: 0.5, delay: 0.8 }}
+                                        />
+                                    </motion.svg>
+                                </SuccessOverlay>
+                            )}
+                        </AnimatePresence>
+                    </Card>
+                </Container>
             </Sidebar>
         </>
     );

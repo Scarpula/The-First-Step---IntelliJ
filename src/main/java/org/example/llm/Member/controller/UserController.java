@@ -4,11 +4,10 @@ package org.example.llm.Member.controller;
 import jakarta.servlet.http.HttpSession;
 import org.example.llm.Member.Entity.UserEntity;
 import org.example.llm.Member.dto.Joindto;
-//import org.example.llm.Member.dto.KakaoUserDto;
-import org.example.llm.Member.dto.LoginResponseDto;
+import org.example.llm.Member.dto.KakaoAuthRequest;
+import org.example.llm.Member.dto.LoginResponse;
 import org.example.llm.Member.dto.PasswordUpdateRequest;
-//import org.example.llm.Member.service.KakaoService;
-//import org.example.llm.Member.service.KakaoService;
+import org.example.llm.Member.service.KakaoService;
 import org.example.llm.Member.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,11 +24,13 @@ public class UserController {
     @Autowired
     private final HttpSession httpSession;
     private final UserService userService;
+    private final KakaoService kakaoService;
 
 
-    public UserController(HttpSession httpSession, UserService userService) {
+    public UserController(HttpSession httpSession, UserService userService, KakaoService kakaoService) {
         this.httpSession = httpSession;
         this.userService = userService;
+        this.kakaoService = kakaoService;
     }
 
     @PostMapping("/signup")
@@ -84,12 +85,12 @@ public class UserController {
     }
 
     @GetMapping("/session")
-    public  ResponseEntity<?> getSession(){
-        UserEntity user = (UserEntity) httpSession.getAttribute("user");
-        if(user != null){
-            return ResponseEntity.ok().body(Map.of("status","success","user",user));
-        }else {
-            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "No active session"));
+    public ResponseEntity<?> checkSession(HttpSession session) {
+        UserEntity user = (UserEntity) session.getAttribute("user");
+        if (user != null) {
+            return ResponseEntity.ok(new LoginResponse(user));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No active session");
         }
     }
 
@@ -105,11 +106,12 @@ public class UserController {
         }
     }
 
-//
-//    @GetMapping("/kakao")
-//    public ResponseEntity<LoginResponseDto> kakaoLogin(@RequestParam("code") String code) {
-//        KakaoTokenDto kakaoTokenDto = KakaoService.getKakaoAccessToken(code);
-//        return KakaoService.kakaoLogin(kakaoTokenDto.getAccess_token());
-//    }
+    @PostMapping("/kakao")
+    public ResponseEntity<?> handleKakaoLogin(@RequestBody KakaoAuthRequest request) {
+        UserEntity user = kakaoService.processKakaoLogin(request.getEmail(), request.getName());
+        httpSession.setAttribute("user", user);
+        return ResponseEntity.ok(new LoginResponse(user));
+    }
+
 
 }
