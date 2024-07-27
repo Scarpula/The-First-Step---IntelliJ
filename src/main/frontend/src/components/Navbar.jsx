@@ -313,8 +313,18 @@ const Navbar = ({ onLoginSuccess }) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (window.Kakao && !window.Kakao.isInitialized()) {
-            window.Kakao.init('YOUR_KAKAO_JAVASCRIPT_KEY');
+        // 카카오 SDK 스크립트가 로드되었는지 확인
+        if (!window.Kakao) {
+            const script = document.createElement('script');
+            script.src = 'https://developers.kakao.com/sdk/js/kakao.js';
+            script.onload = () => {
+                window.Kakao.init('659f513075716c7150370a40de5a27f5'); // 'YOUR_APP_KEY'를 실제 카카오 앱 키로 교체하세요.
+            };
+            document.body.appendChild(script);
+        } else {
+            if (!window.Kakao.isInitialized()) {
+                window.Kakao.init('659f513075716c7150370a40de5a27f5');
+            }
         }
     }, []);
 
