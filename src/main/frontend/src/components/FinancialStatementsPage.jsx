@@ -340,7 +340,7 @@ function FinancialStatementsPage() {
 
     return (
         <div className="financial-page">
-            <h1 style={{marginTop: 100}}>국내 기업 재무제표 조회</h1>
+            <h1 style={{marginTop: 30}}>국내 기업 재무제표 조회</h1>
             <form onSubmit={handleSubmit} className="search-form">
                 <input
                     type="text"

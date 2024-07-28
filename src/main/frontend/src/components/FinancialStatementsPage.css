@@ -139,23 +139,32 @@ h1 {
 .table-scroll-container {
     max-height: 500px;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
-.company-list table {
+.company-list table,
+.financial-results table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
     background-color: white;
+    table-layout: fixed;
 }
 
 .company-list th,
-.company-list td {
+.company-list td,
+.financial-results th,
+.financial-results td {
     border: none;
     padding: 15px;
     text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.company-list th {
+.company-list th,
+.financial-results th {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: white;
     position: sticky;
@@ -164,35 +173,42 @@ h1 {
     font-weight: bold;
 }
 
-.company-list tbody tr {
+.company-list tbody tr,
+.financial-results tbody tr {
     transition: all 0.3s ease;
 }
 
-.company-list tbody tr:nth-child(even) {
+.company-list tbody tr:nth-child(even),
+.financial-results tbody tr:nth-child(even) {
     background-color: #f8f9fa;
 }
 
-.company-list tbody tr:hover {
-    background-color: #e9f2fa;
+.company-list tbody tr:hover,
+.financial-results tbody tr:hover {
+    background-color: lightskyblue;
     transform: scale(1.02);
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-.table-scroll-container::-webkit-scrollbar {
+.table-scroll-container::-webkit-scrollbar,
+.financial-results .table-container::-webkit-scrollbar {
     width: 10px;
 }
 
-.table-scroll-container::-webkit-scrollbar-track {
+.table-scroll-container::-webkit-scrollbar-track,
+.financial-results .table-container::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 5px;
 }
 
-.table-scroll-container::-webkit-scrollbar-thumb {
+.table-scroll-container::-webkit-scrollbar-thumb,
+.financial-results .table-container::-webkit-scrollbar-thumb {
     background: var(--primary-color);
     border-radius: 5px;
 }
 
-.table-scroll-container::-webkit-scrollbar-thumb:hover {
+.table-scroll-container::-webkit-scrollbar-thumb:hover,
+.financial-results .table-container::-webkit-scrollbar-thumb:hover {
     background: var(--secondary-color);
 }
 
@@ -209,44 +225,9 @@ h1 {
 .financial-results .table-container {
     max-height: 600px;
     overflow-y: auto;
+    overflow-x: hidden;
     border-radius: 12px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-.financial-results table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    background-color: white;
-}
-
-.financial-results th,
-.financial-results td {
-    border: none;
-    padding: 15px;
-    text-align: left;
-}
-
-.financial-results th {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    font-weight: bold;
-}
-
-.financial-results tbody tr {
-    transition: all 0.3s ease;
-}
-
-.financial-results tbody tr:nth-child(even) {
-    background-color: #f8f9fa;
-}
-
-.financial-results tbody tr:hover {
-    background-color: #e9f2fa;
-    transform: scale(1.02);
 }
 
 @keyframes fadeIn {
