@@ -285,7 +285,7 @@ const StockChart = () => {
   const options = {
     title: {
       text: `${displayedCompanyName} Stock Price - ${year}`,
-      fontColor: "skyblue"
+      fontColor: "#4a90e2"
     },
     charts: [{
       data: [{
