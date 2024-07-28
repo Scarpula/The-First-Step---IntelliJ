@@ -346,7 +346,7 @@ const Navbar = ({ onLoginSuccess }) => {
                                     onLoginSuccess();
                                     setIsOpen(false);
                                     checkSession();
-                                    navigate('/chat');
+                                    navigateToFirstChatRoom(); // 첫 번째 채팅방으로 이동
                                 } else {
                                     setError(true);
                                 }
@@ -391,7 +391,7 @@ const Navbar = ({ onLoginSuccess }) => {
                 onLoginSuccess();
                 setIsOpen(false);
                 checkSession();
-                navigate('/chat');
+                navigateToFirstChatRoom(); // 첫 번째 채팅방으로 이동
             } else {
                 setError(true);
             }
@@ -433,6 +433,25 @@ const Navbar = ({ onLoginSuccess }) => {
             }
         } catch (error) {
             console.error("세션 확인 중 오류 발생:", error);
+        }
+    };
+
+    const navigateToFirstChatRoom = async () => {
+        try {
+            const response = await axios.get('http://localhost:8082/api/rooms', {
+                params: { userId: loginEmail },
+                withCredentials: true
+            });
+
+            if (response.data && response.data.length > 0) {
+                const firstChatRoom = response.data[0];
+                navigate(`/chat?roomid=${firstChatRoom.chatroomId}`);
+            } else {
+                navigate('/chat');
+            }
+        } catch (error) {
+            console.error("첫 번째 채팅방으로 이동 중 오류 발생:", error);
+            navigate('/chat');
         }
     };
 

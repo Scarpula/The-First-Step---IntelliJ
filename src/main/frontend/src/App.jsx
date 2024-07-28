@@ -62,38 +62,30 @@ const Container = styled.div`
     display: flex;
     width: 100%;
     height: 100%;
-    overflow-x: hidden;
+    overflow-x : hidden;
+    overflow-y : hidden;
 `;
 
 const TextWrapperSmallScreen = styled.div`
     display: flex;
     flex-direction: column;
-    font-size: 50px;
+    font-size: 44px;
     color: black;
-    margin-left: 130px;
+    width: 50%; // 고정 너비 설정
+    max-width: 600px; // 최대 너비 설정
     height: 450px;
     margin-top: 220px;
-    margin-right: 60px;
+    margin-left: 5%; // 왼쪽 여백을 퍼센트로 변경
     position: relative;
-    bottom: 60px;
     opacity: 0;
     transform: translateY(30px);
-    transition: opacity 0.7s, transform 2.2s;
+    transition: opacity 2.0s, transform 0.8s;
 
     &.visible {
         opacity: 1;
         transform: translateY(0);
     }
 
-    @media (max-width: 962px) {
-        margin-left: 40px;
-        margin-bottom: 0px;
-        font-size: 35px;
-        position: relative;
-        top: 10px;
-        height: 450px;
-        width: 40%;
-    }
 `;
 
 const TypeAnimationStyled = styled.div`
@@ -111,7 +103,7 @@ const TypeAnimationStyled = styled.div`
     top: 60px;
     opacity: 0;
     animation: ${fadeIn} 0.5s forwards;
-    animation-delay: 0.7s;
+    animation-delay: 0.5s;
 
     @media (max-width: 962px) {
         margin-top: 140px;
@@ -124,7 +116,7 @@ const TypeAnimationStyled2 = styled.div`
     font-weight : 300;
     transform: translateY(-20px);
     animation: ${delayedFadeIn} 0.5s forwards;
-    animation-delay: 1s;
+    animation-delay: 0.5s;
     font-size : 28px;
     margin-top : 90px;
 
@@ -139,7 +131,7 @@ const TypeAnimationStyled3 = styled.div`
     font-weight : 300;
     transform: translateY(-20px);
     animation: ${delayedFadeIn} 0.5s forwards;
-    animation-delay: 1.5s;
+    animation-delay: 1.0s;
     font-size : 28px;
     margin-top : 25px;
 
@@ -154,7 +146,7 @@ const TypeAnimationStyled4 = styled.div`
     font-weight : 300;
     transform: translateY(-20px);
     animation: ${delayedFadeIn} 0.5s forwards;
-    animation-delay: 2s;
+    animation-delay: 1.5s;
     font-size : 28px;
     margin-top : 25px;
 
@@ -197,7 +189,7 @@ const ImageWrapper2 = styled.div`
     padding: 20px;
     position: relative;
     perspective: 1000px;
-    overflow-x: hidden;
+    overflow: visible;
 
     &:hover .image1 {
         transform: rotateY(-40deg) scale(1.1) translateX(100px);
@@ -347,7 +339,7 @@ const Home = ({ handleLoginSuccess }) => {
                 <SectionStyled>
                     <Container>
                         <TextWrapperSmallScreen className="text-wrapper-small-screen2" style={{ marginBottom: '270px', fontFamily: 'Hahmlet, serif', fontWeight: '800'}}>
-                            투자에 필요한 시각적인 자료 지원
+                            투자에 필요한 시각적 자료 지원
                             {showAdditionalText && (
                                 <>
                                     <TypeAnimationStyled2>
@@ -362,7 +354,7 @@ const Home = ({ handleLoginSuccess }) => {
                                 </>
                             )}
                         </TextWrapperSmallScreen>
-                        <ImageWrapper2 className="image-wrapper-2" style={{ height: '450px', marginTop: '150px', marginRight: '60px' }}>
+                        <ImageWrapper2 className="image-wrapper-2" style={{ height: '450px', marginTop: '150px', marginRight: '60px',marginLeft : '100px' }}>
                             <div className="image image1" />
                             <div className="image image2" />
                         </ImageWrapper2>
