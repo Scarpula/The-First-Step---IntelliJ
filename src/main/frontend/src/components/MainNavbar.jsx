@@ -208,17 +208,17 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
     onTabClick(tab);
     setIsSidebarOpen(false);
 
-    if (tab === '◎ 챗봇') {
+    if (tab === '챗봇') {
       navigate(`/chat`);
     } else {
       switch (tab) {
-        case '◎ 실시간 차트':
+        case '실시간 차트':
           navigate('/realtime-chart');
           break;
-        case '◎ 재무제표 조회':
+        case '재무제표 조회':
           navigate('/financial-statements');
           break;
-        case '◎ 내정보':
+        case '내정보':
           navigate('/user-info');
           break;
         default:
@@ -336,9 +336,9 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
           initial="closed"
           animate={isSidebarOpen ? 'open' : 'closed'}
           variants={menuVariants}
-          style={{ listStyle: 'none', padding: '15px' }}
+          style={{ listStyle: 'none', padding: '15px', color:"#4a90e2" }}
         >
-          {['◎ 실시간 차트', '◎ 재무제표 조회', '◎ 챗봇', '◎ 내정보'].map((tab) => (
+          {['실시간 차트', '재무제표 조회', '챗봇', '내정보'].map((tab) => (
             <motion.li
               key={tab}
               variants={itemVariants}
@@ -368,7 +368,7 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
                 variants={itemVariants}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                style={{ marginTop: '320px', cursor: 'pointer' }}
+                style={{ marginTop: '320px', cursor: 'pointer' ,color:'black'}}
               >
                 반가워요! <b>{user.name}</b>님
               </motion.li>
@@ -376,7 +376,7 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
                 variants={itemVariants}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                style={{ marginTop: '5px', cursor: 'pointer' }}
+                style={{ marginTop: '5px', cursor: 'pointer',color:'black' }}
                 onClick={handleLogout}
               >
                 로그아웃

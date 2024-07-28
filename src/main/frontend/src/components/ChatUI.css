@@ -10,19 +10,20 @@
 .chat-bubble {
   max-width: 80%;
   padding: 10px 15px;
-  border-radius: 20px;
+  border-radius: 8px;
   margin-bottom: 10px;
   line-height: 1.4;
   margin-top : 15px;
+  box-shadow : 5px 5px 10px -5px;
 }
 
 .chat-bubble.left {
-  background-color: #CFCFCF;
+  background-color: #ffffff;
   align-self: flex-start;
 }
 
 .chat-bubble.right {
-  background-color: #EAEAEA;
+  background-color: #ffeb33;
   align-self: flex-end;
   padding-top : 1px;
   padding-bottom : 1px;

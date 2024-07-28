@@ -340,7 +340,7 @@ function FinancialStatementsPage() {
 
     return (
         <div className="financial-page">
-            <h1 style={{marginTop: 100}}>국내 기업 재무제표 조회</h1>
+            <h1 style={{marginTop: 30}}>국내 기업 재무제표 조회</h1>
             <form onSubmit={handleSubmit} className="search-form">
                 <input
                     type="text"
@@ -361,7 +361,7 @@ function FinancialStatementsPage() {
                     <option value="11011">4분기</option>
                 </select>
                 <button type="submit">조회</button>
-                <button type="button" onClick={handleReset}>다시조회</button>
+                <button type="button" onClick={handleReset}>리셋</button>
             </form>
             {loading && <div>Loading...</div>}
             {error && <div style={{ color: 'red' }}>{error}</div>}
@@ -430,7 +430,7 @@ function FinancialStatementsPage() {
                         onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
                         onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
                     >
-                        {showGraph ? '재무제표 차트 보기' : '주요 재무항목 그래프 보기'}
+                        {showGraph ? '재무제표 보기' : '주요 재무항목 그래프 보기'}
                     </button>
 
                     {!showGraph && (

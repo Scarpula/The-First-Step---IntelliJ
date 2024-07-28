@@ -63,6 +63,8 @@ const ChatUI = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const roomId = new URLSearchParams(location.search).get('roomid');
+
   useEffect(() => {
     const checkSession = async () => {
       try {
@@ -150,14 +152,12 @@ const ChatUI = () => {
         body: JSON.stringify({ question: messageText, user_id: user.email, room_id: roomId }),
       });
 
-
-        console.log(response)
       if (!response.ok) {
         throw new Error('서버 응답이 실패했습니다.');
       }
 
       const data = await response.json();
-      const botMessage = { id: Date.now(), text: data.response, sender: 'bot' };
+      const botMessage = { id: Date.now(), text: data.response, sender: 'bot', typing: data.typing };
       console.log('Bot response received:', botMessage);
 
       setMessages((prevMessages) => {
