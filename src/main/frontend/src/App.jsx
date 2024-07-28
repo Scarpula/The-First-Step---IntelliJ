@@ -69,13 +69,13 @@ const Container = styled.div`
 const TextWrapperSmallScreen = styled.div`
     display: flex;
     flex-direction: column;
-    font-size: 44px;
+    font-size: 34px;
     color: black;
     width: 50%; // 고정 너비 설정
-    max-width: 600px; // 최대 너비 설정
+    max-width: 847px; // 최대 너비 설정
     height: 450px;
     margin-top: 220px;
-    margin-left: 5%; // 왼쪽 여백을 퍼센트로 변경
+    margin-left: 4%; // 왼쪽 여백을 퍼센트로 변경
     position: relative;
     opacity: 0;
     transform: translateY(30px);
@@ -84,6 +84,10 @@ const TextWrapperSmallScreen = styled.div`
     &.visible {
         opacity: 1;
         transform: translateY(0);
+    }
+
+    @media (max-width: 962px){
+        font-size : 24px;
     }
 
 `;
@@ -117,11 +121,11 @@ const TypeAnimationStyled2 = styled.div`
     transform: translateY(-20px);
     animation: ${delayedFadeIn} 0.5s forwards;
     animation-delay: 0.5s;
-    font-size : 28px;
+    font-size : 22px;
     margin-top : 90px;
 
     @media (max-width: 962px) {
-        margin-left: -122px;
+        margin-left: 23px;
     }
 `;
 
@@ -132,11 +136,11 @@ const TypeAnimationStyled3 = styled.div`
     transform: translateY(-20px);
     animation: ${delayedFadeIn} 0.5s forwards;
     animation-delay: 1.0s;
-    font-size : 28px;
+    font-size : 22px;
     margin-top : 25px;
 
     @media (max-width: 962px) {
-        margin-left: -46px;
+        margin-left: 21px;
     }
 `;
 
@@ -147,11 +151,11 @@ const TypeAnimationStyled4 = styled.div`
     transform: translateY(-20px);
     animation: ${delayedFadeIn} 0.5s forwards;
     animation-delay: 1.5s;
-    font-size : 28px;
+    font-size : 22px;
     margin-top : 25px;
 
     @media (max-width: 962px) {
-        margin-left: -71px;
+        margin-left: 20px;
     }
 `;
 
@@ -228,10 +232,12 @@ const Home = ({ handleLoginSuccess }) => {
     const fullTitle = '투자의 ';
     const fullSubtitle = '시작';
     const fullSubtext = 'InvestGenius';
-    const fullText = '최적의 포트폴리오를 제시!\n당신의 성향에 맞는 포트폴리오를 추천받아보세요!';
-    const fullText2 = '◎ 실시간 주식 차트 기능';
-    const fullText3 = '◎ 국내 주요 회사 재무제표 조회';
-    const fullText4 = '◎ 주식에 전문화 된 챗봇 기능';
+    const Section2Text = 'LLM과의 편안한 대화를 통해 여러분이 원하는 투자 스타일을 발견 하세요.';
+    const Section2Text2 = 'LLM이 여러분의 심리 상태, 개인 성향을 이해하고 적절한 투자 스타일을 제시 합니다.';
+    const Section2Text3 = '또한, 여러분에 투자 스타일에 알맞은 포트폴리오를 제공합니다.';
+    const fullText2 = '실시간 차트와 국내 주요 회사의 재무제표를 제공 합니다.';
+    const fullText3 = '전략을 전달하는 과정에서, 해당 전략의 과거 백테스트를 통해';
+    const fullText4 = '기대수익률과 변동성은 물론 적절한 보유 비중까지 제공합니다.';
     const [showTypeAnimation, setShowTypeAnimation] = useState(false);
     const [showAdditionalText, setShowAdditionalText] = useState(false);
     const options = {
@@ -326,11 +332,19 @@ const Home = ({ handleLoginSuccess }) => {
                 <SectionStyled>
                     <Container>
                         <TextWrapperSmallScreen className="text-wrapper-small-screen1" style={{fontFamily: 'Hahmlet, serif', fontWeight: '800'}}>
-                            AI 기반 투자 성향 분석
+                            LLM(Large Language Model)을 활용한 투자 성향 분석
                             {showTypeAnimation && (
-                                <TypeAnimationStyled>
-                                    {fullText}
-                                </TypeAnimationStyled>
+                                <>
+                                    <TypeAnimationStyled2>
+                                        {Section2Text}
+                                    </TypeAnimationStyled2>
+                                    <TypeAnimationStyled3>
+                                        {Section2Text2}
+                                    </TypeAnimationStyled3>
+                                    <TypeAnimationStyled4>
+                                        {Section2Text3}
+                                    </TypeAnimationStyled4>
+                                  </>
                             )}
                         </TextWrapperSmallScreen>
                         <ImageWrapper1 className="image-wrapper-1" style={{ height: '450px', marginTop: '150px', marginRight: '60px'}} />
@@ -338,8 +352,8 @@ const Home = ({ handleLoginSuccess }) => {
                 </SectionStyled>
                 <SectionStyled>
                     <Container>
-                        <TextWrapperSmallScreen className="text-wrapper-small-screen2" style={{ marginBottom: '270px', fontFamily: 'Hahmlet, serif', fontWeight: '800'}}>
-                            투자에 필요한 시각적 자료 지원
+                        <TextWrapperSmallScreen className="text-wrapper-small-screen2" style={{ marginBottom: '270px', fontFamily: 'Hahmlet, serif', fontWeight: '800',marginLeft : '165px'}}>
+                            의사결정에 필요한 각종 자료 제공
                             {showAdditionalText && (
                                 <>
                                     <TypeAnimationStyled2>
@@ -354,7 +368,7 @@ const Home = ({ handleLoginSuccess }) => {
                                 </>
                             )}
                         </TextWrapperSmallScreen>
-                        <ImageWrapper2 className="image-wrapper-2" style={{ height: '450px', marginTop: '150px', marginRight: '60px',marginLeft : '100px' }}>
+                        <ImageWrapper2 className="image-wrapper-2" style={{ height: '450px', marginTop: '150px', marginRight: '60px',marginLeft : '0' }}>
                             <div className="image image1" />
                             <div className="image image2" />
                         </ImageWrapper2>
