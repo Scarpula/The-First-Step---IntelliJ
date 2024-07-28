@@ -109,7 +109,7 @@ const Span = styled.span`
 `;
 
 const Button = styled(motion.button)`
-  background-color: #87ceeb;
+  background: linear-gradient(135deg, #4a90e2, #50e3c2);
   border: none;
   color: white;
   padding: 15px 32px;
@@ -119,12 +119,14 @@ const Button = styled(motion.button)`
   font-size: 16px;
   margin: 4px 2px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
   border-radius: 8px;
   height: 50px;
 
   &:hover {
-    background-color: #00bfff;
+    background: linear-gradient(135deg, #50e3c2, #4a90e2);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
   }
 `;
 
@@ -282,7 +284,8 @@ const StockChart = () => {
 
   const options = {
     title: {
-      text: `${displayedCompanyName} Stock Price - ${year}`
+      text: `${displayedCompanyName} Stock Price - ${year}`,
+      fontColor: "skyblue"
     },
     charts: [{
       data: [{
@@ -333,12 +336,12 @@ const StockChart = () => {
             >
               <Button
                   ref={yearButtonRef}
-                  whileTap={{ scale: 0.97 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setIsOpen(!isOpen)}
                   type="button"
                   style={{
-                    marginLeft : '45px',
-                    marginRight : '25px',
+                    marginLeft: '45px',
+                    marginRight: '25px',
                   }}
               >
                 {year}
@@ -364,11 +367,10 @@ const StockChart = () => {
             </motion.nav>
             <Button
                 type="submit"
-                whileHover={{ scale: 1.1 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                style ={{
-                  position : 'relative',
-                  top : '2px'
+                whileTap={{ scale: 0.95 }}
+                style={{
+                  position: 'relative',
+                  top: '2px'
                 }}
             >
               검색

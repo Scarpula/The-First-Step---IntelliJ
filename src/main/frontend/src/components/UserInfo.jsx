@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
+import { motion } from 'framer-motion';
 
 const UserInfoContainer = styled.div`
     display: flex;
@@ -27,18 +28,21 @@ const UserInfoInput = styled.input`
     background-color: ${(props) => (props.readOnly ? '#f0f0f0' : '#fff')};
 `;
 
-const EditButton = styled.button`
+const Button = styled(motion.button)`
     margin-top: 10px;
     padding: 10px;
-    background-color: #ABDFF1;
-    color: black;
+    background: linear-gradient(135deg, #4a90e2, #50e3c2);
+    color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
     cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
 
     &:hover {
-        background-color: #0C4A60;
-        color: white;
+        background: linear-gradient(135deg, #50e3c2, #4a90e2);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
     }
 `;
 
@@ -103,7 +107,6 @@ const UserInfo = () => {
         e.preventDefault();
         try {
             if (newPassword.trim() === '') {
-                // 새 비밀번호가 입력되지 않았다면, 수정 모드만 종료
                 setIsEditing(false);
                 setMessage('비밀번호가 변경되지 않았습니다.');
                 return;
@@ -182,8 +185,25 @@ const UserInfo = () => {
                         readOnly={true}
                     />
                 </InputRow>
-                {!isEditing && <EditButton type="button" onClick={handleEdit}>수정</EditButton>}
-                {isEditing && <EditButton type="submit">저장</EditButton>}
+                {!isEditing && (
+                    <Button
+                        type="button"
+                        onClick={handleEdit}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                    >
+                        수정
+                    </Button>
+                )}
+                {isEditing && (
+                    <Button
+                        type="submit"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                    >
+                        저장
+                    </Button>
+                )}
             </UserInfoForm>
             {message && <p>{message}</p>}
         </UserInfoContainer>
