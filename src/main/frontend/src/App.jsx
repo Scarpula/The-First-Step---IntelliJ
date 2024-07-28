@@ -398,7 +398,7 @@ const App = () => {
                 { withCredentials: true });
             if (response.status === 200 && response.data.user) {
                 setIsLoggedIn(true);
-                setUserId(response.data.user.id);
+                setUserId(response.data.user.email);
             } else {
                 setIsLoggedIn(false);
             }

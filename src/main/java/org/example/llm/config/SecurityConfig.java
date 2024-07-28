@@ -42,4 +42,9 @@ public class SecurityConfig {
         return source;
     }
 
+    @Bean(name = "kakaoRestTemplate")
+    public RestTemplate kakaoRestTemplate() {
+        return new RestTemplate();
+    }
+
 }

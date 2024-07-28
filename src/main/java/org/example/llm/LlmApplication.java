@@ -13,8 +13,5 @@ public class LlmApplication {
 		SpringApplication.run(LlmApplication.class, args);
 	}
 
-	@Bean
-	public RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
+
 }

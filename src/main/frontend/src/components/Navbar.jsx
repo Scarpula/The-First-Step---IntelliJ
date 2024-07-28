@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-
+axios.defaults.withCredentials = true;
 // Global styles
 const GlobalStyle = createGlobalStyle`
     body {
@@ -301,6 +301,7 @@ const Navbar = ({ onLoginSuccess }) => {
     const [error, setError] = useState(false);
     const [user, setUser] = useState(null);
     const [signupSuccess, setSignupSuccess] = useState(false);
+    const location = useLocation();
     const navigate = useNavigate();
 
     // Toggle sidebar visibility
@@ -363,79 +364,71 @@ const Navbar = ({ onLoginSuccess }) => {
     };
 
     const KAKAO_REST_API_KEY = 'd30a03746900aa2ed901790716355981';
-    const KAKAO_REDIRECT_URI = 'http://localhost:8081/api/kakao';
+    const KAKAO_REDIRECT_URI = 'http://localhost:8082/api/kakao/callback';
 
     const handlekakaologin = () => {
         window.location.href = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_REST_API_KEY}&redirect_uri=${KAKAO_REDIRECT_URI}`;
-
     };
 
-    const handleKakaoCallback = async () => {
-        const code = new URL(window.location.href).searchParams.get("code");
-        console.log("Received authorization code:", code);
+    const handleKakaoCallback = async (code) => {
+        try {
+            const response = await axios.post('http://localhost:8082/api/kakao/callback', { code });
+            console.log("Kakao login response:", response.data);
 
-        if (code) {
-            try {
-                console.log("Requesting access token with code:", code);
-
-                const tokenResponse = await axios.post('https://kauth.kakao.com/oauth/token', new URLSearchParams({
-                    grant_type: 'authorization_code',
-                    client_id: KAKAO_REST_API_KEY,
-                    redirect_uri: KAKAO_REDIRECT_URI,
-                    code: code,
-                }), {
-                    headers: {
-                        'Content-type': 'application/x-www-form-urlencoded;charset=utf-8'
-                    }
-                });
-
-                console.log("Received token response:", tokenResponse.data);
-
-                const { access_token, refresh_token } = tokenResponse.data;
-
-                console.log("Sending tokens to backend...");
-
-                const response = await axios.post('http://localhost:8082/api/kakao', {
-                    accessToken: access_token,
-                    refreshToken: refresh_token,
-                }, { withCredentials: true });
-
-                console.log('Backend response:', response.data);
-
-            } catch (error) {
-                console.error('Error in Kakao login process:', error);
-                if (error.response) {
-                    console.error('Error response:', error.response.data);
-                }
-                navigate('/error');  // 또는 적절한 에러 처리
+            if (response.status === 200 && response.data.status === 'success') {
+                setError(false);
+                onLoginSuccess();
+                setIsOpen(false);
+                checkSession();
+                navigate('/chat');
+            } else {
+                throw new Error('Login failed');
             }
-        } else {
-            console.log("No authorization code found in URL");
-            navigate('/');  // 코드가 없을 경우 홈페이지로 이동
+        } catch (error) {
+            console.error('Error in Kakao login process:', error);
+            setError(true);
         }
     };
 
-
-    // Check user session
+// 세션 확인
     const checkSession = async () => {
         try {
+            console.log("Checking session...");
             const response = await axios.get('http://localhost:8082/api/session', { withCredentials: true });
-            if (response.status === 200) {
+            console.log("Session check response:", response.data);
+            if (response.status === 200 && response.data.user) {
+                console.log("Session valid, user:", response.data.user);
                 setUser(response.data.user);
+                return true;
+            } else {
+                console.log("No valid user in session response");
+                setUser(null);
+                return false;
             }
         } catch (error) {
             console.error("Error during session check:", error);
+            if (error.response) {
+                console.log("Error response data:", error.response.data);
+                console.log("Error response status:", error.response.status);
+            }
+            setUser(null);
+            return false;
         }
     };
 
     useEffect(() => {
-        const code = new URL(window.location.href).searchParams.get("code");
-        if (code) {
-            handleKakaoCallback();
-        } else {
-            checkSession();
-        }
-    }, []);
+        const handleKakaoLogin = async () => {
+            const searchParams = new URLSearchParams(location.search);
+            const code = searchParams.get("code");
+            if (code) {
+                await handleKakaoCallback(code);
+            } else {
+                await checkSession();
+            }
+        };
+
+        handleKakaoLogin();
+    }, [location]);
 
 
     return (
@@ -445,6 +438,7 @@ const Navbar = ({ onLoginSuccess }) => {
             <NavbarContainer>
                 <Logo></Logo>
                 <MenuButton src="/images/density_medium_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.svg" alt="Menu" onClick={toggleSidebar} />
+
             </NavbarContainer>
             <Sidebar show={isOpen}>
                 <Container>
