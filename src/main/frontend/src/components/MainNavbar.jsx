@@ -336,7 +336,7 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
           initial="closed"
           animate={isSidebarOpen ? 'open' : 'closed'}
           variants={menuVariants}
-          style={{ listStyle: 'none', padding: '15px', color:"skyblue" }}
+          style={{ listStyle: 'none', padding: '15px', color:"#4a90e2" }}
         >
           {['실시간 차트', '재무제표 조회', '챗봇', '내정보'].map((tab) => (
             <motion.li
