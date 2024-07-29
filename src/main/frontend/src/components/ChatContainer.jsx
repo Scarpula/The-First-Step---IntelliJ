@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -58,10 +58,8 @@ const ButtonLogo = styled.h3`
 const ChatContainer = ({ roomId, messages, setMessages, onSend, showLogoAndButtons, setShowLogoAndButtons }) => {
   const prevMessagesLengthRef = useRef(messages.length);
   const prevRoomIdRef = useRef(roomId);
-  const [isNewMessage, setIsNewMessage] = useState(false);
   const [renderTrigger, setRenderTrigger] = useState(false);
-  const [currentTypedText, setCurrentTypedText] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
+  const [typingCompleted, setTypingCompleted] = useState({});
 
   useEffect(() => {
     const fetchChatHistory = async () => {
@@ -75,7 +73,8 @@ const ChatContainer = ({ roomId, messages, setMessages, onSend, showLogoAndButto
             id: entry.id,
             text: entry.message,
             sender: entry.speaker,
-            isHistoryMessage: true
+            isHistoryMessage: true,
+            typingCompleted: false
           }));
 
           setMessages(prevMessages => ({
@@ -84,7 +83,6 @@ const ChatContainer = ({ roomId, messages, setMessages, onSend, showLogoAndButto
           }));
         }
       } catch (error) {
-        console.error('Error fetching chat history:', error);
       }
     };
 
@@ -93,47 +91,22 @@ const ChatContainer = ({ roomId, messages, setMessages, onSend, showLogoAndButto
 
   useEffect(() => {
     if (roomId !== prevRoomIdRef.current) {
-      console.log('Room changed:', roomId);
       prevMessagesLengthRef.current = messages.length;
       prevRoomIdRef.current = roomId;
-      setIsNewMessage(false);
     } else if (messages.length > prevMessagesLengthRef.current) {
       const newMessage = messages[messages.length - 1];
-      console.log('New message added:', newMessage);
-      if (newMessage.sender === 'bot' && newMessage.typing) {
-        setIsNewMessage(true);
-      }
       prevMessagesLengthRef.current = messages.length;
       setShowLogoAndButtons(false);
     }
   }, [messages, roomId, setShowLogoAndButtons]);
 
-  useEffect(() => {
-    if (renderTrigger) {
-      setRenderTrigger(false);
-    }
-  }, [renderTrigger]);
-
-  useEffect(() => {
-    if (isTyping && currentTypedText) {
-      const processedContent = processMarkdownAndNewlines(currentTypedText);
-      const lastMessageIndex = messages.length - 1;
-      const updatedMessages = [...messages];
-      updatedMessages[lastMessageIndex] = {
-        ...updatedMessages[lastMessageIndex],
-        processedText: processedContent
-      };
-      setMessages(prevMessages => ({
-        ...prevMessages,
-        [roomId]: updatedMessages
-      }));
-    }
-  }, [currentTypedText, isTyping, messages, roomId, setMessages]);
-
   const handleButtonClick = (message) => {
-    console.log('Button clicked:', message);
     onSend(message);
     setShowLogoAndButtons(false);
+  };
+
+  const handleTypingComplete = (messageId) => {
+    setTypingCompleted((prev) => ({ ...prev, [messageId]: true }));
   };
 
   const customRenderers = {
@@ -151,61 +124,45 @@ const ChatContainer = ({ roomId, messages, setMessages, onSend, showLogoAndButto
     strong: ({ children }) => <strong style={{ fontWeight: 'bold' }}>{children}</strong>,
   };
 
-  const processMarkdownAndNewlines = useCallback((text) => {
-    const processedAsterisks = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    const processedNewlines = processedAsterisks.replace(/([.,])\s*/g, '$1\n');
-    return processedNewlines;
-  }, []);
-
   const renderMessage = (message) => {
-      if (message.id === 'loading') {
-        return <img src={RotateIcon} alt="Loading..." className="loading-icon" />;
-      }
+    if (message.id === 'loading') {
+      return <img src={RotateIcon} alt="Loading..." className="loading-icon" />;
+    }
 
-      const shouldAnimate = message.sender === 'bot' && !message.isHistoryMessage && message.typing;
+    const shouldAnimate = message.sender === 'bot' && !message.isHistoryMessage && !typingCompleted[message.id];
 
-      console.log(`Message ID: ${message.id}, Should Animate: ${shouldAnimate}`);
+    const renderContent = (text) => (
+      <ReactMarkdown
+        components={customRenderers}
+        remarkPlugins={[remarkGfm, remarkBreaks]}
+      >
+        {text}
+      </ReactMarkdown>
+    );
 
-      const renderContent = (text) => (
-        <ReactMarkdown
-          components={customRenderers}
-          remarkPlugins={[remarkGfm, remarkBreaks]}
-        >
-          {text}
-        </ReactMarkdown>
+    if (shouldAnimate) {
+      return (
+        <TypeAnimation
+          sequence={[
+            message.text,
+            () => {
+              console.log("Animation step complete for message:", message.id);
+              handleTypingComplete(message.id);
+            }
+          ]}
+          wrapper="span"
+          cursor={false}
+          repeat={0}
+          speed={85}
+          deletionSpeed={99}
+          omitDeletionAnimation={true}
+          style={{ whiteSpace: 'pre-line' }}
+        />
       );
-
-      if (shouldAnimate) {
-        return (
-          <TypeAnimation
-            sequence={[
-              message.text,
-              (currentText) => {
-                setIsTyping(false);
-                setRenderTrigger(true);
-                setIsNewMessage(true);
-                return currentText;
-              },
-            ]}
-            wrapper="div"
-            cursor={false}
-            repeat={0}
-            speed={50}
-            deletionSpeed={99}
-            omitDeletionAnimation={true}
-            style={{ whiteSpace: 'pre-line' }}
-            beforeStarting={() => {
-              setIsTyping(true);
-            }}
-            onUpdate={(output) => {
-              setCurrentTypedText(output);
-            }}
-          />
-        );
-      } else {
-        return renderContent(message.processedText || message.text);
-      }
-    };
+    } else {
+      return renderContent(message.text);
+    }
+  };
 
   return (
     <ChatContainerWrapper className="chat-container">
