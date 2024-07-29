@@ -1,11 +1,11 @@
 package org.example.llm.Member.controller;
 
 
-import jakarta.servlet.http.Cookie;
+import io.jsonwebtoken.io.IOException;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.example.llm.Member.Entity.UserEntity;
 import org.example.llm.Member.dto.Joindto;
-import org.example.llm.Member.dto.LoginResponse;
 import org.example.llm.Member.dto.PasswordUpdateRequest;
 import org.example.llm.Member.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Enumeration;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 
@@ -37,6 +38,7 @@ public class UserController {
 
     @Value("${kakao.redirect.uri}")
     private String redirectUri;
+
 
 
     public UserController(HttpSession httpSession, UserService userService, RestTemplate restTemplate) {
@@ -97,28 +99,12 @@ public class UserController {
     }
 
     @GetMapping("/session")
-    public ResponseEntity<?> checkSession(HttpSession session) {
-        System.out.println("Checking session. Session ID: " + session.getId());
-        UserEntity user = (UserEntity) session.getAttribute("user");
-        if (user != null) {
-            System.out.println("Active session found for user: " + user.getEmail());
-            return ResponseEntity.ok(new LoginResponse(user));
-        } else {
-            System.out.println("No active session found. Session ID: " + session.getId());
-
-            // 세션 속성 로깅 부분 수정
-            Enumeration<String> attributeNames = session.getAttributeNames();
-            if (attributeNames.hasMoreElements()) {
-                System.out.println("Session attributes: ");
-                while (attributeNames.hasMoreElements()) {
-                    String attributeName = attributeNames.nextElement();
-                    System.out.println(attributeName + ": " + session.getAttribute(attributeName));
-                }
-            } else {
-                System.out.println("No session attributes found.");
-            }
-
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No active session");
+    public  ResponseEntity<?> getSession(){
+        UserEntity user = (UserEntity) httpSession.getAttribute("user");
+        if(user != null){
+            return ResponseEntity.ok().body(Map.of("status","success","user",user));
+        }else {
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "No active session"));
         }
     }
 
@@ -135,15 +121,17 @@ public class UserController {
     }
 
     @RequestMapping(value = "/kakao/callback", method = {RequestMethod.GET, RequestMethod.POST})
-    public ResponseEntity<?> kakaoCallback(@RequestParam(value = "code", required = false) String code,
-                                           @RequestBody(required = false) Map<String, String> payload,
-                                           HttpSession session) {
+    public ResponseEntity<Map<String, String>> kakaoCallback(@RequestParam(value = "code", required = false) String code,
+                                                             @RequestBody(required = false) Map<String, String> payload,
+                                                             HttpSession session,
+                                                             HttpServletResponse response) throws IOException, java.io.IOException {
         System.out.println("Received request for Kakao callback");
         String authCode = (code != null) ? code : (payload != null ? payload.get("code") : null);
         System.out.println("Received Kakao auth code: " + authCode);
 
         if (authCode == null) {
-            return ResponseEntity.badRequest().body("No auth code provided");
+            response.sendRedirect("http://localhost:8081?error=No auth code provided");
+            return null;
         }
 
         try {
@@ -188,16 +176,14 @@ public class UserController {
                 System.out.println("User not found in session after save");
             }
 
-            String investtype = user.getInvestmentType() != null ? user.getInvestmentType() : "";
+            String investtype = user.getInvestmentType();
+            if (investtype == null) {
+                investtype = "";
+            }
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, "JSESSIONID=" + session.getId() + "; Path=/; HttpOnly; SameSite=None; Secure")
-                    .body(Map.of(
-                            "status", "success",
-                            "message", "Kakao login successful",
-                            "investtype", investtype,
-                            "sessionId", session.getId()
-                    ));
+            String redirectUrl = String.format("http://localhost:8081?status=success&investtype=%s",
+                    URLEncoder.encode(investtype, StandardCharsets.UTF_8));
+            response.sendRedirect(redirectUrl);
         } catch (Exception e) {
             System.err.println("Kakao login failed: " + e.getMessage());
             e.printStackTrace();
@@ -206,6 +192,7 @@ public class UserController {
                     "message", "Kakao login failed: " + e.getMessage()
             ));
         }
+        return null;
     }
 
 

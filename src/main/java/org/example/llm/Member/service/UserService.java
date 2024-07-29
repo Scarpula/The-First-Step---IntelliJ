@@ -95,7 +95,7 @@ public class UserService {
             user = UserEntity.builder()
                     .email(email)
                     .name(name)
-                    .password("KAKAO_USER") // 카카오 로그인 사용자는 별도의 비밀번호 없음
+                    .password("") // 카카오 로그인 사용자는 별도의 비밀번호 없음
                     .birthdate(birthdate)
                     .investmentType("") // 기본값 설정, 필요시 수정
                     .build();

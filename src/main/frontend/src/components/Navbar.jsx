@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // 전역 스타일
@@ -309,56 +309,50 @@ const Navbar = ({ onLoginSuccess }) => {
     const [birthdate, setBirthdate] = useState('');
     const [error, setError] = useState(false);
     const [user, setUser] = useState(null);
+    const location = useLocation();
     const [signupSuccess, setSignupSuccess] = useState(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        if (window.Kakao && !window.Kakao.isInitialized()) {
-            window.Kakao.init('YOUR_KAKAO_JAVASCRIPT_KEY');
-        }
-    }, []);
+
+
+
 
     const handleKakaoLogin = () => {
-        if (window.Kakao) {
-            window.Kakao.Auth.login({
-                success: (authObj) => {
-                    window.Kakao.API.request({
-                        url: '/v2/user/me',
-                        success: (res) => {
-                            console.log(res);
-                            axios.post('http://localhost:8082/api/kakao-login', {
-                                kakaoId: res.id,
-                                email: res.kakao_account.email,
-                                nickname: res.properties.nickname
-                            }).then(response => {
-                                if (response.status === 200) {
-                                    setError(false);
-                                    onLoginSuccess();
-                                    setIsOpen(false);
-                                    checkSession();
-                                    navigate('/chat');
-                                } else {
-                                    setError(true);
-                                }
-                            }).catch(() => {
-                                setError(true);
-                            });
-                        },
-                        fail: (error) => {
-                            console.log(error);
-                            setError(true);
-                        }
-                    });
-                },
-                fail: (err) => {
-                    console.log(err);
-                    setError(true);
-                }
-            });
-        } else {
-            console.error("Kakao 객체를 사용할 수 없습니다");
+        const KAKAO_REST_API_KEY = 'd30a03746900aa2ed901790716355981';
+        const KAKAO_REDIRECT_URI = 'http://localhost:8082/api/kakao/callback';
+        const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_REST_API_KEY}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code`;
+        window.location.href = KAKAO_AUTH_URL;
+    };
+
+    useEffect(() => {
+        const searchParams = new URLSearchParams(location.search);
+        const status = searchParams.get('status');
+        const investtype = searchParams.get('investtype');
+        const errorMessage = searchParams.get('message');
+
+        if (status === 'success') {
+            console.log("Kakao login successful");
+            onLoginSuccess(investtype);
+            navigate('/chat');
+        } else if (status === 'error') {
+            console.error("Login failed:", errorMessage);
+            navigate('/');
+        }
+    }, [location]);
+
+    const handleKakaoCallback = async (code, investtype) => {
+        try {
+            console.log("Handling Kakao callback with code:", code);
+            // 서버에서 이미 처리했으므로 추가 요청은 필요 없습니다.
+            console.log("Kakao login successful");
+            onLoginSuccess(investtype);
+            navigate('/chat');
+        } catch (error) {
+            console.error('Error in Kakao login process:', error);
+            navigate('/');
         }
     };
+
 
     const toggleSidebar = () => {
         setIsOpen(!isOpen);
@@ -425,6 +419,8 @@ const Navbar = ({ onLoginSuccess }) => {
             console.error("세션 확인 중 오류 발생:", error);
         }
     };
+
+
 
     useEffect(() => {
         checkSession();

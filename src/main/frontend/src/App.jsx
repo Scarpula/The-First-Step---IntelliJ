@@ -344,7 +344,7 @@ const Home = ({ handleLoginSuccess }) => {
                                     <TypeAnimationStyled4>
                                         {Section2Text3}
                                     </TypeAnimationStyled4>
-                                  </>
+                                </>
                             )}
                         </TextWrapperSmallScreen>
                         <ImageWrapper1 className="image-wrapper-1" style={{ height: '450px', marginTop: '150px', marginRight: '60px'}} />
@@ -392,11 +392,10 @@ const App = () => {
 
     const checkLoginStatus = async () => {
         try {
-            const response = await axios.get('http://localhost:8082/api/session',
-                { withCredentials: true });
+            const response = await axios.get('http://localhost:8082/api/session', { withCredentials: true });
             if (response.status === 200 && response.data.user) {
                 setIsLoggedIn(true);
-                setUserId(response.data.user.email);
+                setUserId(response.data.user.id);
             } else {
                 setIsLoggedIn(false);
             }
