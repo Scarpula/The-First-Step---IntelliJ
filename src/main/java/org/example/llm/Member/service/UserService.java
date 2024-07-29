@@ -59,6 +59,11 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public UserEntity findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+
     @Transactional
     public UserEntity processKakaoUser(Map<String, Object> kakaoUserInfo) {
         Map<String, Object> kakaoAccount = (Map<String, Object>) kakaoUserInfo.get("kakao_account");

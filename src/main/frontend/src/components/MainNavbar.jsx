@@ -199,7 +199,6 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
       setChatRooms(response.data);
     } catch (error) {
       console.error('Error fetching chat rooms:', error);
-
     }
   };
 
@@ -209,7 +208,12 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
     setIsSidebarOpen(false);
 
     if (tab === '챗봇') {
-      navigate(`/chat`);
+      if (chatRooms.length > 0) {
+        const firstChatRoom = chatRooms[0];
+        navigate(`/chat?roomid=${firstChatRoom.chatroomId}&userid=${user.email}`);
+      } else {
+        console.log('No chat rooms found for this user.');
+      }
     } else {
       switch (tab) {
         case '실시간 차트':
@@ -316,108 +320,107 @@ const MainNavbar = ({ onTabClick, isChatPage }) => {
     }
   };
 
-
   return (
-      <div>
-        <NavbarContainer>
-          {isChatPage && (
-              <ButtonContainer onClick={toggleLeftSidebar} style={{ cursor: 'pointer', position: 'fixed', top: '10px', left: '10px' }}>
-                <TableRowsIcon />
-              </ButtonContainer>
-          )}
-          <ButtonContainer onClick={toggleSidebar} style={{ cursor: 'pointer', position: 'fixed', top: '10px', right: '10px' }}>
-            <DensityIcon style={{ width: '30px', height: '30px' }} />
+    <div>
+      <NavbarContainer>
+        {isChatPage && (
+          <ButtonContainer onClick={toggleLeftSidebar} style={{ cursor: 'pointer', position: 'fixed', top: '10px', left: '10px' }}>
+            <TableRowsIcon />
           </ButtonContainer>
-        </NavbarContainer>
-        <Overlay show={isSidebarOpen} onClick={toggleSidebar} />
-        <Sidebar show={isSidebarOpen}>
-          <CloseButton onClick={toggleSidebar} />
-          <motion.ul
-              initial="closed"
-              animate={isSidebarOpen ? 'open' : 'closed'}
-              variants={menuVariants}
-              style={{ listStyle: 'none', padding: '15px', color:"#4a90e2" }}
-          >
-            {['실시간 차트', '재무제표 조회', '챗봇', '내정보'].map((tab) => (
-                <motion.li
-                    key={tab}
-                    variants={itemVariants}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="hahmlet-text"
-                    style={{ marginTop: '65px', marginBottom: '65px', cursor: 'pointer', fontSize: '32px' }}
-                    onClick={() => handleTabClick(tab)}
-                >
-                  {tab}
-                  {selectedTab === tab && (
-                      <motion.div
-                          className="underline"
-                          layoutId="underline"
-                          initial="hidden"
-                          animate="visible"
-                          exit="hidden"
-                          variants={underlineVariants}
-                          transition={{ duration: 0.3 }}
-                      />
-                  )}
-                </motion.li>
-            ))}
-            {user && (
-                <>
-                  <motion.li
-                      variants={itemVariants}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      style={{ marginTop: '320px', cursor: 'pointer' ,color:'black'}}
-                  >
-                    반가워요! <b>{user.name}</b>님
-                  </motion.li>
-                  <motion.li
-                      variants={itemVariants}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      style={{ marginTop: '5px', cursor: 'pointer',color:'black' }}
-                      onClick={handleLogout}
-                  >
-                    로그아웃
-                  </motion.li>
-                </>
-            )}
-          </motion.ul>
-        </Sidebar>
-        <LeftSidebar show={isLeftSidebarOpen}>
-          <motion.ul
-              initial="closed"
-              animate={isLeftSidebarOpen ? 'open' : 'closed'}
-              variants={menuVariants}
-              style={{ listStyle: 'none', padding: '15px' }}
-          >
+        )}
+        <ButtonContainer onClick={toggleSidebar} style={{ cursor: 'pointer', position: 'fixed', top: '10px', right: '10px' }}>
+          <DensityIcon style={{ width: '30px', height: '30px' }} />
+        </ButtonContainer>
+      </NavbarContainer>
+      <Overlay show={isSidebarOpen} onClick={toggleSidebar} />
+      <Sidebar show={isSidebarOpen}>
+        <CloseButton onClick={toggleSidebar} />
+        <motion.ul
+          initial="closed"
+          animate={isSidebarOpen ? 'open' : 'closed'}
+          variants={menuVariants}
+          style={{ listStyle: 'none', padding: '15px', color: "#4a90e2" }}
+        >
+          {['실시간 차트', '재무제표 조회', '챗봇', '내정보'].map((tab) => (
             <motion.li
+              key={tab}
+              variants={itemVariants}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="hahmlet-text"
+              style={{ marginTop: '65px', marginBottom: '65px', cursor: 'pointer', fontSize: '32px' }}
+              onClick={() => handleTabClick(tab)}
+            >
+              {tab}
+              {selectedTab === tab && (
+                <motion.div
+                  className="underline"
+                  layoutId="underline"
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  variants={underlineVariants}
+                  transition={{ duration: 0.3 }}
+                />
+              )}
+            </motion.li>
+          ))}
+          {user && (
+            <>
+              <motion.li
                 variants={itemVariants}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="hahmlet-text"
-                style={{ marginBottom: '35px', cursor: 'pointer', fontSize: '24px' }}
-                onClick={createNewChatRoom}
+                style={{ marginTop: '320px', cursor: 'pointer', color: 'black' }}
+              >
+                반가워요! <b>{user.name}</b>님
+              </motion.li>
+              <motion.li
+                variants={itemVariants}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                style={{ marginTop: '5px', cursor: 'pointer', color: 'black' }}
+                onClick={handleLogout}
+              >
+                로그아웃
+              </motion.li>
+            </>
+          )}
+        </motion.ul>
+      </Sidebar>
+      <LeftSidebar show={isLeftSidebarOpen}>
+        <motion.ul
+          initial="closed"
+          animate={isLeftSidebarOpen ? 'open' : 'closed'}
+          variants={menuVariants}
+          style={{ listStyle: 'none', padding: '15px' }}
+        >
+          <motion.li
+            variants={itemVariants}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="hahmlet-text"
+            style={{ marginBottom: '35px', cursor: 'pointer', fontSize: '24px' }}
+            onClick={createNewChatRoom}
+          >
+            새 채팅방 만들기
+          </motion.li>
+          {console.log('Rendering chat rooms:', chatRooms)}
+          {chatRooms.map((room, index) => (
+            <ChatRoomListItem
+              key={room.chatroomId || index}
+              variants={itemVariants}
+              onClick={() => handleChatRoomClick(room)}
             >
-              새 채팅방 만들기
-            </motion.li>
-            {console.log('Rendering chat rooms:', chatRooms)}
-            {chatRooms.map((room, index) => (
-                <ChatRoomListItem
-                    key={room.chatroomId || index}
-                    variants={itemVariants}
-                    onClick={() => handleChatRoomClick(room)}
-                >
-                  <ChatRoomName>{room.roomName || `채팅방${room.chatroomId}`}</ChatRoomName>
-                  <DeleteButton onClick={(e) => { e.stopPropagation(); handleDeleteChatRoom(room); }}>
-                    삭제
-                  </DeleteButton>
-                </ChatRoomListItem>
-            ))}
-          </motion.ul>
-        </LeftSidebar>
-      </div>
+              <ChatRoomName>{room.roomName || `채팅방${room.chatroomId}`}</ChatRoomName>
+              <DeleteButton onClick={(e) => { e.stopPropagation(); handleDeleteChatRoom(room); }}>
+                삭제
+              </DeleteButton>
+            </ChatRoomListItem>
+          ))}
+        </motion.ul>
+      </LeftSidebar>
+    </div>
   );
 };
 

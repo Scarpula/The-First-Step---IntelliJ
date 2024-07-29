@@ -1,6 +1,5 @@
 package org.example.llm.Member.controller;
 
-
 import io.jsonwebtoken.io.IOException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -20,7 +19,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-
 @RestController
 @RequestMapping("/api")
 public class UserController {
@@ -39,8 +37,6 @@ public class UserController {
     @Value("${kakao.redirect.uri}")
     private String redirectUri;
 
-
-
     public UserController(HttpSession httpSession, UserService userService, RestTemplate restTemplate) {
         this.httpSession = httpSession;
         this.userService = userService;
@@ -56,6 +52,7 @@ public class UserController {
             return ResponseEntity.badRequest().body("Join failed: " + e.getMessage());
         }
     }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
         String email = loginRequest.get("email");
@@ -74,7 +71,13 @@ public class UserController {
                 return ResponseEntity.ok().body(Map.of(
                         "status", "success",
                         "message", "Login successful",
-                        "investtype", investtype  // 응답에 investtype 포함
+                        "investtype", investtype,
+                        "user", Map.of(
+                                "email", user.getEmail(),
+                                "name", user.getName(),
+                                "birthdate", user.getBirthdate().toString(),
+                                "investmentType", user.getInvestmentType()
+                        )
                 ));
             } else {
                 return ResponseEntity.badRequest().body(Map.of(
@@ -99,11 +102,11 @@ public class UserController {
     }
 
     @GetMapping("/session")
-    public  ResponseEntity<?> getSession(){
+    public ResponseEntity<?> getSession() {
         UserEntity user = (UserEntity) httpSession.getAttribute("user");
-        if(user != null){
-            return ResponseEntity.ok().body(Map.of("status","success","user",user));
-        }else {
+        if (user != null) {
+            return ResponseEntity.ok().body(Map.of("status", "success", "user", user));
+        } else {
             return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "No active session"));
         }
     }
@@ -117,6 +120,37 @@ public class UserController {
             return ResponseEntity.status(404).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(500).body("An error occurred while updating the password");
+        }
+    }
+
+    @PostMapping("/kakao/session")
+    public ResponseEntity<?> createKakaoSession(@RequestBody Map<String, String> sessionRequest) {
+        String email = sessionRequest.get("email");
+        String investtype = sessionRequest.get("investtype");
+
+        try {
+            UserEntity user = userService.findByEmail(email);
+            if (user != null) {
+                httpSession.setAttribute("user", user);  // 세션에 유저 정보 저장
+
+                return ResponseEntity.ok().body(Map.of(
+                        "status", "success",
+                        "message", "Session established",
+                        "user", user
+                ));
+            } else {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "status", "error",
+                        "message", "User not found"
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();  // 콘솔에 예외 메시지 출력
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "status", "error",
+                    "message", "Internal Server Error",
+                    "error", e.getMessage()
+            ));
         }
     }
 
@@ -181,7 +215,8 @@ public class UserController {
                 investtype = "";
             }
 
-            String redirectUrl = String.format("http://localhost:8081?status=success&investtype=%s",
+            String redirectUrl = String.format("http://localhost:8081?status=success&email=%s&investtype=%s",
+                    URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8),
                     URLEncoder.encode(investtype, StandardCharsets.UTF_8));
             response.sendRedirect(redirectUrl);
         } catch (Exception e) {
@@ -194,9 +229,4 @@ public class UserController {
         }
         return null;
     }
-
-
-
-
-
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import axios from 'axios';
-import {useLocation, useNavigate} from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // 전역 스타일
@@ -297,7 +297,6 @@ const SuccessCircle = styled(motion.circle)`
     stroke-width: 2;
 `;
 
-// 네비게이션 바 컴포넌트
 const Navbar = ({ onLoginSuccess }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(true);
@@ -313,10 +312,6 @@ const Navbar = ({ onLoginSuccess }) => {
     const [signupSuccess, setSignupSuccess] = useState(false);
     const navigate = useNavigate();
 
-
-
-
-
     const handleKakaoLogin = () => {
         const KAKAO_REST_API_KEY = 'd30a03746900aa2ed901790716355981';
         const KAKAO_REDIRECT_URI = 'http://localhost:8082/api/kakao/callback';
@@ -329,30 +324,57 @@ const Navbar = ({ onLoginSuccess }) => {
         const status = searchParams.get('status');
         const investtype = searchParams.get('investtype');
         const errorMessage = searchParams.get('message');
+        const email = searchParams.get('email');
 
         if (status === 'success') {
             console.log("Kakao login successful");
-            onLoginSuccess(investtype);
-            navigate('/chat');
+            handleKakaoCallback(email, investtype);
         } else if (status === 'error') {
             console.error("Login failed:", errorMessage);
             navigate('/');
         }
     }, [location]);
 
-    const handleKakaoCallback = async (code, investtype) => {
+    const handleKakaoCallback = async (email, investtype) => {
         try {
-            console.log("Handling Kakao callback with code:", code);
-            // 서버에서 이미 처리했으므로 추가 요청은 필요 없습니다.
+            console.log("Handling Kakao callback with email:", email);
             console.log("Kakao login successful");
-            onLoginSuccess(investtype);
-            navigate('/chat');
+
+            // 사용자 정보를 세션에 저장하는 요청을 서버로 보냅니다.
+            const response = await axios.post('http://localhost:8082/api/kakao/session', { email, investtype });
+
+            if (response.status === 200 && response.data.message === 'Session established') {
+                const user = response.data.user;
+                if (!user) {
+                    throw new Error('User data is missing in the response');
+                }
+
+                onLoginSuccess();
+                setIsOpen(false);
+                console.log('Fetching chat rooms for user:', user.email);
+                const chatRoomsResponse = await axios.get('http://localhost:8082/api/rooms', {
+                    params: { userId: user.email },
+                    withCredentials: true
+                });
+                console.log('Chat rooms response:', chatRoomsResponse);
+
+                if (chatRoomsResponse.data.length > 0) {
+                    const firstChatRoom = chatRoomsResponse.data[0];
+                    console.log('First chat room:', firstChatRoom);
+                    navigate(`/chat?roomid=${firstChatRoom.chatroomId}&userid=${user.email}`);
+                } else {
+                    console.log('No chat rooms found for this user.');
+                    navigate('/chat');
+                }
+            } else {
+                console.error('Session establishment failed:', response.data);
+                navigate('/');
+            }
         } catch (error) {
             console.error('Error in Kakao login process:', error);
             navigate('/');
         }
     };
-
 
     const toggleSidebar = () => {
         setIsOpen(!isOpen);
@@ -364,22 +386,47 @@ const Navbar = ({ onLoginSuccess }) => {
 
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
+        console.log('Login submit clicked');
         try {
             const response = await axios.post('http://localhost:8082/api/login', {
                 email: loginEmail,
                 password: loginPassword,
             }, { withCredentials: true });
 
+            console.log('Login response:', response);
+
             if (response.status === 200 && response.data.message === 'Login successful') {
+                console.log('Login successful:', response.data);
                 setError(false);
+
+                const user = response.data.user;  // 응답에서 user 정보 가져오기
+                if (!user) {
+                    throw new Error('User data is missing in the response');
+                }
+
                 onLoginSuccess();
                 setIsOpen(false);
-                checkSession();
-                navigate('/chat');
+                console.log('Fetching chat rooms for user:', user.email);
+                const chatRoomsResponse = await axios.get('http://localhost:8082/api/rooms', {
+                    params: { userId: user.email },
+                    withCredentials: true
+                });
+                console.log('Chat rooms response:', chatRoomsResponse);
+
+                if (chatRoomsResponse.data.length > 0) {
+                    const firstChatRoom = chatRoomsResponse.data[0];
+                    console.log('First chat room:', firstChatRoom);
+                    navigate(`/chat?roomid=${firstChatRoom.chatroomId}&userid=${user.email}`);
+                } else {
+                    console.log('No chat rooms found for this user.');
+                    navigate('/chat');
+                }
             } else {
+                console.error('Login failed:', response.data);
                 setError(true);
             }
         } catch (error) {
+            console.error('Error during login:', error);
             setError(true);
         }
     };
@@ -419,8 +466,6 @@ const Navbar = ({ onLoginSuccess }) => {
             console.error("세션 확인 중 오류 발생:", error);
         }
     };
-
-
 
     useEffect(() => {
         checkSession();
