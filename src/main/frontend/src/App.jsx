@@ -344,7 +344,7 @@ const Home = ({ handleLoginSuccess }) => {
                                     <TypeAnimationStyled4>
                                         {Section2Text3}
                                     </TypeAnimationStyled4>
-                                  </>
+                                </>
                             )}
                         </TextWrapperSmallScreen>
                         <ImageWrapper1 className="image-wrapper-1" style={{ height: '450px', marginTop: '150px', marginRight: '60px'}} />

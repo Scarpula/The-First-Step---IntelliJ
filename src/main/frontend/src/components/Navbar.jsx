@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // 전역 스타일
@@ -309,66 +309,50 @@ const Navbar = ({ onLoginSuccess }) => {
     const [birthdate, setBirthdate] = useState('');
     const [error, setError] = useState(false);
     const [user, setUser] = useState(null);
+    const location = useLocation();
     const [signupSuccess, setSignupSuccess] = useState(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        // 카카오 SDK 스크립트가 로드되었는지 확인
-        if (!window.Kakao) {
-            const script = document.createElement('script');
-            script.src = 'https://developers.kakao.com/sdk/js/kakao.js';
-            script.onload = () => {
-                window.Kakao.init('659f513075716c7150370a40de5a27f5'); // 'YOUR_APP_KEY'를 실제 카카오 앱 키로 교체하세요.
-            };
-            document.body.appendChild(script);
-        } else {
-            if (!window.Kakao.isInitialized()) {
-                window.Kakao.init('659f513075716c7150370a40de5a27f5');
-            }
-        }
-    }, []);
+
+
+
 
     const handleKakaoLogin = () => {
-        if (window.Kakao) {
-            window.Kakao.Auth.login({
-                success: (authObj) => {
-                    window.Kakao.API.request({
-                        url: '/v2/user/me',
-                        success: (res) => {
-                            console.log(res);
-                            axios.post('http://localhost:8082/api/kakao-login', {
-                                kakaoId: res.id,
-                                email: res.kakao_account.email,
-                                nickname: res.properties.nickname
-                            }).then(response => {
-                                if (response.status === 200) {
-                                    setError(false);
-                                    onLoginSuccess();
-                                    setIsOpen(false);
-                                    checkSession();
-                                    navigateToFirstChatRoom(); // 첫 번째 채팅방으로 이동
-                                } else {
-                                    setError(true);
-                                }
-                            }).catch(() => {
-                                setError(true);
-                            });
-                        },
-                        fail: (error) => {
-                            console.log(error);
-                            setError(true);
-                        }
-                    });
-                },
-                fail: (err) => {
-                    console.log(err);
-                    setError(true);
-                }
-            });
-        } else {
-            console.error("Kakao 객체를 사용할 수 없습니다");
+        const KAKAO_REST_API_KEY = 'd30a03746900aa2ed901790716355981';
+        const KAKAO_REDIRECT_URI = 'http://localhost:8082/api/kakao/callback';
+        const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_REST_API_KEY}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code`;
+        window.location.href = KAKAO_AUTH_URL;
+    };
+
+    useEffect(() => {
+        const searchParams = new URLSearchParams(location.search);
+        const status = searchParams.get('status');
+        const investtype = searchParams.get('investtype');
+        const errorMessage = searchParams.get('message');
+
+        if (status === 'success') {
+            console.log("Kakao login successful");
+            onLoginSuccess(investtype);
+            navigate('/chat');
+        } else if (status === 'error') {
+            console.error("Login failed:", errorMessage);
+            navigate('/');
+        }
+    }, [location]);
+
+    const handleKakaoCallback = async (code, investtype) => {
+        try {
+            console.log("Handling Kakao callback with code:", code);
+            // 서버에서 이미 처리했으므로 추가 요청은 필요 없습니다.
+            console.log("Kakao login successful");
+            onLoginSuccess(investtype);
+            navigate('/chat');
+        } catch (error) {
+            console.error('Error in Kakao login process:', error);
+            navigate('/');
         }
     };
+
 
     const toggleSidebar = () => {
         setIsOpen(!isOpen);
@@ -391,7 +375,7 @@ const Navbar = ({ onLoginSuccess }) => {
                 onLoginSuccess();
                 setIsOpen(false);
                 checkSession();
-                navigateToFirstChatRoom(); // 첫 번째 채팅방으로 이동
+                navigate('/chat');
             } else {
                 setError(true);
             }
@@ -436,24 +420,7 @@ const Navbar = ({ onLoginSuccess }) => {
         }
     };
 
-    const navigateToFirstChatRoom = async () => {
-        try {
-            const response = await axios.get('http://localhost:8082/api/rooms', {
-                params: { userId: loginEmail },
-                withCredentials: true
-            });
 
-            if (response.data && response.data.length > 0) {
-                const firstChatRoom = response.data[0];
-                navigate(`/chat?roomid=${firstChatRoom.chatroomId}`);
-            } else {
-                navigate('/chat');
-            }
-        } catch (error) {
-            console.error("첫 번째 채팅방으로 이동 중 오류 발생:", error);
-            navigate('/chat');
-        }
-    };
 
     useEffect(() => {
         checkSession();
