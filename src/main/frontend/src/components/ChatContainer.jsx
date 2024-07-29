@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -44,7 +44,7 @@ const DefaultButton = styled.button`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size : 15px;
+  font-size: 15px;
 `;
 
 const ButtonLogo = styled.h3`
@@ -59,6 +59,9 @@ const ChatContainer = ({ roomId, messages, setMessages, onSend, showLogoAndButto
   const prevMessagesLengthRef = useRef(messages.length);
   const prevRoomIdRef = useRef(roomId);
   const [isNewMessage, setIsNewMessage] = useState(false);
+  const [renderTrigger, setRenderTrigger] = useState(false);
+  const [currentTypedText, setCurrentTypedText] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
     const fetchChatHistory = async () => {
@@ -72,7 +75,7 @@ const ChatContainer = ({ roomId, messages, setMessages, onSend, showLogoAndButto
             id: entry.id,
             text: entry.message,
             sender: entry.speaker,
-            isHistoryMessage: true // 히스토리 메시지 표시
+            isHistoryMessage: true
           }));
 
           setMessages(prevMessages => ({
@@ -86,7 +89,7 @@ const ChatContainer = ({ roomId, messages, setMessages, onSend, showLogoAndButto
     };
 
     fetchChatHistory();
-  }, [roomId]);
+  }, [roomId, setMessages]);
 
   useEffect(() => {
     if (roomId !== prevRoomIdRef.current) {
@@ -103,7 +106,29 @@ const ChatContainer = ({ roomId, messages, setMessages, onSend, showLogoAndButto
       prevMessagesLengthRef.current = messages.length;
       setShowLogoAndButtons(false);
     }
-  }, [messages, roomId, setShowLogoAndButtons, setMessages]);
+  }, [messages, roomId, setShowLogoAndButtons]);
+
+  useEffect(() => {
+    if (renderTrigger) {
+      setRenderTrigger(false);
+    }
+  }, [renderTrigger]);
+
+  useEffect(() => {
+    if (isTyping && currentTypedText) {
+      const processedContent = processMarkdownAndNewlines(currentTypedText);
+      const lastMessageIndex = messages.length - 1;
+      const updatedMessages = [...messages];
+      updatedMessages[lastMessageIndex] = {
+        ...updatedMessages[lastMessageIndex],
+        processedText: processedContent
+      };
+      setMessages(prevMessages => ({
+        ...prevMessages,
+        [roomId]: updatedMessages
+      }));
+    }
+  }, [currentTypedText, isTyping, messages, roomId, setMessages]);
 
   const handleButtonClick = (message) => {
     console.log('Button clicked:', message);
@@ -123,44 +148,64 @@ const ChatContainer = ({ roomId, messages, setMessages, onSend, showLogoAndButto
         {children}
       </li>
     ),
+    strong: ({ children }) => <strong style={{ fontWeight: 'bold' }}>{children}</strong>,
   };
 
-  const preprocessMarkdown = (text) => {
-    text = text.replace(/\*\*(.*?)\*\*/g, '$1');
-    text = text.replace(/(\d+\.)\s/g, '\n$1 ');
-
-    return text;
-  };
+  const processMarkdownAndNewlines = useCallback((text) => {
+    const processedAsterisks = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    const processedNewlines = processedAsterisks.replace(/([.,])\s*/g, '$1\n');
+    return processedNewlines;
+  }, []);
 
   const renderMessage = (message) => {
-    const processedText = preprocessMarkdown(message.text);
+      if (message.id === 'loading') {
+        return <img src={RotateIcon} alt="Loading..." className="loading-icon" />;
+      }
 
-    if (message.id === 'loading') {
-      return <img src={RotateIcon} alt="Loading..." className="loading-icon" />;
-    }
+      const shouldAnimate = message.sender === 'bot' && !message.isHistoryMessage && message.typing;
 
-    const shouldAnimate = message.sender === 'bot' && !message.isHistoryMessage && message.typing;
+      console.log(`Message ID: ${message.id}, Should Animate: ${shouldAnimate}`);
 
-    console.log(`Message ID: ${message.id}, Should Animate: ${shouldAnimate}`); // 애니메이션 여부 로그
+      const renderContent = (text) => (
+        <ReactMarkdown
+          components={customRenderers}
+          remarkPlugins={[remarkGfm, remarkBreaks]}
+        >
+          {text}
+        </ReactMarkdown>
+      );
 
-    return shouldAnimate ? (
-      <TypeAnimation
-        sequence={[processedText]}
-        speed={50}
-        wrapper="div"
-        cursor={false}
-        repeat={0}
-        onComplete={() => setIsNewMessage(false)}
-      />
-    ) : (
-      <ReactMarkdown
-        components={customRenderers}
-        remarkPlugins={[remarkGfm, remarkBreaks]}
-      >
-        {processedText}
-      </ReactMarkdown>
-    );
-  };
+      if (shouldAnimate) {
+        return (
+          <TypeAnimation
+            sequence={[
+              message.text,
+              (currentText) => {
+                setIsTyping(false);
+                setRenderTrigger(true);
+                setIsNewMessage(true);
+                return currentText;
+              },
+            ]}
+            wrapper="div"
+            cursor={false}
+            repeat={0}
+            speed={50}
+            deletionSpeed={99}
+            omitDeletionAnimation={true}
+            style={{ whiteSpace: 'pre-line' }}
+            beforeStarting={() => {
+              setIsTyping(true);
+            }}
+            onUpdate={(output) => {
+              setCurrentTypedText(output);
+            }}
+          />
+        );
+      } else {
+        return renderContent(message.processedText || message.text);
+      }
+    };
 
   return (
     <ChatContainerWrapper className="chat-container">
