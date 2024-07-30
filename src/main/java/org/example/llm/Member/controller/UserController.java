@@ -75,8 +75,7 @@ public class UserController {
                         "user", Map.of(
                                 "email", user.getEmail(),
                                 "name", user.getName(),
-                                "birthdate", user.getBirthdate().toString(),
-                                "investmentType", user.getInvestmentType()
+                                "birthdate", user.getBirthdate().toString()
                         )
                 ));
             } else {
@@ -94,6 +93,7 @@ public class UserController {
             ));
         }
     }
+
 
     @GetMapping("/logout")
     public ResponseEntity<?> logout() {
