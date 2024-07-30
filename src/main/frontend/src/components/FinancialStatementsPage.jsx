@@ -25,7 +25,7 @@ ChartJS.register(
 const API_KEY = 'f0615ca3d4e64374b6b3f427df3d4693093f5860';
 
 const topCompanies = [
-    { "name": "기아(KIA)", "code": "(X)" },
+    { "name": "기아(KIA)", "code": "01664948" },
     { "name": "SK하이닉스", "code": "00164779" },
     { "name": "삼성화재(SAMSUNGFIRE)", "code": "00139214" },
     { "name": "대한항공", "code": "00113526" },
@@ -34,7 +34,7 @@ const topCompanies = [
     { "name": "현대자동차(HYUNDAI)", "code": "00164742" },
     { "name": "POSCO홀딩스", "code": "00155319" },
     { "name": "삼성전자(SAMSUNG)", "code": "00126380" },
-    { "name": "삼성전자서비스", "code": "(X)" },
+    { "name": "삼성전자서비스", "code": "00258999" },
     { "name": "삼성SDI", "code": "00126362" },
     { "name": "삼성전기", "code": "00126371" },
     { "name": "HD한국조선해양", "code": "00164830" },
@@ -46,8 +46,8 @@ const topCompanies = [
     { "name": "SK텔레콤", "code": "00159023" },
     { "name": "삼성에스디에스", "code": "00126186" },
     { "name": "기업은행", "code": "00149646" },
-    { "name": "삼성물산", "code": "(X)" },
-    { "name": "케이티(KT)", "code": "(X)" },
+    { "name": "삼성물산", "code": "00126229" },
+    { "name": "케이티(KT)", "code": "00186461" },
     { "name": "삼성생명", "code": "00126256" },
     { "name": "KT&G", "code": "00244455" },
     { "name": "두산에너빌리티", "code": "00159616" },
@@ -60,7 +60,7 @@ const topCompanies = [
     { "name": "LG화학", "code": "00356361" },
     { "name": "신한지주", "code": "00382199" },
     { "name": "LG전자", "code": "00401731" },
-    { "name": "셀트리온", "code": "(X)" },
+    { "name": "셀트리온", "code": "00421045" },
     { "name": "현대글로비스", "code": "00360595" },
     { "name": "하나금융지주", "code": "00547583" },
     { "name": "아모레퍼시픽", "code": "00583424" },
@@ -71,7 +71,7 @@ const topCompanies = [
     { "name": "크래프톤", "code": "00760971" },
     { "name": "HD현대일렉트릭", "code": "01205851" },
     { "name": "우리금융지주", "code": "01350869" },
-    { "name": "카카오뱅크(KAKAOBANK)", "code": "(X)" },
+    { "name": "카카오뱅크(KAKAOBANK)", "code": "01133217" },
     { "name": "HD현대중공업", "code": "01390344" },
     { "name": "LG에너지솔루션", "code": "01515323" },
     { "name": "SK스퀘어", "code": "01596425" }
