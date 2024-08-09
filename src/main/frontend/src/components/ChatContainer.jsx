@@ -146,7 +146,6 @@ const ChatContainer = ({ roomId, messages, setMessages, onSend, showLogoAndButto
           sequence={[
             message.text,
             () => {
-              console.log("Animation step complete for message:", message.id);
               handleTypingComplete(message.id);
             }
           ]}
